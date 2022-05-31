@@ -1,0 +1,30 @@
+{
+    "name": "alma-finance-api",
+    "version": "1.0.0",
+    "description": "GET invoices from Alma and send them to Aggie Enterprise",
+    "main": "server.js",
+    "author": {
+        "name": "Mark Warren"
+    },
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "node server.js",
+        "watch": "webpack --config webpack-watch.config.js --watch"
+    },
+    "license": "ISC",
+    "dependencies": {
+        "axios": "^0.27.2",
+        "cors": "^2.8.5",
+        "dotenv": "^8.2.0",
+        "express": "^4.17.1",
+        "nodemon": "^2.0.4"
+    },
+    "engines": {
+        "node": "12.14.1"
+    },
+    "devDependencies": {
+        "@ucd-lib/cork-app-build": "^0.3.0",
+        "webpack": "^5.72.1",
+        "webpack-cli": "^4.9.2"
+    }
+}
