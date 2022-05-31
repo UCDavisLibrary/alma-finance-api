@@ -1,6 +1,6 @@
 async function getData() {
   document.getElementById('getData').style.display = 'none';
-  // note - alma cors error - test data for now.
+  // note - alma cors error - test data only
   const response = await fetch(
     'https://www.thecocktaildb.com/api/json/v1/1/search.php?s=margarita%'
   );
@@ -21,10 +21,10 @@ async function getData() {
   document.getElementById('databox').innerHTML = temp;
 }
 
-const variables =
+const variables = {
   // from test app
 
-  {
+  data: {
     header: {
       boundaryApplicationName: 'TESTING_APP',
       consumerId: 'CONSUMER_ID',
@@ -60,7 +60,8 @@ const variables =
         },
       ],
     },
-  };
+  },
+};
 
 const query = `mutation scmInvoicePaymentRequest($data: ScmInvoicePaymentRequestInput!) {
   scmInvoicePaymentCreate(data: $data) {
@@ -75,7 +76,7 @@ const query = `mutation scmInvoicePaymentRequest($data: ScmInvoicePaymentRequest
         errorMessages
         messageProperties
     }
-}`;
+}}`;
 
 const sendData = () => {
   fetch('https://graphql-data-server-erp-poc.aws.ait.ucdavis.edu/graphql', {
