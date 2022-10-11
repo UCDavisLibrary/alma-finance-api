@@ -9,15 +9,18 @@
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "start": "node server.js",
-        "watch": "webpack --config webpack-watch.config.js --watch"
+        "watch": "webpack --config webpack-watch.config.js --watch",
+        "dev": "nodemon server.js"
     },
     "license": "ISC",
     "dependencies": {
         "axios": "^0.27.2",
         "cors": "^2.8.5",
-        "dotenv": "^8.2.0",
+        "dotenv": "^8.6.0",
         "express": "^4.17.1",
-        "nodemon": "^2.0.4"
+        "ejs": "^3.1.8",
+        "express-session": "^1.17.3",
+        "node-cas-authentication": "^0.0.15"
     },
     "engines": {
         "node": "12.14.1"
@@ -25,6 +28,7 @@
     "devDependencies": {
         "@ucd-lib/cork-app-build": "^0.3.0",
         "webpack": "^5.72.1",
-        "webpack-cli": "^4.9.2"
+        "webpack-cli": "^4.9.2",
+        "nodemon": "^2.0.4"
     }
 }

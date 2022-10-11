@@ -1,0 +1,4 @@
+app/node_modules
+app/Dockerfile
+alma-cors-proxy/Dockerfile
+app/package-lock.json

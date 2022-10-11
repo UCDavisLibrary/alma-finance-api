@@ -1,0 +1,2166 @@
+{
+    "invoice": [
+        {
+            "number": "1077438a",
+            "vendor": {
+                "value": "ABAA",
+                "desc": "ANTIQUARIAN BOOKSELLERS' ASSOCIATION OF AMERICA"
+            },
+            "owner": {
+                "value": "SHLDS",
+                "desc": null
+            },
+            "id": "21879806040003126",
+            "invoice_date": "2020-07-31Z",
+            "total_amount": 90,
+            "currency": {
+                "value": "USD",
+                "desc": "US Dollar"
+            },
+            "total_invoice_lines_amount": 90.0,
+            "vendor_contact_person": {},
+            "payment_method": {
+                "value": "CREDITCARD",
+                "desc": "Credit card"
+            },
+            "reference_number": "",
+            "creation_form": {
+                "value": "MANUALLY",
+                "desc": "Manually"
+            },
+            "invoice_status": {
+                "value": "ACTIVE",
+                "desc": "Active"
+            },
+            "invoice_workflow_status": {
+                "value": "InApproval",
+                "desc": "In Approval"
+            },
+            "invoice_approval_status": {
+                "value": "PENDING",
+                "desc": "Pending"
+            },
+            "additional_charges": {
+                "use_pro_rata": false,
+                "shipment": 0.00,
+                "overhead": 0.00,
+                "insurance": 0.00,
+                "discount": 0.00
+            },
+            "invoice_vat": {
+                "report_tax": false,
+                "vat_per_invoice_line": false,
+                "vat_code": {
+                    "value": "",
+                    "desc": null
+                },
+                "percentage": 0.00,
+                "vat_amount": 0,
+                "type": {
+                    "value": "INCLUSIVE",
+                    "desc": "Inclusive"
+                },
+                "expended_from_fund": true
+            },
+            "explicit_ratio": [],
+            "payment": {
+                "prepaid": true,
+                "internal_copy": true,
+                "export_to_erp": false,
+                "payment_status": {
+                    "value": "PAID",
+                    "desc": "Paid"
+                },
+                "voucher_date": "2020-07-31Z",
+                "voucher_number": "PC",
+                "voucher_amount": "90",
+                "voucher_currency": {
+                    "value": "USD",
+                    "desc": "US Dollar"
+                }
+            },
+            "alert": [
+                {
+                    "value": "DIFFERENT_VENDOR_ACCOUNT",
+                    "desc": "Invoice holds vendor account different than some of the linked PO lines"
+                }
+            ],
+            "note": [],
+            "number_of_lines": {
+                "value": 1,
+                "link": "https://localhost/almaws/v1/acq/invoices/21879806040003126/lines"
+            },
+            "invoice_lines": {
+                "invoice_line": [
+                    {
+                        "id": "21879806550003126",
+                        "type": {
+                            "value": "REGULAR",
+                            "desc": "Regular"
+                        },
+                        "number": "1",
+                        "status": {
+                            "value": "READY",
+                            "desc": "Ready"
+                        },
+                        "po_line": "POL-82494",
+                        "price": 90.0,
+                        "price_note": "",
+                        "total_price": 90.0,
+                        "quantity": 1,
+                        "vat_note": "Approximately 0.00 included in line Total Price.",
+                        "check_subscription_date_overlap": false,
+                        "fully_invoiced": true,
+                        "additional_info": "",
+                        "release_remaining_encumbrance": false,
+                        "reporting_code": {
+                            "value": "kcm",
+                            "desc": null
+                        },
+                        "secondary_reporting_code": {
+                            "value": "",
+                            "desc": null
+                        },
+                        "tertiary_reporting_code": {
+                            "value": "",
+                            "desc": null
+                        },
+                        "note": "",
+                        "invoice_line_vat": {
+                            "vat_code": {
+                                "value": "",
+                                "desc": null
+                            },
+                            "percentage": 0.0,
+                            "vat_amount": 0
+                        },
+                        "fund_distribution": [
+                            {
+                                "fund_code": {
+                                    "value": "RARESPCLXXXXPRF",
+                                    "desc": "Special Collections Rare Print Books Firm"
+                                },
+                                "percent": 100.00,
+                                "amount": 90
+                            }
+                        ],
+                        "link": "https://localhost/almaws/v1/acq/invoices/21879806040003126/lines/21879806550003126"
+                    }
+                ],
+                "total_record_count": 1
+            },
+            "link": "https://localhost/almaws/v1/acq/invoices/21879806040003126"
+        },
+        {
+            "number": "884933",
+            "vendor": {
+                "value": "LAWGOBI",
+                "desc": "Gobi Library Solutions"
+            },
+            "owner": {
+                "value": "LAW",
+                "desc": "Mabie Law Library"
+            },
+            "id": "18024895240003126",
+            "invoice_date": "2021-05-12Z",
+            "total_amount": 146.86,
+            "currency": {
+                "value": "USD",
+                "desc": "US Dollar"
+            },
+            "total_invoice_lines_amount": 146.86,
+            "vendor_contact_person": {},
+            "payment_method": {
+                "value": "ACCOUNTINGDEPARTMENT",
+                "desc": "Accounting Department"
+            },
+            "reference_number": "",
+            "creation_form": {
+                "value": "MANUALLY",
+                "desc": "Manually"
+            },
+            "invoice_status": {
+                "value": "ACTIVE",
+                "desc": "Active"
+            },
+            "invoice_workflow_status": {
+                "value": "Ready to be Paid",
+                "desc": "Waiting for Payment"
+            },
+            "invoice_approval_status": {
+                "value": "APPROVED",
+                "desc": "Approved"
+            },
+            "approved_by": "MORRISON ANDREW J.",
+            "approval_date": "2021-08-18Z",
+            "additional_charges": {
+                "use_pro_rata": false,
+                "shipment": 0.00,
+                "overhead": 0.00,
+                "insurance": 0.00,
+                "discount": 0.00
+            },
+            "invoice_vat": {
+                "report_tax": false,
+                "vat_per_invoice_line": false,
+                "vat_code": {
+                    "value": "",
+                    "desc": null
+                },
+                "percentage": 0.00,
+                "vat_amount": 0,
+                "type": {
+                    "value": "INCLUSIVE",
+                    "desc": "Inclusive"
+                },
+                "expended_from_fund": false
+            },
+            "explicit_ratio": [],
+            "payment": {
+                "prepaid": false,
+                "internal_copy": false,
+                "payment_status": {
+                    "value": "NOT_PAID",
+                    "desc": "Not Paid"
+                },
+                "voucher_date": "2021-08-18Z",
+                "voucher_number": "",
+                "voucher_amount": "0",
+                "voucher_currency": {
+                    "value": "USD",
+                    "desc": "US Dollar"
+                }
+            },
+            "alert": [
+                {
+                    "value": "DIFFERENT_VENDOR_ACCOUNT",
+                    "desc": "Invoice holds vendor account different than some of the linked PO lines"
+                },
+                {
+                    "value": "NOT_LINKED_LINES",
+                    "desc": "Lines not linked"
+                }
+            ],
+            "note": [],
+            "number_of_lines": {
+                "value": 2,
+                "link": "https://localhost/almaws/v1/acq/invoices/18024895240003126/lines"
+            },
+            "invoice_lines": {
+                "invoice_line": [
+                    {
+                        "id": "18024942380003126",
+                        "type": {
+                            "value": "REGULAR",
+                            "desc": "Regular"
+                        },
+                        "number": "1",
+                        "status": {
+                            "value": "READY",
+                            "desc": "Ready"
+                        },
+                        "po_line": "POL-100117",
+                        "price": 146.86,
+                        "price_note": "",
+                        "total_price": 146.86,
+                        "quantity": 1,
+                        "vat_note": "Approximately 0.00 included in VAT/GST adjustment line.",
+                        "check_subscription_date_overlap": false,
+                        "fully_invoiced": true,
+                        "additional_info": "",
+                        "release_remaining_encumbrance": false,
+                        "reporting_code": {
+                            "value": "",
+                            "desc": null
+                        },
+                        "secondary_reporting_code": {
+                            "value": "",
+                            "desc": null
+                        },
+                        "tertiary_reporting_code": {
+                            "value": "",
+                            "desc": null
+                        },
+                        "note": "",
+                        "invoice_line_vat": {
+                            "vat_code": {
+                                "value": "",
+                                "desc": null
+                            },
+                            "percentage": 0.0,
+                            "vat_amount": 0
+                        },
+                        "fund_distribution": [
+                            {
+                                "fund_code": {
+                                    "value": "bks",
+                                    "desc": "Books"
+                                },
+                                "percent": 100.00,
+                                "amount": 146.86
+                            }
+                        ],
+                        "link": "https://localhost/almaws/v1/acq/invoices/18024895240003126/lines/18024942380003126"
+                    },
+                    {
+                        "id": "18024942910003126",
+                        "type": {
+                            "value": "ADJUSTMENT",
+                            "desc": "Adjustment"
+                        },
+                        "number": "999995",
+                        "status": {
+                            "value": "READY",
+                            "desc": "Ready"
+                        },
+                        "po_line": "",
+                        "price": 0.0,
+                        "price_note": "",
+                        "total_price": 0.0,
+                        "quantity": 0,
+                        "vat_note": "0",
+                        "check_subscription_date_overlap": false,
+                        "fully_invoiced": false,
+                        "additional_info": "",
+                        "release_remaining_encumbrance": false,
+                        "reporting_code": {
+                            "value": "",
+                            "desc": null
+                        },
+                        "secondary_reporting_code": {
+                            "value": "",
+                            "desc": null
+                        },
+                        "tertiary_reporting_code": {
+                            "value": "",
+                            "desc": null
+                        },
+                        "note": "",
+                        "invoice_line_vat": {
+                            "vat_code": {
+                                "value": "",
+                                "desc": null
+                            },
+                            "percentage": 0.0,
+                            "vat_amount": 0
+                        },
+                        "fund_distribution": [],
+                        "link": "https://localhost/almaws/v1/acq/invoices/18024895240003126/lines/18024942910003126"
+                    }
+                ],
+                "total_record_count": 2
+            },
+            "link": "https://localhost/almaws/v1/acq/invoices/18024895240003126"
+        },
+        {
+            "number": "0",
+            "vendor": {
+                "value": "PRQST",
+                "desc": "PROQUEST INFORMATION AND LEARNING"
+            },
+            "owner": {
+                "value": "SHLDS",
+                "desc": null
+            },
+            "id": "16849956460003126",
+            "invoice_date": "2021-05-31Z",
+            "total_amount": 0,
+            "currency": {
+                "value": "USD",
+                "desc": "US Dollar"
+            },
+            "total_invoice_lines_amount": 0.0,
+            "vendor_contact_person": {},
+            "payment_method": {
+                "value": "CREDITCARD",
+                "desc": "Credit card"
+            },
+            "reference_number": "",
+            "creation_form": {
+                "value": "MANUALLY",
+                "desc": "Manually"
+            },
+            "invoice_status": {
+                "value": "ACTIVE",
+                "desc": "Active"
+            },
+            "invoice_workflow_status": {
+                "value": "InApproval",
+                "desc": "In Approval"
+            },
+            "invoice_approval_status": {
+                "value": "PENDING",
+                "desc": "Pending"
+            },
+            "additional_charges": {
+                "use_pro_rata": false,
+                "shipment": 0.00,
+                "overhead": 0.00,
+                "insurance": 0.00,
+                "discount": 0.00
+            },
+            "invoice_vat": {
+                "report_tax": false,
+                "vat_per_invoice_line": false,
+                "vat_code": {
+                    "value": "",
+                    "desc": null
+                },
+                "percentage": 0.00,
+                "vat_amount": 0,
+                "type": {
+                    "value": "INCLUSIVE",
+                    "desc": "Inclusive"
+                },
+                "expended_from_fund": true
+            },
+            "explicit_ratio": [],
+            "payment": {
+                "prepaid": true,
+                "internal_copy": false,
+                "payment_status": {
+                    "value": "PAID",
+                    "desc": "Paid"
+                },
+                "voucher_date": "2021-06-01Z",
+                "voucher_number": "PC",
+                "voucher_amount": "0",
+                "voucher_currency": {
+                    "value": "USD",
+                    "desc": "US Dollar"
+                }
+            },
+            "alert": [
+                {
+                    "value": "NOT_LINKED_LINES",
+                    "desc": "Lines not linked"
+                },
+                {
+                    "value": "NOT_READY_LINES",
+                    "desc": "Lines not ready"
+                }
+            ],
+            "note": [],
+            "number_of_lines": {
+                "value": 1,
+                "link": "https://localhost/almaws/v1/acq/invoices/16849956460003126/lines"
+            },
+            "invoice_lines": {
+                "invoice_line": [
+                    {
+                        "id": "16849956510003126",
+                        "type": {
+                            "value": "REGULAR",
+                            "desc": "Regular"
+                        },
+                        "number": "1",
+                        "status": {
+                            "value": "INREVIEW",
+                            "desc": "In-Review"
+                        },
+                        "po_line": "",
+                        "price": 0.0,
+                        "price_note": "",
+                        "total_price": 0.0,
+                        "quantity": 1,
+                        "vat_note": "Approximately 0.00 included in line Total Price.",
+                        "check_subscription_date_overlap": false,
+                        "fully_invoiced": false,
+                        "additional_info": "",
+                        "release_remaining_encumbrance": false,
+                        "reporting_code": {
+                            "value": null,
+                            "desc": null
+                        },
+                        "secondary_reporting_code": {
+                            "value": null,
+                            "desc": null
+                        },
+                        "tertiary_reporting_code": {
+                            "value": null,
+                            "desc": null
+                        },
+                        "note": "poLine Ref Number  :0 \r\n  Unit Price  :0 \r\n ",
+                        "invoice_line_vat": {
+                            "vat_code": {
+                                "value": "",
+                                "desc": null
+                            },
+                            "percentage": 0.0,
+                            "vat_amount": 0
+                        },
+                        "fund_distribution": [],
+                        "link": "https://localhost/almaws/v1/acq/invoices/16849956460003126/lines/16849956510003126"
+                    }
+                ],
+                "total_record_count": 1
+            },
+            "link": "https://localhost/almaws/v1/acq/invoices/16849956460003126"
+        },
+        {
+            "number": "999148",
+            "vendor": {
+                "value": "YBPUK",
+                "desc": "YBP LIBRARY SERVICES"
+            },
+            "owner": {
+                "value": "01UCD_INST",
+                "desc": "University of California Davis"
+            },
+            "id": "18604762230003126",
+            "invoice_date": "2021-07-15Z",
+            "total_amount": 186.35,
+            "currency": {
+                "value": "USD",
+                "desc": "US Dollar"
+            },
+            "total_invoice_lines_amount": 164.54,
+            "vendor_contact_person": {},
+            "payment_method": {
+                "value": "ACCOUNTINGDEPARTMENT",
+                "desc": "Accounting Department"
+            },
+            "reference_number": "",
+            "creation_form": {
+                "value": "EDI",
+                "desc": "EDIteur Invoice Message"
+            },
+            "invoice_status": {
+                "value": "ACTIVE",
+                "desc": "Active"
+            },
+            "invoice_workflow_status": {
+                "value": "InReview",
+                "desc": "In Review"
+            },
+            "invoice_approval_status": {
+                "value": "PENDING",
+                "desc": "Pending"
+            },
+            "additional_charges": {
+                "use_pro_rata": true,
+                "shipment": 0.00,
+                "overhead": 0.00,
+                "insurance": 0.00,
+                "discount": 0.00
+            },
+            "invoice_vat": {
+                "report_tax": false,
+                "vat_per_invoice_line": false,
+                "vat_code": {
+                    "value": "",
+                    "desc": null
+                },
+                "percentage": 0.00,
+                "vat_amount": 0,
+                "type": {
+                    "value": "LINEEXCLUSIVE",
+                    "desc": "Line Exclusive"
+                },
+                "expended_from_fund": true
+            },
+            "explicit_ratio": [],
+            "payment": {
+                "prepaid": false,
+                "internal_copy": false,
+                "payment_status": {
+                    "value": "NOT_PAID",
+                    "desc": "Not Paid"
+                },
+                "voucher_date": "2021-09-15Z",
+                "voucher_number": "",
+                "voucher_amount": "",
+                "voucher_currency": {
+                    "value": "",
+                    "desc": null
+                }
+            },
+            "alert": [
+                {
+                    "value": "EDI_INVOICE_OF_EXTERNAL_SYSTEM",
+                    "desc": "The invoice was created by an external system and need to be reviewed."
+                },
+                {
+                    "value": "NOT_LINKED_LINES",
+                    "desc": "Lines not linked"
+                },
+                {
+                    "value": "NOT_READY_LINES",
+                    "desc": "Lines not ready"
+                },
+                {
+                    "value": "TOTAL_AMOUNT_DISCREPANCY",
+                    "desc": "Total amount of discrepancy"
+                }
+            ],
+            "note": [
+                {
+                    "content": "During EDI process the poline could not be fetched and linked to Invoice Line #1 according to the following data. Please link poline manually: Poline reference number: Vendor reference number:60002430963 Title:.",
+                    "creation_date": "2021-09-15Z",
+                    "created_by": "System",
+                    "type": null
+                }
+            ],
+            "number_of_lines": {
+                "value": 1,
+                "link": "https://localhost/almaws/v1/acq/invoices/18604762230003126/lines"
+            },
+            "invoice_lines": {
+                "invoice_line": [
+                    {
+                        "id": "18604762290003126",
+                        "type": {
+                            "value": "REGULAR",
+                            "desc": "Regular"
+                        },
+                        "number": "1",
+                        "status": {
+                            "value": "INREVIEW",
+                            "desc": "In-Review"
+                        },
+                        "po_line": "",
+                        "price": 164.54,
+                        "price_note": "",
+                        "total_price": 164.54,
+                        "quantity": 1,
+                        "vat_note": "Approximately 0.00 included in line Total Price.",
+                        "check_subscription_date_overlap": false,
+                        "fully_invoiced": false,
+                        "additional_info": "",
+                        "release_remaining_encumbrance": false,
+                        "reporting_code": {
+                            "value": null,
+                            "desc": null
+                        },
+                        "secondary_reporting_code": {
+                            "value": null,
+                            "desc": null
+                        },
+                        "tertiary_reporting_code": {
+                            "value": null,
+                            "desc": null
+                        },
+                        "note": "Unit price : 173.2   \r\n Unit price : 164.54   \r\n ISBN 1786302659 \r\n ",
+                        "invoice_line_vat": {
+                            "vat_code": {
+                                "value": "",
+                                "desc": null
+                            },
+                            "percentage": 0.0,
+                            "vat_amount": 0
+                        },
+                        "fund_distribution": [],
+                        "link": "https://localhost/almaws/v1/acq/invoices/18604762230003126/lines/18604762290003126"
+                    }
+                ],
+                "total_record_count": 1
+            },
+            "link": "https://localhost/almaws/v1/acq/invoices/18604762230003126"
+        },
+        {
+            "number": "961642",
+            "vendor": {
+                "value": "LAWGOBI",
+                "desc": "Gobi Library Solutions"
+            },
+            "owner": {
+                "value": "LAW",
+                "desc": "Mabie Law Library"
+            },
+            "id": "18630196750003126",
+            "invoice_date": "2021-07-28Z",
+            "vendor_account": "LAWGOBI",
+            "total_amount": 54.01,
+            "currency": {
+                "value": "USD",
+                "desc": "US Dollar"
+            },
+            "total_invoice_lines_amount": 54.01,
+            "vendor_contact_person": {},
+            "payment_method": {
+                "value": "ACCOUNTINGDEPARTMENT",
+                "desc": "Accounting Department"
+            },
+            "reference_number": "",
+            "creation_form": {
+                "value": "PO",
+                "desc": "From PO"
+            },
+            "invoice_status": {
+                "value": "ACTIVE",
+                "desc": "Active"
+            },
+            "invoice_workflow_status": {
+                "value": "Ready to be Paid",
+                "desc": "Waiting for Payment"
+            },
+            "invoice_approval_status": {
+                "value": "APPROVED",
+                "desc": "Approved"
+            },
+            "approved_by": "MORRISON ANDREW J.",
+            "approval_date": "2021-09-24Z",
+            "additional_charges": {
+                "use_pro_rata": false,
+                "shipment": 0.00,
+                "overhead": 0.00,
+                "insurance": 0.00,
+                "discount": 0.00
+            },
+            "invoice_vat": {
+                "report_tax": false,
+                "vat_per_invoice_line": false,
+                "vat_code": {
+                    "value": "",
+                    "desc": null
+                },
+                "percentage": 0.00,
+                "vat_amount": 0,
+                "type": {
+                    "value": "INCLUSIVE",
+                    "desc": "Inclusive"
+                },
+                "expended_from_fund": false
+            },
+            "explicit_ratio": [],
+            "payment": {
+                "prepaid": false,
+                "internal_copy": false,
+                "payment_status": {
+                    "value": "NOT_PAID",
+                    "desc": "Not Paid"
+                },
+                "voucher_date": "2021-09-23Z",
+                "voucher_number": "",
+                "voucher_amount": "0",
+                "voucher_currency": {
+                    "value": "USD",
+                    "desc": "US Dollar"
+                }
+            },
+            "alert": [
+                {
+                    "value": "NOT_LINKED_LINES",
+                    "desc": "Lines not linked"
+                }
+            ],
+            "note": [],
+            "number_of_lines": {
+                "value": 6,
+                "link": "https://localhost/almaws/v1/acq/invoices/18630196750003126/lines"
+            },
+            "invoice_lines": {
+                "invoice_line": [
+                    {
+                        "id": "18630196810003126",
+                        "type": {
+                            "value": "REGULAR",
+                            "desc": "Regular"
+                        },
+                        "number": "1",
+                        "status": {
+                            "value": "READY",
+                            "desc": "Ready"
+                        },
+                        "po_line": "POL-101176",
+                        "price": 54.01,
+                        "price_note": "",
+                        "total_price": 54.01,
+                        "quantity": 1,
+                        "vat_note": "Approximately 0.00 included in VAT/GST adjustment line.",
+                        "check_subscription_date_overlap": false,
+                        "fully_invoiced": true,
+                        "additional_info": "",
+                        "release_remaining_encumbrance": false,
+                        "reporting_code": {
+                            "value": "",
+                            "desc": null
+                        },
+                        "secondary_reporting_code": {
+                            "value": "",
+                            "desc": null
+                        },
+                        "tertiary_reporting_code": {
+                            "value": "",
+                            "desc": null
+                        },
+                        "note": "",
+                        "invoice_line_vat": {
+                            "vat_code": {
+                                "value": "",
+                                "desc": null
+                            },
+                            "percentage": 0.0,
+                            "vat_amount": 0
+                        },
+                        "fund_distribution": [
+                            {
+                                "fund_code": {
+                                    "value": "bks",
+                                    "desc": "Books"
+                                },
+                                "percent": 100.00,
+                                "amount": 54.01
+                            }
+                        ],
+                        "link": "https://localhost/almaws/v1/acq/invoices/18630196750003126/lines/18630196810003126"
+                    },
+                    {
+                        "id": "18630197200003126",
+                        "type": {
+                            "value": "SHIPMENT",
+                            "desc": "Shipment"
+                        },
+                        "number": "999991",
+                        "status": {
+                            "value": "INREVIEW",
+                            "desc": "In-Review"
+                        },
+                        "po_line": "",
+                        "price": 0.0,
+                        "price_note": "",
+                        "total_price": 0.0,
+                        "quantity": 0,
+                        "vat_note": "Approximately 0.00 included in VAT/GST adjustment line.",
+                        "check_subscription_date_overlap": false,
+                        "fully_invoiced": false,
+                        "additional_info": "",
+                        "release_remaining_encumbrance": false,
+                        "reporting_code": {
+                            "value": "",
+                            "desc": null
+                        },
+                        "secondary_reporting_code": {
+                            "value": "",
+                            "desc": null
+                        },
+                        "tertiary_reporting_code": {
+                            "value": "",
+                            "desc": null
+                        },
+                        "note": "",
+                        "invoice_line_vat": {
+                            "vat_code": {
+                                "value": "",
+                                "desc": null
+                            },
+                            "percentage": 0.0,
+                            "vat_amount": 0
+                        },
+                        "fund_distribution": [],
+                        "link": "https://localhost/almaws/v1/acq/invoices/18630196750003126/lines/18630197200003126"
+                    },
+                    {
+                        "id": "18630197250003126",
+                        "type": {
+                            "value": "DISCOUNT",
+                            "desc": "Discount"
+                        },
+                        "number": "999992",
+                        "status": {
+                            "value": "INREVIEW",
+                            "desc": "In-Review"
+                        },
+                        "po_line": "",
+                        "price": 0.0,
+                        "price_note": "",
+                        "total_price": 0.0,
+                        "quantity": 0,
+                        "vat_note": "Approximately 0.00 included in VAT/GST adjustment line.",
+                        "check_subscription_date_overlap": false,
+                        "fully_invoiced": false,
+                        "additional_info": "",
+                        "release_remaining_encumbrance": false,
+                        "reporting_code": {
+                            "value": "",
+                            "desc": null
+                        },
+                        "secondary_reporting_code": {
+                            "value": "",
+                            "desc": null
+                        },
+                        "tertiary_reporting_code": {
+                            "value": "",
+                            "desc": null
+                        },
+                        "note": "",
+                        "invoice_line_vat": {
+                            "vat_code": {
+                                "value": "",
+                                "desc": null
+                            },
+                            "percentage": 0.0,
+                            "vat_amount": 0
+                        },
+                        "fund_distribution": [],
+                        "link": "https://localhost/almaws/v1/acq/invoices/18630196750003126/lines/18630197250003126"
+                    },
+                    {
+                        "id": "18630197300003126",
+                        "type": {
+                            "value": "OVERHEAD",
+                            "desc": "Overhead"
+                        },
+                        "number": "999993",
+                        "status": {
+                            "value": "INREVIEW",
+                            "desc": "In-Review"
+                        },
+                        "po_line": "",
+                        "price": 0.0,
+                        "price_note": "",
+                        "total_price": 0.0,
+                        "quantity": 0,
+                        "vat_note": "Approximately 0.00 included in VAT/GST adjustment line.",
+                        "check_subscription_date_overlap": false,
+                        "fully_invoiced": false,
+                        "additional_info": "",
+                        "release_remaining_encumbrance": false,
+                        "reporting_code": {
+                            "value": "",
+                            "desc": null
+                        },
+                        "secondary_reporting_code": {
+                            "value": "",
+                            "desc": null
+                        },
+                        "tertiary_reporting_code": {
+                            "value": "",
+                            "desc": null
+                        },
+                        "note": "",
+                        "invoice_line_vat": {
+                            "vat_code": {
+                                "value": "",
+                                "desc": null
+                            },
+                            "percentage": 0.0,
+                            "vat_amount": 0
+                        },
+                        "fund_distribution": [],
+                        "link": "https://localhost/almaws/v1/acq/invoices/18630196750003126/lines/18630197300003126"
+                    },
+                    {
+                        "id": "18630197350003126",
+                        "type": {
+                            "value": "INSURANCE",
+                            "desc": "Insurance"
+                        },
+                        "number": "999994",
+                        "status": {
+                            "value": "INREVIEW",
+                            "desc": "In-Review"
+                        },
+                        "po_line": "",
+                        "price": 0.0,
+                        "price_note": "",
+                        "total_price": 0.0,
+                        "quantity": 0,
+                        "vat_note": "Approximately 0.00 included in VAT/GST adjustment line.",
+                        "check_subscription_date_overlap": false,
+                        "fully_invoiced": false,
+                        "additional_info": "",
+                        "release_remaining_encumbrance": false,
+                        "reporting_code": {
+                            "value": "",
+                            "desc": null
+                        },
+                        "secondary_reporting_code": {
+                            "value": "",
+                            "desc": null
+                        },
+                        "tertiary_reporting_code": {
+                            "value": "",
+                            "desc": null
+                        },
+                        "note": "",
+                        "invoice_line_vat": {
+                            "vat_code": {
+                                "value": "",
+                                "desc": null
+                            },
+                            "percentage": 0.0,
+                            "vat_amount": 0
+                        },
+                        "fund_distribution": [],
+                        "link": "https://localhost/almaws/v1/acq/invoices/18630196750003126/lines/18630197350003126"
+                    },
+                    {
+                        "id": "18630197400003126",
+                        "type": {
+                            "value": "ADJUSTMENT",
+                            "desc": "Adjustment"
+                        },
+                        "number": "999995",
+                        "status": {
+                            "value": "READY",
+                            "desc": "Ready"
+                        },
+                        "po_line": "",
+                        "price": 0.0,
+                        "price_note": "",
+                        "total_price": 0.0,
+                        "quantity": 0,
+                        "vat_note": "0",
+                        "check_subscription_date_overlap": false,
+                        "fully_invoiced": false,
+                        "additional_info": "",
+                        "release_remaining_encumbrance": false,
+                        "reporting_code": {
+                            "value": "",
+                            "desc": null
+                        },
+                        "secondary_reporting_code": {
+                            "value": "",
+                            "desc": null
+                        },
+                        "tertiary_reporting_code": {
+                            "value": "",
+                            "desc": null
+                        },
+                        "note": "",
+                        "invoice_line_vat": {
+                            "vat_code": {
+                                "value": "",
+                                "desc": null
+                            },
+                            "percentage": 0.0,
+                            "vat_amount": 0
+                        },
+                        "fund_distribution": [],
+                        "link": "https://localhost/almaws/v1/acq/invoices/18630196750003126/lines/18630197400003126"
+                    }
+                ],
+                "total_record_count": 6
+            },
+            "link": "https://localhost/almaws/v1/acq/invoices/18630196750003126"
+        },
+        {
+            "number": "16420",
+            "vendor": {
+                "value": "GOBI",
+                "desc": "GOBI LIBRARY SOLUTIONS"
+            },
+            "owner": {
+                "value": "01UCD_INST",
+                "desc": "University of California Davis"
+            },
+            "id": "18632515970003126",
+            "invoice_date": "2021-09-16Z",
+            "total_amount": 275.96,
+            "currency": {
+                "value": "USD",
+                "desc": "US Dollar"
+            },
+            "total_invoice_lines_amount": 275.96,
+            "vendor_contact_person": {},
+            "payment_method": {
+                "value": "ACCOUNTINGDEPARTMENT",
+                "desc": "Accounting Department"
+            },
+            "reference_number": "",
+            "creation_form": {
+                "value": "EDI",
+                "desc": "EDIteur Invoice Message"
+            },
+            "invoice_status": {
+                "value": "ACTIVE",
+                "desc": "Active"
+            },
+            "invoice_workflow_status": {
+                "value": "InReview",
+                "desc": "In Review"
+            },
+            "invoice_approval_status": {
+                "value": "PENDING",
+                "desc": "Pending"
+            },
+            "additional_charges": {
+                "use_pro_rata": false,
+                "shipment": 0.00,
+                "overhead": 0.00,
+                "insurance": 0.00,
+                "discount": 0.00
+            },
+            "invoice_vat": {
+                "report_tax": false,
+                "vat_per_invoice_line": false,
+                "vat_code": {
+                    "value": "",
+                    "desc": null
+                },
+                "percentage": 0.00,
+                "vat_amount": 0,
+                "type": {
+                    "value": "LINEEXCLUSIVE",
+                    "desc": "Line Exclusive"
+                },
+                "expended_from_fund": true
+            },
+            "explicit_ratio": [],
+            "payment": {
+                "prepaid": false,
+                "internal_copy": false,
+                "payment_status": {
+                    "value": "NOT_PAID",
+                    "desc": "Not Paid"
+                },
+                "voucher_date": "2021-09-24Z",
+                "voucher_number": "",
+                "voucher_amount": "",
+                "voucher_currency": {
+                    "value": "",
+                    "desc": null
+                }
+            },
+            "alert": [
+                {
+                    "value": "NOT_READY_LINES",
+                    "desc": "Lines not ready"
+                },
+                {
+                    "value": "EDI_INVOICE_OF_EXTERNAL_SYSTEM",
+                    "desc": "The invoice was created by an external system and need to be reviewed."
+                },
+                {
+                    "value": "INVOICE_VENDOR_LIABILITY_MISSING",
+                    "desc": "Vendor is liable, but VAT is missing"
+                },
+                {
+                    "value": "NOT_LINKED_LINES",
+                    "desc": "Lines not linked"
+                }
+            ],
+            "note": [
+                {
+                    "content": "During EDI process the poline could not be fetched and linked to Invoice Line #1 according to the following data. Please link poline manually: Poline reference number: Vendor reference number:99988356915 Title:.",
+                    "creation_date": "2021-09-24Z",
+                    "created_by": "System",
+                    "type": null
+                },
+                {
+                    "content": "During EDI process the poline could not be fetched and linked to Invoice Line #2 according to the following data. Please link poline manually: Poline reference number: Vendor reference number:99988356914 Title:.",
+                    "creation_date": "2021-09-24Z",
+                    "created_by": "System",
+                    "type": null
+                }
+            ],
+            "number_of_lines": {
+                "value": 2,
+                "link": "https://localhost/almaws/v1/acq/invoices/18632515970003126/lines"
+            },
+            "invoice_lines": {
+                "invoice_line": [
+                    {
+                        "id": "18632516040003126",
+                        "type": {
+                            "value": "REGULAR",
+                            "desc": "Regular"
+                        },
+                        "number": "1",
+                        "status": {
+                            "value": "INREVIEW",
+                            "desc": "In-Review"
+                        },
+                        "po_line": "",
+                        "price": 137.98,
+                        "price_note": "",
+                        "total_price": 137.98,
+                        "quantity": 1,
+                        "vat_note": "Approximately 0.00 included in line Total Price.",
+                        "check_subscription_date_overlap": false,
+                        "fully_invoiced": false,
+                        "additional_info": "",
+                        "release_remaining_encumbrance": false,
+                        "reporting_code": {
+                            "value": null,
+                            "desc": null
+                        },
+                        "secondary_reporting_code": {
+                            "value": null,
+                            "desc": null
+                        },
+                        "tertiary_reporting_code": {
+                            "value": null,
+                            "desc": null
+                        },
+                        "note": "Unit price : 137.98   \r\n Unit price : 137.98   \r\n ISBN 3110683857 \r\n ",
+                        "invoice_line_vat": {
+                            "vat_code": {
+                                "value": "",
+                                "desc": null
+                            },
+                            "percentage": 0.0,
+                            "vat_amount": 0
+                        },
+                        "fund_distribution": [],
+                        "link": "https://localhost/almaws/v1/acq/invoices/18632515970003126/lines/18632516040003126"
+                    },
+                    {
+                        "id": "18632516100003126",
+                        "type": {
+                            "value": "REGULAR",
+                            "desc": "Regular"
+                        },
+                        "number": "2",
+                        "status": {
+                            "value": "INREVIEW",
+                            "desc": "In-Review"
+                        },
+                        "po_line": "",
+                        "price": 137.98,
+                        "price_note": "",
+                        "total_price": 137.98,
+                        "quantity": 1,
+                        "vat_note": "Approximately 0.00 included in line Total Price.",
+                        "check_subscription_date_overlap": false,
+                        "fully_invoiced": false,
+                        "additional_info": "",
+                        "release_remaining_encumbrance": false,
+                        "reporting_code": {
+                            "value": null,
+                            "desc": null
+                        },
+                        "secondary_reporting_code": {
+                            "value": null,
+                            "desc": null
+                        },
+                        "tertiary_reporting_code": {
+                            "value": null,
+                            "desc": null
+                        },
+                        "note": "Unit price : 137.98   \r\n Unit price : 137.98   \r\n ISBN 3110683881 \r\n ",
+                        "invoice_line_vat": {
+                            "vat_code": {
+                                "value": "",
+                                "desc": null
+                            },
+                            "percentage": 0.0,
+                            "vat_amount": 0
+                        },
+                        "fund_distribution": [],
+                        "link": "https://localhost/almaws/v1/acq/invoices/18632515970003126/lines/18632516100003126"
+                    }
+                ],
+                "total_record_count": 2
+            },
+            "link": "https://localhost/almaws/v1/acq/invoices/18632515970003126"
+        },
+        {
+            "number": "43055",
+            "vendor": {
+                "value": "GOBI",
+                "desc": "GOBI LIBRARY SOLUTIONS"
+            },
+            "owner": {
+                "value": "01UCD_INST",
+                "desc": "University of California Davis"
+            },
+            "id": "18712541330003126",
+            "invoice_date": "2021-10-09Z",
+            "total_amount": 147.59,
+            "currency": {
+                "value": "USD",
+                "desc": "US Dollar"
+            },
+            "total_invoice_lines_amount": 147.59,
+            "vendor_contact_person": {},
+            "payment_method": {
+                "value": "ACCOUNTINGDEPARTMENT",
+                "desc": "Accounting Department"
+            },
+            "reference_number": "",
+            "creation_form": {
+                "value": "EDI",
+                "desc": "EDIteur Invoice Message"
+            },
+            "invoice_status": {
+                "value": "ACTIVE",
+                "desc": "Active"
+            },
+            "invoice_workflow_status": {
+                "value": "InReview",
+                "desc": "In Review"
+            },
+            "invoice_approval_status": {
+                "value": "PENDING",
+                "desc": "Pending"
+            },
+            "additional_charges": {
+                "use_pro_rata": false,
+                "shipment": 0.00,
+                "overhead": 0.00,
+                "insurance": 0.00,
+                "discount": 0.00
+            },
+            "invoice_vat": {
+                "report_tax": false,
+                "vat_per_invoice_line": false,
+                "vat_code": {
+                    "value": "",
+                    "desc": null
+                },
+                "percentage": 0.00,
+                "vat_amount": 0,
+                "type": {
+                    "value": "LINEEXCLUSIVE",
+                    "desc": "Line Exclusive"
+                },
+                "expended_from_fund": true
+            },
+            "explicit_ratio": [],
+            "payment": {
+                "prepaid": false,
+                "internal_copy": false,
+                "payment_status": {
+                    "value": "NOT_PAID",
+                    "desc": "Not Paid"
+                },
+                "voucher_date": "2021-10-13Z",
+                "voucher_number": "",
+                "voucher_amount": "",
+                "voucher_currency": {
+                    "value": "",
+                    "desc": null
+                }
+            },
+            "alert": [
+                {
+                    "value": "NOT_READY_LINES",
+                    "desc": "Lines not ready"
+                },
+                {
+                    "value": "EDI_INVOICE_OF_EXTERNAL_SYSTEM",
+                    "desc": "The invoice was created by an external system and need to be reviewed."
+                },
+                {
+                    "value": "INVOICE_VENDOR_LIABILITY_MISSING",
+                    "desc": "Vendor is liable, but VAT is missing"
+                },
+                {
+                    "value": "NOT_LINKED_LINES",
+                    "desc": "Lines not linked"
+                }
+            ],
+            "note": [
+                {
+                    "content": "During EDI process the poline could not be fetched and linked to Invoice Line #1 according to the following data. Please link poline manually: Poline reference number: Vendor reference number:99988551447 Title:.",
+                    "creation_date": "2021-10-13Z",
+                    "created_by": "System",
+                    "type": null
+                }
+            ],
+            "number_of_lines": {
+                "value": 1,
+                "link": "https://localhost/almaws/v1/acq/invoices/18712541330003126/lines"
+            },
+            "invoice_lines": {
+                "invoice_line": [
+                    {
+                        "id": "18712541390003126",
+                        "type": {
+                            "value": "REGULAR",
+                            "desc": "Regular"
+                        },
+                        "number": "1",
+                        "status": {
+                            "value": "INREVIEW",
+                            "desc": "In-Review"
+                        },
+                        "po_line": "",
+                        "price": 147.59,
+                        "price_note": "",
+                        "total_price": 147.59,
+                        "quantity": 1,
+                        "vat_note": "Approximately 0.00 included in line Total Price.",
+                        "check_subscription_date_overlap": false,
+                        "fully_invoiced": false,
+                        "additional_info": "",
+                        "release_remaining_encumbrance": false,
+                        "reporting_code": {
+                            "value": null,
+                            "desc": null
+                        },
+                        "secondary_reporting_code": {
+                            "value": null,
+                            "desc": null
+                        },
+                        "tertiary_reporting_code": {
+                            "value": null,
+                            "desc": null
+                        },
+                        "note": "Unit price : 147.59   \r\n Unit price : 147.59   \r\n ISBN 0822381451 \r\n ",
+                        "invoice_line_vat": {
+                            "vat_code": {
+                                "value": "",
+                                "desc": null
+                            },
+                            "percentage": 0.0,
+                            "vat_amount": 0
+                        },
+                        "fund_distribution": [],
+                        "link": "https://localhost/almaws/v1/acq/invoices/18712541330003126/lines/18712541390003126"
+                    }
+                ],
+                "total_record_count": 1
+            },
+            "link": "https://localhost/almaws/v1/acq/invoices/18712541330003126"
+        },
+        {
+            "number": "UCD-525022",
+            "vendor": {
+                "value": "KEMCOSARL",
+                "desc": "KEMCO SARL "
+            },
+            "owner": {
+                "value": "SHLDS",
+                "desc": null
+            },
+            "id": "21879786100003126",
+            "invoice_date": "2022-05-25Z",
+            "vendor_account": "KEMCOSARL",
+            "total_amount": 81.9,
+            "currency": {
+                "value": "USD",
+                "desc": "US Dollar"
+            },
+            "total_invoice_lines_amount": 81.90,
+            "vendor_contact_person": {},
+            "payment_method": {
+                "value": "ACCOUNTINGDEPARTMENT",
+                "desc": "Accounting Department"
+            },
+            "reference_number": "",
+            "creation_form": {
+                "value": "MANUALLY",
+                "desc": "Manually"
+            },
+            "invoice_status": {
+                "value": "ACTIVE",
+                "desc": "Active"
+            },
+            "invoice_workflow_status": {
+                "value": "Ready to be Paid",
+                "desc": "Waiting for Payment"
+            },
+            "invoice_approval_status": {
+                "value": "APPROVED",
+                "desc": "Approved"
+            },
+            "approved_by": "BRESLAUER LISA",
+            "approval_date": "2022-07-11Z",
+            "additional_charges": {
+                "use_pro_rata": false,
+                "shipment": 0.00,
+                "overhead": 0.00,
+                "insurance": 0.00,
+                "discount": 0.00
+            },
+            "invoice_vat": {
+                "report_tax": false,
+                "vat_per_invoice_line": false,
+                "vat_code": {
+                    "value": "",
+                    "desc": null
+                },
+                "percentage": 0.00,
+                "vat_amount": 0,
+                "type": {
+                    "value": "LINEEXCLUSIVE",
+                    "desc": "Line Exclusive"
+                },
+                "expended_from_fund": true
+            },
+            "explicit_ratio": [],
+            "payment": {
+                "prepaid": false,
+                "internal_copy": false,
+                "payment_status": {
+                    "value": "NOT_PAID",
+                    "desc": "Not Paid"
+                },
+                "voucher_date": "2022-07-07Z",
+                "voucher_number": "",
+                "voucher_amount": "0",
+                "voucher_currency": {
+                    "value": "USD",
+                    "desc": "US Dollar"
+                }
+            },
+            "alert": [
+                {
+                    "value": "DIFF_PRICE_THAN_POLINE",
+                    "desc": "Some invoice lines differ in price from their linked PO line."
+                },
+                {
+                    "value": "NOT_LINKED_LINES",
+                    "desc": "Lines not linked"
+                }
+            ],
+            "note": [
+                {
+                    "content": "ATAX",
+                    "creation_date": "2022-07-08Z",
+                    "created_by": "LHBRESLA",
+                    "type": null
+                }
+            ],
+            "number_of_lines": {
+                "value": 3,
+                "link": "https://localhost/almaws/v1/acq/invoices/21879786100003126/lines"
+            },
+            "invoice_lines": {
+                "invoice_line": [
+                    {
+                        "id": "21879786830003126",
+                        "type": {
+                            "value": "REGULAR",
+                            "desc": "Regular"
+                        },
+                        "number": "1",
+                        "status": {
+                            "value": "READY",
+                            "desc": "Ready"
+                        },
+                        "po_line": "POL-110191",
+                        "price": 17.95,
+                        "price_note": "",
+                        "total_price": 17.95,
+                        "quantity": 1,
+                        "vat_note": "Approximately 0.00 included in line Total Price.",
+                        "check_subscription_date_overlap": false,
+                        "fully_invoiced": true,
+                        "additional_info": "",
+                        "release_remaining_encumbrance": false,
+                        "reporting_code": {
+                            "value": "APS",
+                            "desc": "Adam Siegel"
+                        },
+                        "secondary_reporting_code": {
+                            "value": "",
+                            "desc": null
+                        },
+                        "tertiary_reporting_code": {
+                            "value": "",
+                            "desc": null
+                        },
+                        "note": "",
+                        "invoice_line_vat": {
+                            "vat_code": {
+                                "value": "",
+                                "desc": null
+                            },
+                            "percentage": 0.0,
+                            "vat_amount": 0
+                        },
+                        "fund_distribution": [
+                            {
+                                "fund_code": {
+                                    "value": "H/SSXXXXXXXXPRF",
+                                    "desc": "H/SS Print Books Firm"
+                                },
+                                "percent": 100.00,
+                                "amount": 17.95
+                            }
+                        ],
+                        "link": "https://localhost/almaws/v1/acq/invoices/21879786100003126/lines/21879786830003126"
+                    },
+                    {
+                        "id": "21879787020003126",
+                        "type": {
+                            "value": "REGULAR",
+                            "desc": "Regular"
+                        },
+                        "number": "2",
+                        "status": {
+                            "value": "READY",
+                            "desc": "Ready"
+                        },
+                        "po_line": "POL-110193",
+                        "price": 13.95,
+                        "price_note": "",
+                        "total_price": 13.95,
+                        "quantity": 1,
+                        "vat_note": "Approximately 0.00 included in line Total Price.",
+                        "check_subscription_date_overlap": false,
+                        "fully_invoiced": true,
+                        "additional_info": "",
+                        "release_remaining_encumbrance": false,
+                        "reporting_code": {
+                            "value": "CJC",
+                            "desc": "Cory Craig"
+                        },
+                        "secondary_reporting_code": {
+                            "value": "",
+                            "desc": null
+                        },
+                        "tertiary_reporting_code": {
+                            "value": "",
+                            "desc": null
+                        },
+                        "note": "",
+                        "invoice_line_vat": {
+                            "vat_code": {
+                                "value": "",
+                                "desc": null
+                            },
+                            "percentage": 0.0,
+                            "vat_amount": 0
+                        },
+                        "fund_distribution": [
+                            {
+                                "fund_code": {
+                                    "value": "H/SSXXXXXXXXPRF",
+                                    "desc": "H/SS Print Books Firm"
+                                },
+                                "percent": 100.00,
+                                "amount": 13.95
+                            }
+                        ],
+                        "link": "https://localhost/almaws/v1/acq/invoices/21879786100003126/lines/21879787020003126"
+                    },
+                    {
+                        "id": "21885087600003126",
+                        "type": {
+                            "value": "REGULAR",
+                            "desc": "Regular"
+                        },
+                        "number": "3",
+                        "status": {
+                            "value": "READY",
+                            "desc": "Ready"
+                        },
+                        "po_line": "",
+                        "price": 50.0,
+                        "price_note": "",
+                        "total_price": 50.0,
+                        "quantity": 0,
+                        "vat_note": "Approximately 0.00 included in line Total Price.",
+                        "check_subscription_date_overlap": false,
+                        "fully_invoiced": false,
+                        "additional_info": "",
+                        "release_remaining_encumbrance": false,
+                        "reporting_code": {
+                            "value": "",
+                            "desc": null
+                        },
+                        "secondary_reporting_code": {
+                            "value": "",
+                            "desc": null
+                        },
+                        "tertiary_reporting_code": {
+                            "value": "",
+                            "desc": null
+                        },
+                        "note": "",
+                        "invoice_line_vat": {
+                            "vat_code": {
+                                "value": "",
+                                "desc": null
+                            },
+                            "percentage": 0.0,
+                            "vat_amount": 0
+                        },
+                        "fund_distribution": [
+                            {
+                                "fund_code": {
+                                    "value": "GENLPOSTXXXXOTF",
+                                    "desc": "General Postage"
+                                },
+                                "percent": 100.00,
+                                "amount": 50
+                            }
+                        ],
+                        "link": "https://localhost/almaws/v1/acq/invoices/21879786100003126/lines/21885087600003126"
+                    }
+                ],
+                "total_record_count": 3
+            },
+            "link": "https://localhost/almaws/v1/acq/invoices/21879786100003126"
+        },
+        {
+            "number": "61375",
+            "vendor": {
+                "value": "GOBI",
+                "desc": "GOBI LIBRARY SOLUTIONS"
+            },
+            "owner": {
+                "value": "SHLDS",
+                "desc": null
+            },
+            "id": "21875356400003126",
+            "invoice_date": "2022-05-27Z",
+            "total_amount": 63.06,
+            "currency": {
+                "value": "USD",
+                "desc": "US Dollar"
+            },
+            "total_invoice_lines_amount": 63.06,
+            "vendor_contact_person": {},
+            "payment_method": {
+                "value": "ACCOUNTINGDEPARTMENT",
+                "desc": "Accounting Department"
+            },
+            "reference_number": "",
+            "creation_form": {
+                "value": "MANUALLY",
+                "desc": "Manually"
+            },
+            "invoice_status": {
+                "value": "ACTIVE",
+                "desc": "Active"
+            },
+            "invoice_workflow_status": {
+                "value": "Ready to be Paid",
+                "desc": "Waiting for Payment"
+            },
+            "invoice_approval_status": {
+                "value": "APPROVED",
+                "desc": "Approved"
+            },
+            "approved_by": "BRESLAUER LISA",
+            "approval_date": "2022-07-11Z",
+            "additional_charges": {
+                "use_pro_rata": false,
+                "shipment": 0.00,
+                "overhead": 0.00,
+                "insurance": 0.00,
+                "discount": 0.00
+            },
+            "invoice_vat": {
+                "report_tax": false,
+                "vat_per_invoice_line": false,
+                "vat_code": {
+                    "value": "",
+                    "desc": null
+                },
+                "percentage": 0.00,
+                "vat_amount": 0,
+                "type": {
+                    "value": "LINEEXCLUSIVE",
+                    "desc": "Line Exclusive"
+                },
+                "expended_from_fund": true
+            },
+            "explicit_ratio": [],
+            "payment": {
+                "prepaid": false,
+                "internal_copy": false,
+                "payment_status": {
+                    "value": "NOT_PAID",
+                    "desc": "Not Paid"
+                },
+                "voucher_date": "2022-07-05Z",
+                "voucher_number": "",
+                "voucher_amount": "0",
+                "voucher_currency": {
+                    "value": "USD",
+                    "desc": "US Dollar"
+                }
+            },
+            "alert": [
+                {
+                    "value": "NOT_LINKED_LINES",
+                    "desc": "Lines not linked"
+                },
+                {
+                    "value": "DIFFERENT_VENDOR_ACCOUNT",
+                    "desc": "Invoice holds vendor account different than some of the linked PO lines"
+                },
+                {
+                    "value": "DIFF_PRICE_THAN_POLINE",
+                    "desc": "Some invoice lines differ in price from their linked PO line."
+                },
+                {
+                    "value": "INVOICE_VENDOR_LIABILITY_MISSING",
+                    "desc": "Vendor is liable, but VAT is missing"
+                }
+            ],
+            "note": [],
+            "number_of_lines": {
+                "value": 3,
+                "link": "https://localhost/almaws/v1/acq/invoices/21875356400003126/lines"
+            },
+            "invoice_lines": {
+                "invoice_line": [
+                    {
+                        "id": "21875363020003126",
+                        "type": {
+                            "value": "REGULAR",
+                            "desc": "Regular"
+                        },
+                        "number": "1",
+                        "status": {
+                            "value": "READY",
+                            "desc": "Ready"
+                        },
+                        "po_line": "POL-111024",
+                        "price": 55.68,
+                        "price_note": "",
+                        "total_price": 55.68,
+                        "quantity": 1,
+                        "vat_note": "Approximately 0.00 included in line Total Price.",
+                        "check_subscription_date_overlap": false,
+                        "fully_invoiced": true,
+                        "additional_info": "",
+                        "release_remaining_encumbrance": false,
+                        "reporting_code": {
+                            "value": "APS",
+                            "desc": "Adam Siegel"
+                        },
+                        "secondary_reporting_code": {
+                            "value": "",
+                            "desc": null
+                        },
+                        "tertiary_reporting_code": {
+                            "value": "",
+                            "desc": null
+                        },
+                        "note": "",
+                        "invoice_line_vat": {
+                            "vat_code": {
+                                "value": "",
+                                "desc": null
+                            },
+                            "percentage": 0.0,
+                            "vat_amount": 0
+                        },
+                        "fund_distribution": [
+                            {
+                                "fund_code": {
+                                    "value": "H/SSXXXXXXXXPRF",
+                                    "desc": "H/SS Print Books Firm"
+                                },
+                                "percent": 100.00,
+                                "amount": 55.68
+                            }
+                        ],
+                        "link": "https://localhost/almaws/v1/acq/invoices/21875356400003126/lines/21875363020003126"
+                    },
+                    {
+                        "id": "21884724870003126",
+                        "type": {
+                            "value": "REGULAR",
+                            "desc": "Regular"
+                        },
+                        "number": "2",
+                        "status": {
+                            "value": "READY",
+                            "desc": "Ready"
+                        },
+                        "po_line": "",
+                        "price": 3.34,
+                        "price_note": "",
+                        "total_price": 3.34,
+                        "quantity": 0,
+                        "vat_note": "Approximately 0.00 included in line Total Price.",
+                        "check_subscription_date_overlap": false,
+                        "fully_invoiced": false,
+                        "additional_info": "",
+                        "release_remaining_encumbrance": false,
+                        "reporting_code": {
+                            "value": "",
+                            "desc": null
+                        },
+                        "secondary_reporting_code": {
+                            "value": "",
+                            "desc": null
+                        },
+                        "tertiary_reporting_code": {
+                            "value": "",
+                            "desc": null
+                        },
+                        "note": "",
+                        "invoice_line_vat": {
+                            "vat_code": {
+                                "value": "",
+                                "desc": null
+                            },
+                            "percentage": 0.0,
+                            "vat_amount": 0
+                        },
+                        "fund_distribution": [
+                            {
+                                "fund_code": {
+                                    "value": "GENLPOSTXXXXOTF",
+                                    "desc": "General Postage"
+                                },
+                                "percent": 100.00,
+                                "amount": 3.34
+                            }
+                        ],
+                        "link": "https://localhost/almaws/v1/acq/invoices/21875356400003126/lines/21884724870003126"
+                    },
+                    {
+                        "id": "21884725590003126",
+                        "type": {
+                            "value": "REGULAR",
+                            "desc": "Regular"
+                        },
+                        "number": "3",
+                        "status": {
+                            "value": "READY",
+                            "desc": "Ready"
+                        },
+                        "po_line": "",
+                        "price": 4.04,
+                        "price_note": "",
+                        "total_price": 4.04,
+                        "quantity": 0,
+                        "vat_note": "Approximately 0.00 included in line Total Price.",
+                        "check_subscription_date_overlap": false,
+                        "fully_invoiced": false,
+                        "additional_info": "",
+                        "release_remaining_encumbrance": false,
+                        "reporting_code": {
+                            "value": "",
+                            "desc": null
+                        },
+                        "secondary_reporting_code": {
+                            "value": "",
+                            "desc": null
+                        },
+                        "tertiary_reporting_code": {
+                            "value": "",
+                            "desc": null
+                        },
+                        "note": "",
+                        "invoice_line_vat": {
+                            "vat_code": {
+                                "value": "",
+                                "desc": null
+                            },
+                            "percentage": 0.0,
+                            "vat_amount": 0
+                        },
+                        "fund_distribution": [
+                            {
+                                "fund_code": {
+                                    "value": "GENLTAXXXXXXOTF",
+                                    "desc": "General Tax"
+                                },
+                                "percent": 100.00,
+                                "amount": 4.04
+                            }
+                        ],
+                        "link": "https://localhost/almaws/v1/acq/invoices/21875356400003126/lines/21884725590003126"
+                    }
+                ],
+                "total_record_count": 3
+            },
+            "link": "https://localhost/almaws/v1/acq/invoices/21875356400003126"
+        },
+        {
+            "number": "22_00057_0006",
+            "vendor": {
+                "value": "MIPPUSA",
+                "desc": "MIPP INTERNATIONAL"
+            },
+            "owner": {
+                "value": "SHLDS",
+                "desc": null
+            },
+            "id": "21879804310003126",
+            "invoice_date": "2022-06-02Z",
+            "vendor_account": "MIPPUSA",
+            "total_amount": 38,
+            "currency": {
+                "value": "USD",
+                "desc": "US Dollar"
+            },
+            "total_invoice_lines_amount": 38.0,
+            "vendor_contact_person": {},
+            "payment_method": {
+                "value": "BANKTRANSFERS",
+                "desc": "Bank transfers"
+            },
+            "reference_number": "",
+            "creation_form": {
+                "value": "MANUALLY",
+                "desc": "Manually"
+            },
+            "invoice_status": {
+                "value": "ACTIVE",
+                "desc": "Active"
+            },
+            "invoice_workflow_status": {
+                "value": "Ready to be Paid",
+                "desc": "Waiting for Payment"
+            },
+            "invoice_approval_status": {
+                "value": "APPROVED",
+                "desc": "Approved"
+            },
+            "approved_by": "Young Lynette",
+            "approval_date": "2022-07-11Z",
+            "additional_charges": {
+                "use_pro_rata": false,
+                "shipment": 0.00,
+                "overhead": 0.00,
+                "insurance": 0.00,
+                "discount": 0.00
+            },
+            "invoice_vat": {
+                "report_tax": false,
+                "vat_per_invoice_line": false,
+                "vat_code": {
+                    "value": "",
+                    "desc": null
+                },
+                "percentage": 0.00,
+                "vat_amount": 0,
+                "type": {
+                    "value": "LINEEXCLUSIVE",
+                    "desc": "Line Exclusive"
+                },
+                "expended_from_fund": true
+            },
+            "explicit_ratio": [],
+            "payment": {
+                "prepaid": false,
+                "internal_copy": false,
+                "payment_status": {
+                    "value": "NOT_PAID",
+                    "desc": "Not Paid"
+                },
+                "voucher_date": "2022-07-07Z",
+                "voucher_number": "",
+                "voucher_amount": "0",
+                "voucher_currency": {
+                    "value": "USD",
+                    "desc": "US Dollar"
+                }
+            },
+            "alert": [
+                {
+                    "value": "NOT_LINKED_LINES",
+                    "desc": "Lines not linked"
+                },
+                {
+                    "value": "DIFF_INVOICE_PAYMENT_METHOD",
+                    "desc": "The Payment method is not supported by the selected Vendor Account."
+                }
+            ],
+            "note": [],
+            "number_of_lines": {
+                "value": 2,
+                "link": "https://localhost/almaws/v1/acq/invoices/21879804310003126/lines"
+            },
+            "invoice_lines": {
+                "invoice_line": [
+                    {
+                        "id": "21879804620003126",
+                        "type": {
+                            "value": "REGULAR",
+                            "desc": "Regular"
+                        },
+                        "number": "1",
+                        "status": {
+                            "value": "READY",
+                            "desc": "Ready"
+                        },
+                        "po_line": "POL-111013",
+                        "price": 29.0,
+                        "price_note": "",
+                        "total_price": 29.0,
+                        "quantity": 1,
+                        "vat_note": "Approximately 0.00 included in line Total Price.",
+                        "check_subscription_date_overlap": false,
+                        "fully_invoiced": true,
+                        "additional_info": "",
+                        "release_remaining_encumbrance": false,
+                        "reporting_code": {
+                            "value": "APS",
+                            "desc": "Adam Siegel"
+                        },
+                        "secondary_reporting_code": {
+                            "value": "",
+                            "desc": null
+                        },
+                        "tertiary_reporting_code": {
+                            "value": "",
+                            "desc": null
+                        },
+                        "note": "",
+                        "invoice_line_vat": {
+                            "vat_code": {
+                                "value": "",
+                                "desc": null
+                            },
+                            "percentage": 0.0,
+                            "vat_amount": 0
+                        },
+                        "fund_distribution": [
+                            {
+                                "fund_code": {
+                                    "value": "H/SSXXXXXXXXPRF",
+                                    "desc": "H/SS Print Books Firm"
+                                },
+                                "percent": 100.00,
+                                "amount": 29
+                            }
+                        ],
+                        "link": "https://localhost/almaws/v1/acq/invoices/21879804310003126/lines/21879804620003126"
+                    },
+                    {
+                        "id": "21884978810003126",
+                        "type": {
+                            "value": "REGULAR",
+                            "desc": "Regular"
+                        },
+                        "number": "2",
+                        "status": {
+                            "value": "READY",
+                            "desc": "Ready"
+                        },
+                        "po_line": "",
+                        "price": 9.0,
+                        "price_note": "",
+                        "total_price": 9.0,
+                        "quantity": 0,
+                        "vat_note": "Approximately 0.00 included in line Total Price.",
+                        "check_subscription_date_overlap": false,
+                        "fully_invoiced": false,
+                        "additional_info": "",
+                        "release_remaining_encumbrance": false,
+                        "reporting_code": {
+                            "value": "",
+                            "desc": null
+                        },
+                        "secondary_reporting_code": {
+                            "value": "",
+                            "desc": null
+                        },
+                        "tertiary_reporting_code": {
+                            "value": "",
+                            "desc": null
+                        },
+                        "note": "",
+                        "invoice_line_vat": {
+                            "vat_code": {
+                                "value": "",
+                                "desc": null
+                            },
+                            "percentage": 0.0,
+                            "vat_amount": 0
+                        },
+                        "fund_distribution": [
+                            {
+                                "fund_code": {
+                                    "value": "GENLPOSTXXXXOTF",
+                                    "desc": "General Postage"
+                                },
+                                "percent": 100.00,
+                                "amount": 9
+                            }
+                        ],
+                        "link": "https://localhost/almaws/v1/acq/invoices/21879804310003126/lines/21884978810003126"
+                    }
+                ],
+                "total_record_count": 2
+            },
+            "link": "https://localhost/almaws/v1/acq/invoices/21879804310003126"
+        }
+    ],
+    "total_record_count": 138
+}

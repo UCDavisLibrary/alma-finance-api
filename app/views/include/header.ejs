@@ -1,0 +1,20 @@
+<ucd-theme-header
+  site-name="UC Davis Library"
+  slogan="Payment Processor"
+  figure-src="/views/img/book-logo.png"
+  prevent-fixed
+  is-demo
+>
+  <ucd-theme-primary-nav>
+    <li><a href="/">Home</a></li>
+    <li><a href="/preview">Preview Data</a></li>
+    <li>
+      <a href="/senddata">Send Data</a>
+    </li>
+  </ucd-theme-primary-nav>
+
+  <ucd-theme-search-popup>
+    <ucd-theme-search-form @search="e => console.log(e.detail.searchTerm)">
+    </ucd-theme-search-form>
+  </ucd-theme-search-popup>
+</ucd-theme-header>
