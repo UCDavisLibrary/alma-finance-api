@@ -1,4 +1,5 @@
 /app/node_modules
 /app/.env
 /app/app.env
+/app/wait.html
 /alma-cors-proxy/acp.env
