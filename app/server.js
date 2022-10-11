@@ -54,13 +54,13 @@ app.get('/', cas.bounce, function (req, res) {
   });
 });
 
-app.get('/senddata', function (req, res) {
+app.get('/senddata', cas.bounce, function (req, res) {
   res.render('send', {
     title: 'Payment Processor - Send Data',
   });
 });
 
-app.get('/datasent', function (req, res) {
+app.get('/datasent', cas.bounce, function (req, res) {
   sendData();
 
   res.render('sent', {
@@ -68,7 +68,7 @@ app.get('/datasent', function (req, res) {
   });
 });
 
-app.get('/preview', async function (req, res) {
+app.get('/preview', cas.bounce, async function (req, res) {
   const bodystuff = await getAlma();
   res.render('preview', {
     title: 'Payment Processor - Data Preview',
