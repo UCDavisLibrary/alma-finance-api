@@ -2,6 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const PORT = process.env.PORT || 5000;
 const AUTH_TOKEN = process.env.AUTH_TOKEN;
+var session = require('express-session');
+var CASAuthentication = require('node-cas-authentication');
 
 // instantiate an express app
 const app = express();
@@ -18,11 +20,35 @@ app.set('view engine', 'ejs');
 
 app.use('/views', express.static(process.cwd() + '/views')); //make public static
 
+// Set up an Express session, which is required for CASAuthentication.
+app.use(
+  session({
+    secret: process.env.EXPRESS_SESSION,
+    resave: false,
+    saveUninitialized: true,
+  })
+);
+
+// set cas variables
+var cas = new CASAuthentication({
+  cas_url: process.env.CAS_URL,
+  service_url: process.env.APP_URL,
+  // cas_version: '3.0',
+  // renew: false,
+  // is_dev_mode: false,
+  // dev_mode_user: '',
+  // dev_mode_info: {},
+  // session_name: 'cas_user',
+  // session_info: 'cas_userinfo',
+  // destroy_session: false,
+  // return_to: 'http://localhost:9999',
+});
+
 // if you want CAS
 // app.get('/', cas.bounce, function (req, res) {
 // and if you don't
 
-app.get('/', function (req, res) {
+app.get('/', cas.bounce, function (req, res) {
   res.render('index', {
     title: 'Payment Processor - Home',
   });
