@@ -5,6 +5,8 @@ const AUTH_TOKEN = process.env.AUTH_TOKEN;
 var session = require('express-session');
 var CASAuthentication = require('node-cas-authentication');
 
+const firstTest = require('./firstTest.json');
+
 // instantiate an express app
 const app = express();
 
@@ -48,19 +50,19 @@ var cas = new CASAuthentication({
 // app.get('/', cas.bounce, function (req, res) {
 // and if you don't
 
-app.get('/', cas.bounce, function (req, res) {
+app.get('/', function (req, res) {
   res.render('index', {
     title: 'Payment Processor - Home',
   });
 });
 
-app.get('/senddata', cas.bounce, function (req, res) {
+app.get('/senddata', function (req, res) {
   res.render('send', {
     title: 'Payment Processor - Send Data',
   });
 });
 
-app.get('/datasent', cas.bounce, function (req, res) {
+app.get('/datasent', function (req, res) {
   sendData();
 
   res.render('sent', {
@@ -68,163 +70,167 @@ app.get('/datasent', cas.bounce, function (req, res) {
   });
 });
 
-app.get('/preview', cas.bounce, async function (req, res) {
-  const bodystuff = await getAlma();
+app.get('/preview', async function (req, res) {
+  const bodystuff = await almatoHTMLTable();
   res.render('preview', {
     title: 'Payment Processor - Data Preview',
     body: bodystuff,
   });
 });
 
-async function getAlma() {
-  // note - alma cors error - test data only
+app.get('/previewjson', async function (req, res) {
+  const bodyraw = await setData();
+  const bodystuff = JSON.stringify(bodyraw, null, 2);
+  res.render('preview-json', {
+    title: 'Payment Processor - JSON Preview',
+    body: bodystuff,
+  });
+});
+
+async function almatoHTMLTable() {
+  let data = await setData();
+  console.log(data);
+  var temp = '';
+  temp += '<h3>Invoice Data</h3>';
+  temp += '<p>';
+  temp += data.length;
+  temp += ' invoices found</p>';
+  for (i in data) {
+    temp += '<h4>Invoice ';
+    temp += parseInt(i) + 1;
+    temp += '</h4>';
+    temp += '<table id=table';
+    temp += i;
+    temp += '>';
+
+    const header = data[i].data.header;
+    const payload = data[i].data.payload;
+
+    for (const [key, value] of Object.entries(header)) {
+      temp += '<tr><td>';
+      temp += key;
+      temp += '</td><td>';
+      temp += value;
+      temp += '</td></tr>';
+    }
+    for (const [key, value] of Object.entries(payload)) {
+      if (key === 'invoiceLines') {
+        temp += '<tr><td>';
+        temp += key;
+        temp += '</td><td><pre>';
+        temp += JSON.stringify(value, null, 2);
+        temp += '</pre></td></tr>';
+      } else {
+        temp += '<tr><td>';
+        temp += key;
+        temp += '</td><td>';
+        temp += value;
+        temp += '</td></tr>';
+      }
+    }
+    temp += '</table>';
+  }
+
+  return temp;
+}
+
+const getVendorData = async (vendorcode) => {
   const response = await fetch(
-    'http://alma-proxy:5555/almaws/v1/acq/invoices/?q=all&limit=10&offset=0&expand=none&base_status=ACTIVE'
+    `http://alma-proxy:5555/almaws/v1/acq/vendors/${vendorcode}`
   );
 
   if (response.ok) {
-    // if HTTP-status is 200-299
-    // get the response body (the method explained below)
     let data = await response.json();
-    length = data.invoice.length;
-    console.log(data);
-    // const sampleinvoice = JSON.stringify(data.invoice[0], null, '\t');
-    var temp = '';
-    temp += '<h3>Invoice Data</h3>';
-    temp += '<p>';
-    temp += length;
-    temp += ' invoices found</p>';
-    for (i in data.invoice) {
-      temp += `<h4>Invoice ${parseInt(i) + 1} </h4>`;
-      temp += '<table>';
-      temp += '<tr><th>header</th></tr>';
-      temp += '<tr><td>ApplicationName:</td><td>TESTING_APP</td></tr>';
-      temp += '<tr><td>AconsumerId:</td><td>UNITTEST</td></tr>';
-      temp +=
-        '<tr><td>consumerReferenceId:</td><td>' +
-        data.invoice[i].id +
-        '</td></tr>';
-      temp +=
-        '<tr><td>consumerTrackingId:</td><td>' +
-        data.invoice[i].number +
-        '</td></tr>';
-      temp += '<tr><th>payload:</th></tr>';
-      temp +=
-        '<tr><td>accountingDate:</td><td>' +
-        data.invoice[i].invoice_date +
-        '</td></tr>';
-      temp += "<tr><td>businessUnit:</td><td>'UCD Business Unit'</td></tr>";
-      temp +=
-        '<tr><td>invoiceDescription:</td><td>' +
-        data.invoice[i].invoice_date +
-        '</td></tr>';
-      temp +=
-        '<tr><td>invoiceAmount:</td><td>' +
-        data.invoice[i].total_amount +
-        '</td></tr>';
-      temp +=
-        '<tr><td>invoiceDate:</td><td>' +
-        data.invoice[i].invoice_date +
-        '</td></tr>';
-      temp +=
-        '<tr><td>invoiceNumber:</td><td>' +
-        data.invoice[i].number +
-        '</td></tr>';
-      temp +=
-        "<tr><td>invoiceSourceCode:</td><td>'UCD GeneralLibrary'</td></tr>";
-      temp += "<tr><td>invoiceType:</td><td>'STANDARD'</td></tr>";
-      temp += "<tr><td>paymentTerms:</td><td>'Immediate'</td></tr>";
-      temp += "<tr><td>supplierNumber:</td><td>'Some String'</td></tr>";
-      temp += "<tr><td>supplierSiteCode:</td><td>'Some String'</td></tr>";
-      temp += '<tr><td>invoiceLines:</td><td>';
-      for (j in data.invoice[i].invoice_lines.invoice_line) {
-        temp += `<h4>Item ${parseInt(j) + 1} </h4>`;
-        temp += '<table>';
-        temp += "<tr><td>itemName:</td><td>'Some String'</td></tr>";
-        temp +=
-          '<tr><td>itemDescription:</td><td>' +
-          JSON.stringify(data.invoice[i].invoice_lines.invoice_line[j].id) +
-          '</td></tr>';
-        temp +=
-          '<tr><td>lineAmount:</td><td>' +
-          data.invoice[i].invoice_lines.invoice_line[j].name +
-          '</td></tr>';
-        temp += "<tr><td>lineType:</td><td>'ITEM'</td></tr>";
-        temp += "<tr><td>unitOfMeasure:</td><td>'Each'</td></tr>";
-        temp +=
-          '<tr><td>purchaseOrderLineNumber:</td><td>' +
-          data.invoice[i].invoice_lines.invoice_line[j].number +
-          '</td></tr>';
-        temp +=
-          '<tr><td>quantity:</td><td>' +
-          data.invoice[i].invoice_lines.invoice_line[j].quantity +
-          '</td></tr>';
-        temp +=
-          '<tr><td>unitPrice:</td><td>' +
-          data.invoice[i].invoice_lines.invoice_line[j].price +
-          '</td></tr>';
-        temp += '</table>';
-      }
-      temp += '</td></tr>';
-      temp += '</table>';
-    }
+    // console.log(data);
+    return data;
+  } else {
+    // console.log(response);
+    console.log('HTTP-Error: ' + response.status);
+  }
+};
 
-    return temp;
+const setData = async () => {
+  const response = await fetch(
+    'http://alma-proxy:5555/almaws/v1/acq/invoices/?q=all&limit=10&offset=0&expand=none&invoice_workflow_status=Waiting%20to%20be%20Sent'
+  );
+
+  if (response.ok) {
+    let data = await response.json();
+    // console.log(data.invoice);
+    let apipayload = [];
+    const today = new Date().toLocaleDateString('sv-SE', {
+      timeZone: 'America/Los_Angeles',
+    });
+
+    // console.log(`today is ${today}`);
+    // from test app
+    for (i in data.invoice) {
+      let nozee = data.invoice[i].invoice_date;
+      if (nozee.includes('Z')) {
+        nozee = nozee.substring(0, nozee.length - 1);
+      } else {
+        nozee = data.invoice[i].invoice_date;
+      }
+      const vendor = data.invoice[i].vendor.value;
+      // console.log(`Vendor is ${vendor}`);
+      const vendordata = await getVendorData(vendor);
+      // console.log('vendor data is ' + JSON.stringify(vendordata));
+      apipayload.push({
+        data: {
+          header: {
+            boundaryApplicationName: 'TESTING_APP',
+            consumerId: 'UNITTEST',
+            consumerReferenceId: data.invoice[i].id,
+            consumerTrackingId: data.invoice[i].number,
+          },
+          payload: {
+            accountingDate: today,
+            businessUnit: 'UCD Business Unit',
+            invoiceDescription: data.invoice[i].vendor.desc,
+            invoiceAmount: data.invoice[i].total_amount,
+            invoiceDate: nozee,
+            invoiceNumber: data.invoice[i].number,
+            invoiceSourceCode: 'UCD GeneralLibrary',
+            invoiceType: 'STANDARD',
+            paymentMethodCode: 'ACCOUNTINGDEPARTMENT',
+            paymentTerms: 'Immediate',
+            purchaseOrderNumber: '',
+            supplierNumber: vendordata.financial_sys_code,
+            supplierSiteCode: vendordata.additional_code,
+            invoiceLines: [],
+          },
+        },
+      });
+
+      for (j in data.invoice[i].invoice_lines.invoice_line) {
+        apipayload[i].data.payload.invoiceLines.push({
+          // itemName: data.invoice[i].invoice_lines.invoice_line[j].name,
+          itemName: 'some thing',
+          itemDescription: data.invoice[i].invoice_lines.invoice_line[j].id,
+          lineAmount: data.invoice[i].invoice_lines.invoice_line[j].price,
+          lineType: 'ITEM',
+          purchaseOrderLineNumber:
+            data.invoice[i].invoice_lines.invoice_line[j].number,
+          purchasingCategory: '',
+          quantity: data.invoice[i].invoice_lines.invoice_line[j].quantity,
+          unitOfMeasure: 'Each',
+          unitPrice: data.invoice[i].invoice_lines.invoice_line[j].price,
+          glSegments: {
+            entity: '3110',
+            fund: '13U00',
+            department: '8700203',
+            account: '52630B',
+            purpose: '60',
+          },
+        });
+      }
+    }
+    // console.log(JSON.stringify(apipayload[0]));
+    return apipayload;
   } else {
     console.log(response);
     console.log('HTTP-Error: ' + response.status);
-    return 'error';
   }
-}
-
-const variables = {
-  // from test app
-
-  data: {
-    header: {
-      boundaryApplicationName: 'TESTING_APP',
-      consumerId: 'UNITTEST',
-      consumerReferenceId: 'A_UNIQUE_ID',
-      consumerTrackingId: 'CONSUMER_ORDER_NBR_2',
-    },
-    payload: {
-      accountingDate: '2022-02-01',
-      businessUnit: 'UCD Business Unit',
-      invoiceDescription: 'Some String',
-      invoiceAmount: 123.45,
-      invoiceDate: '2022-02-01',
-      invoiceNumber: 'AND_Unmatched_Invoice',
-      invoiceSourceCode: 'UCD GeneralLibrary',
-      invoiceType: 'STANDARD',
-      paymentMethodCode: 'Some String',
-      paymentTerms: 'Immediate',
-      purchaseOrderNumber: 'Some String',
-      supplierNumber: 'Some String',
-      supplierSiteCode: 'Some String',
-      invoiceLines: [
-        {
-          itemName: 'Some String',
-          itemDescription: 'xyz789',
-          lineAmount: 123.45,
-          lineType: 'ITEM',
-          purchaseOrderLineNumber: 123,
-          purchasingCategory: 'Some String',
-          quantity: 123,
-          unitOfMeasure: 'Some String',
-          unitPrice: 987.65,
-          glSegments: {
-            entity: '1311',
-            fund: '63031',
-            department: '9300051',
-            account: '508210',
-            purpose: '44',
-          },
-          glSegmentString:
-            '1311-63031-9300051-508210-44-G29-CM00000039-510139-0000-000000-000000',
-        },
-      ],
-    },
-  },
 };
 
 const query = `mutation scmInvoicePaymentRequest($data: ScmInvoicePaymentRequestInput!) {
@@ -242,8 +248,12 @@ const query = `mutation scmInvoicePaymentRequest($data: ScmInvoicePaymentRequest
     }
 }}`;
 
-const sendData = () => {
-  fetch(process.env.AGGIE_ENTERPRISE_TEST, {
+const sendData = async () => {
+  const variables = await setData();
+
+  // const variables = firstTest;
+
+  fetch(process.env.AIT_TEST_URL, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -255,7 +265,7 @@ const sendData = () => {
     }),
   })
     .then((res) => res.json())
-    .then((result) => console.log(result));
+    .then((result) => console.log(JSON.stringify(result)));
 };
 
 /*************************************************/
