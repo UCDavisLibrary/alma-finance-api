@@ -6,6 +6,7 @@ var session = require('express-session');
 var CASAuthentication = require('node-cas-authentication');
 
 const firstTest = require('./firstTest.json');
+const e = require('express');
 
 // instantiate an express app
 const app = express();
@@ -96,15 +97,20 @@ async function almatoHTMLTable() {
   temp += data.length;
   temp += ' invoices found</p>';
   for (i in data) {
-    temp += '<h4>Invoice ';
-    temp += parseInt(i) + 1;
-    temp += '</h4>';
-    temp += '<table id=table';
-    temp += i;
-    temp += '>';
-
     const header = data[i].data.header;
     const payload = data[i].data.payload;
+    const invoiceLines = data[i].data.payload.invoiceLines;
+
+    temp += '<div class="invoice-header"><h4>Invoice ';
+    temp += parseInt(i) + 1;
+    temp += ' - ';
+    temp += header.consumerTrackingId;
+    temp += '</h4>  <button onClick="toggle(table';
+    temp += i;
+    temp += ')">show</button></div><br>';
+    temp += '<table id="table';
+    temp += i;
+    temp += '"class="invoicediv hidden">';
 
     for (const [key, value] of Object.entries(header)) {
       temp += '<tr><td>';
@@ -117,9 +123,37 @@ async function almatoHTMLTable() {
       if (key === 'invoiceLines') {
         temp += '<tr><td>';
         temp += key;
-        temp += '</td><td><pre>';
-        temp += JSON.stringify(value, null, 2);
-        temp += '</pre></td></tr>';
+        temp += ' (';
+        temp += invoiceLines.length;
+        temp += ')</td><td>';
+        for (j in invoiceLines) {
+          temp += '<table class="invoice-lines">';
+          const invoice = invoiceLines[j];
+          for (const [key, value] of Object.entries(invoice)) {
+            const glSegments = invoice.glSegments;
+            if (key === 'glSegments') {
+              temp += '<tr><td>';
+              temp += key;
+              temp += '</td><td><table>';
+              for (const [key, value] of Object.entries(glSegments)) {
+                temp += '<tr><td>';
+                temp += key;
+                temp += '</td><td>';
+                temp += value;
+                temp += '</td></tr>';
+              }
+              temp += '</table></td></tr>';
+            } else {
+              temp += '<tr><td>';
+              temp += key;
+              temp += '</td><td>';
+              temp += value;
+              temp += '</td></tr>';
+            }
+          }
+          temp += '</table>';
+        }
+        temp += '</td></tr>';
       } else {
         temp += '<tr><td>';
         temp += key;
@@ -212,15 +246,18 @@ const setData = async () => {
           purchaseOrderLineNumber:
             data.invoice[i].invoice_lines.invoice_line[j].number,
           purchasingCategory: '',
-          quantity: data.invoice[i].invoice_lines.invoice_line[j].quantity,
+          quantity:
+            data.invoice[i].invoice_lines.invoice_line[j].quantity > 0
+              ? data.invoice[i].invoice_lines.invoice_line[j].quantity
+              : 1,
           unitOfMeasure: 'Each',
           unitPrice: data.invoice[i].invoice_lines.invoice_line[j].price,
           glSegments: {
-            entity: '3110',
-            fund: '13U00',
-            department: '8700203',
-            account: '52630B',
-            purpose: '60',
+            entity: process.env.GL_ENTITY,
+            fund: process.env.GL_FUND,
+            department: process.env.GL_DEPARTMENT,
+            account: process.env.GL_ACCOUNT,
+            purpose: process.env.GL_PURPOSE,
           },
         });
       }
@@ -249,23 +286,33 @@ const query = `mutation scmInvoicePaymentRequest($data: ScmInvoicePaymentRequest
 }}`;
 
 const sendData = async () => {
-  const variables = await setData();
+  const invoices = await setData();
 
-  // const variables = firstTest;
-
-  fetch(process.env.AIT_TEST_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${process.env.ACCESS_TOKEN}`,
-    },
-    body: JSON.stringify({
-      query,
-      variables,
-    }),
-  })
-    .then((res) => res.json())
-    .then((result) => console.log(JSON.stringify(result)));
+  for (i in invoices) {
+    variables = invoices[i];
+    fetch(process.env.AIT_TEST_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${process.env.ACCESS_TOKEN}`,
+      },
+      body: JSON.stringify({
+        query,
+        variables,
+      }),
+    })
+      .then((res) => res.json())
+      .then(
+        (result) =>
+          result.data.scmInvoicePaymentCreate.validationResults.errorMessages[0].startsWith(
+            'A request already exists for your consumerId and consumerTrackingId'
+          ) ||
+          result.data.scmInvoicePaymentCreate.validationResults.errorMessages ==
+            null
+            ? console.log('perfect') // change invoice status
+            : console.log(JSON.stringify(result)) // display errors on tool
+      );
+  }
 };
 
 /*************************************************/
