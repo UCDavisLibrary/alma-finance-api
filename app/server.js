@@ -51,19 +51,19 @@ var cas = new CASAuthentication({
 // app.get('/', cas.bounce, function (req, res) {
 // and if you don't
 
-app.get('/', function (req, res) {
+app.get('/', cas.bounce, function (req, res) {
   res.render('index', {
     title: 'Payment Processor - Home',
   });
 });
 
-app.get('/senddata', function (req, res) {
+app.get('/senddata', cas.bounce, function (req, res) {
   res.render('send', {
     title: 'Payment Processor - Send Data',
   });
 });
 
-app.get('/datasent', function (req, res) {
+app.get('/datasent', cas.bounce, function (req, res) {
   sendData();
 
   res.render('sent', {
@@ -71,7 +71,7 @@ app.get('/datasent', function (req, res) {
   });
 });
 
-app.get('/preview', async function (req, res) {
+app.get('/preview', cas.bounce, async function (req, res) {
   const bodystuff = await almatoHTMLTable();
   res.render('preview', {
     title: 'Payment Processor - Data Preview',
@@ -79,7 +79,7 @@ app.get('/preview', async function (req, res) {
   });
 });
 
-app.get('/previewjson', async function (req, res) {
+app.get('/previewjson', cas.bounce, async function (req, res) {
   const bodyraw = await setData();
   const bodystuff = JSON.stringify(bodyraw, null, 2);
   res.render('preview-json', {
