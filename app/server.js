@@ -6,6 +6,9 @@ var session = require('express-session');
 var CASAuthentication = require('node-cas-authentication');
 
 // const firstTest = require('./firstTest.json');
+
+const sit2TEst = require('./sit2Test.json');
+const mySentRequests = require('./mySentRequests.json');
 const e = require('express');
 
 // instantiate an express app
@@ -51,27 +54,31 @@ var cas = new CASAuthentication({
 // app.get('/', cas.bounce, function (req, res) {
 // and if you don't
 
-app.get('/', cas.bounce, function (req, res) {
+app.get('/', function (req, res) {
   res.render('index', {
     title: 'Payment Processor - Home',
   });
 });
 
-app.get('/senddata', cas.bounce, function (req, res) {
+app.get('/senddata', function (req, res) {
   res.render('send', {
     title: 'Payment Processor - Send Data',
   });
 });
 
-app.get('/datasent', cas.bounce, function (req, res) {
-  sendData();
+app.get('/datasent', async function (req, res) {
+  // const invoices = sit2TEst;
+
+  const invoices = await setData();
+
+  aggieEnterprise(paymentRequest, invoices);
 
   res.render('sent', {
     title: 'Payment Processor - Data Sent',
   });
 });
 
-app.get('/preview', cas.bounce, async function (req, res) {
+app.get('/preview', async function (req, res) {
   const bodystuff = await almatoHTMLTable();
   res.render('preview', {
     title: 'Payment Processor - Data Preview',
@@ -79,11 +86,22 @@ app.get('/preview', cas.bounce, async function (req, res) {
   });
 });
 
-app.get('/previewjson', cas.bounce, async function (req, res) {
+app.get('/previewjson', async function (req, res) {
   const bodyraw = await setData();
   const bodystuff = JSON.stringify(bodyraw, null, 2);
   res.render('preview-json', {
     title: 'Payment Processor - JSON Preview',
+    body: bodystuff,
+  });
+});
+
+app.get('/checkstatus', async function (req, res) {
+  const sentRequests = mySentRequests;
+
+  const bodyraw = await aggieEnterprise(paymentStatus, sentRequests);
+  const bodystuff = JSON.stringify(bodyraw, null, 2);
+  res.render('checkstatus', {
+    title: 'Payment Processor - Check Payment Status',
     body: bodystuff,
   });
 });
@@ -238,8 +256,8 @@ const setData = async () => {
 
       for (j in data.invoice[i].invoice_lines.invoice_line) {
         apipayload[i].data.payload.invoiceLines.push({
-          // itemName: data.invoice[i].invoice_lines.invoice_line[j].name,
-          itemName: 'some thing',
+          // itemName: data.invoice[i].invoice_lines.invoice_line[j].name, // should be vendor name  ok to leave blank
+          itemName: '',
           itemDescription: data.invoice[i].invoice_lines.invoice_line[j].id,
           lineAmount: data.invoice[i].invoice_lines.invoice_line[j].price,
           lineType: 'ITEM',
@@ -270,7 +288,18 @@ const setData = async () => {
   }
 };
 
-const query = `mutation scmInvoicePaymentRequest($data: ScmInvoicePaymentRequestInput!) {
+const paymentStatus = `query scmInvoicePaymentRequestStatus($requestId: String!) {
+  scmInvoicePaymentRequestStatus(requestId: $requestId) {
+    requestStatus {
+      requestId
+      consumerId
+      requestStatus
+      requestDateTime
+    }
+  }
+}`;
+
+const paymentRequest = `mutation scmInvoicePaymentRequest($data: ScmInvoicePaymentRequestInput!) {
   scmInvoicePaymentCreate(data: $data) {
       requestStatus {
           requestId
@@ -285,12 +314,10 @@ const query = `mutation scmInvoicePaymentRequest($data: ScmInvoicePaymentRequest
     }
 }}`;
 
-const sendData = async () => {
-  const invoices = await setData();
-
-  for (i in invoices) {
-    variables = invoices[i];
-    fetch(process.env.AIT_TEST_URL, {
+const aggieEnterprise = async (query, variableInputs) => {
+  for (i in variableInputs) {
+    variables = variableInputs[i];
+    fetch(process.env.SIT_2_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -304,13 +331,14 @@ const sendData = async () => {
       .then((res) => res.json())
       .then(
         (result) =>
-          result.data.scmInvoicePaymentCreate.validationResults.errorMessages[0].startsWith(
-            'A request already exists for your consumerId and consumerTrackingId'
-          ) ||
-          result.data.scmInvoicePaymentCreate.validationResults.errorMessages ==
-            null
-            ? console.log('perfect') // change invoice status
-            : console.log(JSON.stringify(result)) // display errors on tool
+          // result.data.scmInvoicePaymentCreate.validationResults.errorMessages[0].startsWith(
+          //   'A request already exists for your consumerId and consumerTrackingId'
+          // ) ||
+          // result.data.scmInvoicePaymentCreate.validationResults.errorMessages ==
+          //   null
+          //   ? console.log('perfect') // change invoice status
+          //   : console.log(JSON.stringify(result)) // display errors on tool
+          console.log(JSON.stringify(result)) // display errors on tool
       );
   }
 };
