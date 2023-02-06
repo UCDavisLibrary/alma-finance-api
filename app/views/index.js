@@ -275,3 +275,5 @@ const sendData = () => {
     .then((res) => res.json())
     .then((result) => console.log(result));
 };
+
+// remove from app
