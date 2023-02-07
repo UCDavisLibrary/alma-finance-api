@@ -42,6 +42,6 @@ router.get('/preview', controller.getPreviewPage);
   
 router.get('/previewjson', controller.getPreviewJSON);
 
-app.get('/checkstatus', controller.getCheckStatus);
+router.get('/checkstatus', controller.getCheckStatus);
 
 module.exports = router;

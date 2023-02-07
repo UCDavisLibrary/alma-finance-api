@@ -115,7 +115,7 @@ const setData = async () => {
       'http://alma-proxy:5555/almaws/v1/acq/invoices/?q=all&limit=10&offset=0&expand=none&invoice_workflow_status=Waiting%20to%20be%20Sent'
     ).then(response => response.json());
 
-      // console.log(data);
+      console.log(data);
       let apipayload = [];
       const today = new Date().toLocaleDateString('sv-SE', {
         timeZone: 'America/Los_Angeles',
@@ -153,7 +153,7 @@ const setData = async () => {
                   invoiceAmount: data.invoice[i].total_amount,
                   invoiceDate: nozee,
                   invoiceNumber: data.invoice[i].number,
-                  invoiceSourceCode: 'UCD GeneralLibrary',
+                  invoiceSourceCode: data.invoice[i].owner.value === 'LAW' ? 'UCD LawLibrary' : 'UCD GeneralLibrary',
                   invoiceType: 'STANDARD',
                   paymentMethodCode: 'ACCOUNTINGDEPARTMENT',
                   paymentTerms: 'Immediate',
@@ -191,8 +191,8 @@ const setData = async () => {
             unitPrice: data.invoice[i].invoice_lines.invoice_line[j].price,
             glSegments: {
               entity: process.env.GL_ENTITY,
-              fund: process.env.GL_FUND,
-              department: process.env.GL_DEPARTMENT,
+              fund: data.invoice[i].owner.value === 'LAW' ? process.env.GL_FUND_LAW : process.env.GL_FUND,
+              department: data.invoice[i].owner.value === 'LAW' ? process.env.GL_DEPARTMENT_LAW : process.env.GL_DEPARTMENT,
               account: process.env.GL_ACCOUNT,
               purpose: process.env.GL_PURPOSE,
             },
@@ -209,33 +209,27 @@ const setData = async () => {
 
 };
 
-const paymentStatus = `query scmInvoicePaymentRequestStatus($requestId: String!) {
-  scmInvoicePaymentRequestStatus(requestId: $requestId) {
-    requestStatus {
-      requestId
-      consumerId
-      requestStatus
-      requestDateTime
-    }
-  }
-}`;
 
-const paymentRequest = `mutation scmInvoicePaymentRequest($data: ScmInvoicePaymentRequestInput!) {
-  scmInvoicePaymentCreate(data: $data) {
-      requestStatus {
-          requestId
-          consumerId
-          requestDateTime
-          requestStatus
-          operationName
-        }
-    validationResults {
-        errorMessages
-        messageProperties
-    }
-}}`;
 
-const aggieEnterprise = async (query) => {
+
+const aggieEnterprisePaymentRequest = async () => {
+
+  const paymentRequest = `mutation scmInvoicePaymentRequest($data: ScmInvoicePaymentRequestInput!) {
+    scmInvoicePaymentCreate(data: $data) {
+        requestStatus {
+            requestId
+            consumerId
+            requestDateTime
+            requestStatus
+            operationName
+          }
+      validationResults {
+          errorMessages
+          messageProperties
+      }
+  }}`;
+
+  const query = paymentRequest;
 
   try {
     const variableInputs = await setData();
@@ -274,7 +268,81 @@ const aggieEnterprise = async (query) => {
 
 };
 
+const aggieEnterprisePaymentStatus = async () => {
 
+  const requestId = "01d9d416-7535-4e0e-a8cf-53a34f27c81d";
+
+  const query = `query {
+    scmPurchaseRequisitionRequestStatus(requestId: "${requestId}") {
+      requestStatus {
+              requestId
+              consumerTrackingId
+              consumerReferenceId
+              consumerNotes
+              requestDateTime
+              requestStatus
+              lastStatusDateTime
+              processedDateTime
+              errorMessages
+          }
+          validationResults {
+              valid
+              errorMessages
+              messageProperties
+          }
+    }
+  }`;
+
+
+  // const query = `query scmPurchaseRequisitionRequestStatus($requestId: ${requestId}) {
+  //   scmPurchaseRequisitionRequestStatus(requestId: $requestId) {
+  //     requestStatus {
+  //             requestId
+  //             consumerTrackingId
+  //             consumerReferenceId
+  //             consumerNotes
+  //             requestDateTime
+  //             requestStatus
+  //             lastStatusDateTime
+  //             processedDateTime
+  //             errorMessages
+  //         }
+  //         validationResults {
+  //             valid
+  //             errorMessages
+  //             messageProperties
+  //         }
+  //   }
+  // }`;
+
+  try {
+  //   if (variableInputs) {
+  //     for (i in variableInputs) {
+        // variables = variableInputs[i];
+        // const variables =  "6ad96d2a-3a97-4517-80aa-cb8eec51ae7c";
+        await fetch(process.env.SIT_2_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${process.env.ACCESS_TOKEN}`,
+          },
+          body: JSON.stringify({
+            query,
+          }),
+        })
+          .then((res) => res.json())
+          .then(
+            (result) =>
+              console.log(JSON.stringify(result)) // display errors on tool
+          );
+  //     }
+  //   }
+  }
+  catch (error) {
+    console.log(error);
+  }
+
+};
 
 exports.getHomepage = (req, res, next) => {
     res.render('index', {
@@ -289,7 +357,7 @@ exports.getSendPage = (req, res, next) => {
 }
 
 exports.getDataSentPage = (req, res, next) => {
-    aggieEnterprise(paymentRequest);
+  aggieEnterprisePaymentRequest();
       res.render('sent', {
         title: 'Payment Processor - Data Sent',
     });
@@ -313,7 +381,7 @@ exports.getPreviewJSON = async (req, res, next) => {
 }
 
 exports.getCheckStatus = async (req, res, next) => {
-    const bodyraw = await aggieEnterprise(paymentStatus, sentRequests);
+    const bodyraw = await aggieEnterprisePaymentStatus();
     const bodystuff = JSON.stringify(bodyraw, null, 2);
     res.render('checkstatus', {
       title: 'Payment Processor - Check Payment Status',
