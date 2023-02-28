@@ -39,6 +39,8 @@ router.get('/senddata', controller.getSendPage);
 router.get('/datasent', controller.getDataSentPage);
   
 router.get('/preview', controller.getPreviewPage);
+
+router.get('/previewcomplete', controller.getPreviewCompletePage);
   
 router.get('/previewjson', controller.getPreviewJSON);
 
