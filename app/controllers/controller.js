@@ -295,9 +295,8 @@ const setData = async () => {
                 const account = glString.split(".")[3];
                 const purpose = glString.split(".")[4];
                 let object2 = {
-                  percent: data.invoice[i].invoice_lines.invoice_line[j].fund_distribution[k].percent,
+                  // percent: data.invoice[i].invoice_lines.invoice_line[j].fund_distribution[k].percent,
                   glSegments: {
-                    glString: glString,
                     entity: entity,
                     fund: fund,
                     department: department,
@@ -318,6 +317,113 @@ const setData = async () => {
 
       }
       // console.log(JSON.stringify(apipayload[0]));
+      return apipayload;
+
+
+  }
+  catch(error) {console.log(error)};
+
+
+};
+
+const previewData = async () => {
+  try {
+    const data = await fetch(
+      'http://alma-proxy:5555/almaws/v1/acq/invoices/?q=all&limit=20&offset=0&expand=none&invoice_workflow_status=Waiting%20to%20be%20Sent'
+    ).then(response => response.json());
+
+      // console.log('data is: ' + JSON.stringify(data));
+      const today = new Date().toLocaleDateString('sv-SE', {
+        timeZone: 'America/Los_Angeles',
+      });
+  
+      // console.log(`today is ${today}`);
+      // from test app
+      let temp = '';
+      temp += '<h3>Invoice Data</h3>';
+      temp += '<p>';
+      temp += data.total_record_count;
+      temp += ' invoices found</p>';
+      temp += '<table>'
+      temp += '<tr>';
+      temp += '<td>Doc #</td>';
+      temp += '<td>Vender #</td>';
+      temp += '<td>Vender Name</td>';
+      temp += '<td>Invoice #</td>';	
+      temp += '<td>Check #</td>';	 
+      temp += '<td>Amount</td>'; 	
+      temp += '<td>Date</td>';	
+      temp += '<td>Invoice Total</td>'; 
+      temp += '<td>Use tax</td>';
+      temp += '</tr>';
+      for (i in data.invoice) {
+        // console.log(JSON.stringify(data.invoice));
+        let nozee = data.invoice[i].invoice_date;
+        if (nozee.includes('Z')) {
+          nozee = nozee.substring(0, nozee.length - 1);
+        } else {
+          nozee = data.invoice[i].invoice_date;
+        }
+        const vendor = data.invoice[i].vendor.value;
+        // console.log(`Vendor is ${vendor}`);
+
+        try {
+          const vendordata = await getVendorData(vendor);
+          console.log('vendor data is ' + JSON.stringify(vendordata));
+          
+          if (vendordata) {
+  
+          temp += '<tr>';
+      
+          temp += '<td>Doc #</td>';
+          temp += `<td>${vendordata.code}</td>`;
+          temp += `<td>${vendordata.name}</td>`;
+          temp += `<td>${data.invoice[i].id}</td>`;
+          temp += '<td>Check #</td>';	 
+          temp += `<td>${data.invoice[i].total_amount}</td>`;
+          temp += `<td>${nozee}</td>`;	
+          temp += `<td>${data.invoice[i].total_amount}</td>`;
+          temp += '<td>Vendor Taxed</td>';
+          temp += '</tr>';
+        }
+
+        }
+
+        catch (error) {console.log(error);}
+
+      }
+      temp += '</table>';
+
+      return temp;
+
+  }
+  catch(error) {console.log(error)};
+
+
+};
+
+const simpleInvoice = async () => {
+  try {
+    const data = await fetch(
+      'http://alma-proxy:5555/almaws/v1/acq/invoices/?q=all&limit=20&offset=0&expand=none&invoice_workflow_status=Waiting%20to%20be%20Sent'
+    ).then(response => response.json());
+
+      console.log(data);
+      let apipayload = [];
+  
+      // console.log(`today is ${today}`);
+      // from test app
+      for (i in data.invoice) {
+
+        apipayload.push({
+          // consumerId: data.invoice[i].owner.value === 'LAW' ? 'UCD LawLibrary' : 'UCD GeneralLibrary',
+          // consumerReferenceId: data.invoice[i].id,
+          consumerTrackingId: data.invoice[i].number,
+        });
+
+      }
+      // console.log(JSON.stringify(apipayload[0]));
+      // console.log(JSON.stringify(apipayload));
       return apipayload;
 
 
@@ -414,6 +520,7 @@ const aggieEnterprisePaymentStatus = async () => {
   }`;
 
 
+
   // const query = `query scmPurchaseRequisitionRequestStatus($requestId: ${requestId}) {
   //   scmPurchaseRequisitionRequestStatus(requestId: $requestId) {
   //     requestStatus {
@@ -464,6 +571,75 @@ const aggieEnterprisePaymentStatus = async () => {
 
 };
 
+const scmPurchaseRequisitionRequestStatusByConsumerTracking = async () => {
+
+  const query = `query scmPurchaseRequisitionRequestStatusByConsumerTracking($consumerTrackingId: String!) {
+    scmPurchaseRequisitionRequestStatusByConsumerTracking(consumerTrackingId: $consumerTrackingId) {
+      requestStatus {
+        requestId
+        consumerNotes
+        operationName
+        requestDateTime
+        requestStatus
+        lastStatusDateTime
+        processedDateTime
+        errorMessages
+
+        batchRequest
+        
+      }
+      processingResult {
+        status
+        requestDateTime
+        lastStatusCheckDateTime
+        processedDateTime
+        errorMessages
+        hasWarnings
+
+
+      }
+      validationResults {
+        valid
+        errorMessages
+        messageProperties
+      }
+    }
+  }`;
+
+
+  try {
+    const variableInputs = await simpleInvoice();
+    // console.log(JSON.stringify(variableInputs));
+    if (variableInputs) {
+      for (i in variableInputs) {
+        variables = variableInputs[i];
+        console.log(variables);
+        await fetch(process.env.SIT_2_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${process.env.ACCESS_TOKEN}`,
+          },
+          body: JSON.stringify({
+            query,
+            variables,
+          }),
+        })
+          .then((res) => res.json())
+          .then(
+            (result) => {
+              console.log(JSON.stringify(result)); // display errors on tool
+            }
+          );
+      }
+
+    }
+  }
+  catch (error) {
+    console.log(error);
+  }
+}
+
 exports.getHomepage = (req, res, next) => {
     res.render('index', {
         title: 'Payment Processor - Home',
@@ -492,7 +668,7 @@ exports.getPreviewCompletePage = async (req, res, next) => {
 }
 
 exports.getPreviewPage = async (req, res, next) => {
-  const bodystuff = await almatoHTMLTable();
+  const bodystuff = await previewData();
   res.render('preview', {
     title: 'Payment Processor - Data Preview',
     body: bodystuff,
@@ -509,7 +685,7 @@ exports.getPreviewJSON = async (req, res, next) => {
 }
 
 exports.getCheckStatus = async (req, res, next) => {
-    const bodyraw = await aggieEnterprisePaymentStatus();
+    const bodyraw = await scmPurchaseRequisitionRequestStatusByConsumerTracking();
     const bodystuff = JSON.stringify(bodyraw, null, 2);
     res.render('checkstatus', {
       title: 'Payment Processor - Check Payment Status',
