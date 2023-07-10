@@ -11,7 +11,7 @@ async function almatoHTMLTable() {
     const data = await setData();
     if (data) {
 
-    console.log(data);
+    // console.log(data);
     var temp = '';
     temp += '<h3>Invoice Data</h3>';
     temp += '<p>';
@@ -75,13 +75,25 @@ async function almatoHTMLTable() {
 
 }
 
-async function almatoHTMLTableComplete() {
+async function almatoHTMLTableComplete(input) {
+  // console.log(input);
 
-  try { 
-    const data = await setData();
+  try {
+
+    const checkdata = async () => {
+    if (input) {
+      let data = await setSelectedData(input);
+      return data;
+    }
+    else {
+      let data = await setData();
+      return data;
+    }
+  }
+    const data = await checkdata(input);
     if (data) {
 
-    console.log(data);
+    // console.log(data);
     var temp = '';
     temp += '<h3>Invoice Data</h3>';
     temp += '<p>';
@@ -122,6 +134,7 @@ async function almatoHTMLTableComplete() {
             const invoice = invoiceLines[j];
             for (const [key, value] of Object.entries(invoice)) {
               const glSegments = invoice.glSegments;
+              const ppmSegments = invoice.ppmSegments;
               if (key === 'glSegments') {
                 temp += '<tr><td>';
                 temp += key;
@@ -134,6 +147,18 @@ async function almatoHTMLTableComplete() {
                   temp += '</td></tr>';
                 }
                 temp += '</table></td></tr>';
+              } else if (key === 'ppmSegments') {
+                  temp += '<tr><td>';
+                  temp += key;
+                  temp += '</td><td><table>';
+                  for (const [key, value] of Object.entries(ppmSegments)) {
+                    temp += '<tr><td>';
+                    temp += key;
+                    temp += '</td><td>';
+                    temp += value;
+                    temp += '</td></tr>';
+                  }
+                  temp += '</table></td></tr>';
               } else {
                 temp += '<tr><td>';
                 temp += key;
@@ -183,6 +208,7 @@ const getFundData = async (fundCode) => {
   try {
     const data = await fetch(
     `http://alma-proxy:5555/almaws/v1/acq/funds?limit=10&offset=0&q=fund_code~${fundCode}&view=brief&mode=POL&status=ALL&entity_type=ALL&fiscal_period=ALL&parent_id=ALL&owner=ALL`
+    // `http://alma-proxy:5555/almaws/v1/acq/funds/${fundCode}?view=full`
   ).then(response => response.json());
 
   if (data) {
@@ -199,132 +225,178 @@ const setData = async () => {
       'http://alma-proxy:5555/almaws/v1/acq/invoices/?q=all&limit=20&offset=0&expand=none&invoice_workflow_status=Waiting%20to%20be%20Sent'
     ).then(response => response.json());
 
-      console.log(data);
-      let apipayload = [];
-      const today = new Date().toLocaleDateString('sv-SE', {
-        timeZone: 'America/Los_Angeles',
-      });
-  
-      // console.log(`today is ${today}`);
-      // from test app
-      for (i in data.invoice) {
-        let nozee = data.invoice[i].invoice_date;
-        if (nozee.includes('Z')) {
-          nozee = nozee.substring(0, nozee.length - 1);
-        } else {
-          nozee = data.invoice[i].invoice_date;
-        }
-        const vendor = data.invoice[i].vendor.value;
-        // console.log(`Vendor is ${vendor}`);
-
-        try {
-          const vendordata = await getVendorData(vendor);
-          // console.log('vendor data is ' + JSON.stringify(vendordata));
-          
-          if (vendordata) {
-            apipayload.push({
-              data: {
-                header: {
-                  boundaryApplicationName: 'Library Check Processing',
-                  consumerId: data.invoice[i].owner.value === 'LAW' ? 'UCD LawLibrary' : 'UCD GeneralLibrary',
-                  consumerReferenceId: data.invoice[i].id,
-                  consumerTrackingId: data.invoice[i].number,
-                },
-                payload: {
-                  accountingDate: today,
-                  businessUnit: 'UCD Business Unit',
-                  invoiceDescription: data.invoice[i].vendor.desc,
-                  invoiceAmount: data.invoice[i].total_amount,
-                  invoiceDate: nozee,
-                  invoiceNumber: data.invoice[i].number,
-                  invoiceSourceCode: data.invoice[i].owner.value === 'LAW' ? 'UCD LawLibrary' : 'UCD GeneralLibrary',
-                  invoiceType: 'STANDARD',
-                  paymentMethodCode: 'ACCOUNTINGDEPARTMENT',
-                  paymentTerms: 'Immediate',
-                  purchaseOrderNumber: '',
-                  supplierNumber: vendordata.financial_sys_code,
-                  supplierSiteCode: vendordata.additional_code,
-                  invoiceLines: [],
-                },
-              },
-            });
-          }
-
-        }
-
-        catch (error) {
-          console.log(error);
-        }
-
-  
-        for (j in data.invoice[i].invoice_lines.invoice_line) {
-          let object1 = {
-            // itemName: data.invoice[i].invoice_lines.invoice_line[j].name, // should be vendor name  ok to leave blank
-            itemName: '',
-            itemDescription: data.invoice[i].invoice_lines.invoice_line[j].id,
-            lineAmount: data.invoice[i].invoice_lines.invoice_line[j].price,
-            lineType: 'ITEM',
-            purchaseOrderLineNumber:
-              data.invoice[i].invoice_lines.invoice_line[j].number,
-            purchasingCategory: '',
-            quantity:
-              data.invoice[i].invoice_lines.invoice_line[j].quantity > 0
-                ? data.invoice[i].invoice_lines.invoice_line[j].quantity
-                : 1,
-            unitOfMeasure: 'Each',
-            unitPrice: data.invoice[i].invoice_lines.invoice_line[j].price,
-            // glSegments: {
-            //   entity: process.env.GL_ENTITY,
-            //   fund: data.invoice[i].owner.value === 'LAW' ? process.env.GL_FUND_LAW : process.env.GL_FUND,
-            //   department: data.invoice[i].owner.value === 'LAW' ? process.env.GL_DEPARTMENT_LAW : process.env.GL_DEPARTMENT,
-            //   account: process.env.GL_ACCOUNT,
-            //   purpose: process.env.GL_PURPOSE,
-            // },
-            // glSegments: {}
-          }
-          for (k in data.invoice[i].invoice_lines.invoice_line[j].fund_distribution) {
-            console.log('fund distribution' + JSON.stringify(data.invoice[i].invoice_lines.invoice_line[j].fund_distribution));
-            const fundCode = data.invoice[i].invoice_lines.invoice_line[j].fund_distribution[k].fund_code.value;
-            if (fundCode) {
-              try {
-                const fundData = await getFundData(fundCode);
-                const glString = fundData.fund[0].external_id;
-                const entity = glString.split(".")[0];
-                const fund = glString.split(".")[1];
-                const department = glString.split(".")[2];
-                const account = glString.split(".")[3];
-                const purpose = glString.split(".")[4];
-                let object2 = {
-                  // percent: data.invoice[i].invoice_lines.invoice_line[j].fund_distribution[k].percent,
-                  glSegments: {
-                    entity: entity,
-                    fund: fund,
-                    department: department,
-                    account: account,
-                    purpose: purpose
-                  }
-                };
-                let merged = {...object1, ...object2};
-                apipayload[i].data.payload.invoiceLines.push(merged);
-              }
-              catch (err) {
-                console.log(err);
-              }
-            }
-          }
-
-        }
-
-      }
-      // console.log(JSON.stringify(apipayload[0]));
+      const apipayload = await reformatAlmaInvoiceforAPI(data);
       return apipayload;
-
 
   }
   catch(error) {console.log(error)};
 
+};
+
+const setSelectedData = async (invoiceids) => {
+  // console.log(invoiceids);
+  try {
+    data = {invoice: []};
+    // data = [];
+    for (invoice of invoiceids) {
+      // console.log(invoice);
+      const invoicedata = await fetch(
+        `http://alma-proxy:5555/almaws/v1/acq/invoices/${invoice}?expand=none`
+      ).then(response => response.json());
+      // console.log(invoicedata);
+      data.invoice.push(invoicedata);
+      }
+
+    const apipayload = await reformatAlmaInvoiceforAPI(data);
+    // console.log('apipayload ' + JSON.stringify(apipayload));
+    return apipayload;
+
+  }
+  catch(error) {console.log(error)};
 
 };
+
+const reformatAlmaInvoiceforAPI = async (data) => {
+        // console.log('data length is : ' + data.length);
+        let apipayload = [];
+        const today = new Date().toLocaleDateString('sv-SE', {
+          timeZone: 'America/Los_Angeles',
+        });
+    
+        // console.log(`today is ${today}`);
+        // from test app
+        for (i in data.invoice) {
+          let nozee = data.invoice[i].invoice_date;
+          if (nozee.includes('Z')) {
+            nozee = nozee.substring(0, nozee.length - 1);
+          } else {
+            nozee = data.invoice[i].invoice_date;
+          }
+          const vendor = data.invoice[i].vendor.value;
+          // console.log(`Vendor is ${vendor}`);
+  
+          try {
+            const vendordata = await getVendorData(vendor);
+            // console.log('vendor data is ' + JSON.stringify(vendordata));
+            
+            if (vendordata) {
+              apipayload.push({
+                data: {
+                  header: {
+                    boundaryApplicationName: 'Library Check Processing',
+                    consumerId: data.invoice[i].owner.value === 'LAW' ? 'UCD LawLibrary' : 'UCD GeneralLibrary',
+                    consumerReferenceId: data.invoice[i].id,
+                    consumerTrackingId: data.invoice[i].number,
+                  },
+                  payload: {
+                    // accountingDate: today,
+                    businessUnit: 'UCD Business Unit',
+                    invoiceDescription: data.invoice[i].vendor.desc,
+                    invoiceAmount: data.invoice[i].total_amount,
+                    invoiceDate: nozee,
+                    invoiceNumber: data.invoice[i].number,
+                    invoiceSourceCode: data.invoice[i].owner.value === 'LAW' ? 'UCD LawLibrary' : 'UCD GeneralLibrary',
+                    invoiceType: 'STANDARD',
+                    paymentMethodCode: 'ACCOUNTINGDEPARTMENT',
+                    paymentTerms: 'Immediate',
+                    purchaseOrderNumber: '',
+                    supplierNumber: vendordata.financial_sys_code,
+                    supplierSiteCode: vendordata.additional_code,
+                    invoiceLines: [],
+                  },
+                },
+              });
+            }
+  
+          }
+  
+          catch (error) {
+            console.log(error);
+          }
+  
+    
+          for (j in data.invoice[i].invoice_lines.invoice_line) {
+            let object1 = {
+              // itemName: data.invoice[i].invoice_lines.invoice_line[j].name, // should be vendor name  ok to leave blank
+              itemName: '',
+              itemDescription: data.invoice[i].invoice_lines.invoice_line[j].id,
+              lineAmount: data.invoice[i].invoice_lines.invoice_line[j].price,
+              lineType: 'ITEM',
+              purchaseOrderLineNumber:
+                data.invoice[i].invoice_lines.invoice_line[j].number,
+              purchasingCategory: '',
+              quantity:
+                data.invoice[i].invoice_lines.invoice_line[j].quantity > 0
+                  ? data.invoice[i].invoice_lines.invoice_line[j].quantity
+                  : 1,
+              unitOfMeasure: 'Each',
+              unitPrice: data.invoice[i].invoice_lines.invoice_line[j].price,
+            }
+            for (k in data.invoice[i].invoice_lines.invoice_line[j].fund_distribution) {
+              // console.log('fund distribution' + JSON.stringify(data.invoice[i].invoice_lines.invoice_line[j].fund_distribution));
+              const fundCode = data.invoice[i].invoice_lines.invoice_line[j].fund_distribution[k].fund_code.value;
+              if (fundCode) {
+                try {
+                  const fundData = await getFundData(fundCode);
+                  // console.log('fund data is ' + JSON.stringify(fundData));
+                  if (fundData.fund) {
+                    const fundString = fundData.fund[0].external_id;
+                    if (fundString.includes(".")) {
+                    const glString = fundString;
+                    const entity = glString.split(".")[0];
+                    const fund = glString.split(".")[1];
+                    const department = glString.split(".")[2];
+                    const account = glString.split(".")[3];
+                    const purpose = glString.split(".")[4];
+                    let object2 = {
+                      // percent: data.invoice[i].invoice_lines.invoice_line[j].fund_distribution[k].percent,
+                      glSegments: {
+                        entity: entity,
+                        fund: fund,
+                        department: department,
+                        account: account,
+                        purpose: purpose
+                      }
+                    };
+                    let merged = {...object1, ...object2};
+                    apipayload[i].data.payload.invoiceLines.push(merged);
+                  }
+                  else if (fundString.includes("|")) {
+                    const poetString = fundString;
+                    const project = poetString.split("|")[0];
+                    const organization = poetString.split("|")[1];
+                    const expenditureType = poetString.split("|")[2];
+                    const task = poetString.split("|")[3];
+                    let object2 = {
+                      ppmSegments: {
+                        project: project,
+                        organization: organization,
+                        expenditureType: expenditureType,
+                        task: task,
+                      }
+                    }
+                    let merged = {...object1, ...object2};
+                    apipayload[i].data.payload.invoiceLines.push(merged);
+                  }
+                  }
+                  else {
+                    let object2 = {fundData: "ERROR: unable to retrieve fund data"};
+                    let merged = {...object1, ...object2};
+                    apipayload[i].data.payload.invoiceLines.push(merged);
+                  }
+                }
+                catch (err) {
+                  console.log(err);
+                }
+              }
+            }
+  
+          }
+  
+        }
+
+        return apipayload;
+      }
 
 const previewData = async () => {
   try {
@@ -344,17 +416,16 @@ const previewData = async () => {
       temp += '<p>';
       temp += data.total_record_count;
       temp += ' invoices found</p>';
+      temp += '<form action="/preview" method="POST">';
       temp += '<table>'
       temp += '<tr>';
-      temp += '<td>Doc #</td>';
-      temp += '<td>Vender #</td>';
-      temp += '<td>Vender Name</td>';
-      temp += '<td>Invoice #</td>';	
-      temp += '<td>Check #</td>';	 
-      temp += '<td>Amount</td>'; 	
-      temp += '<td>Date</td>';	
-      temp += '<td>Invoice Total</td>'; 
-      temp += '<td>Use tax</td>';
+      temp += '<th>Vendor ID</th>';
+      temp += '<th>Vendor Name</th>';
+      temp += '<th>Invoice #</th>';	
+      temp += '<th>Amount</th>'; 	
+      temp += '<th>Date</th>';	
+      temp += '<th>Invoice Total</th>'; 
+      temp += '<th>Send</th>';
       temp += '</tr>';
       for (i in data.invoice) {
         // console.log(JSON.stringify(data.invoice));
@@ -369,21 +440,19 @@ const previewData = async () => {
 
         try {
           const vendordata = await getVendorData(vendor);
-          console.log('vendor data is ' + JSON.stringify(vendordata));
+          // console.log('vendor data is ' + JSON.stringify(vendordata));
           
           if (vendordata) {
   
           temp += '<tr>';
       
-          temp += '<td>Doc #</td>';
           temp += `<td>${vendordata.code}</td>`;
           temp += `<td>${vendordata.name}</td>`;
           temp += `<td>${data.invoice[i].id}</td>`;
-          temp += '<td>Check #</td>';	 
-          temp += `<td>${data.invoice[i].total_amount}</td>`;
+          temp += `<td>$${data.invoice[i].total_amount}</td>`;
           temp += `<td>${nozee}</td>`;	
-          temp += `<td>${data.invoice[i].total_amount}</td>`;
-          temp += '<td>Vendor Taxed</td>';
+          temp += `<td>$${data.invoice[i].total_amount}</td>`;
+          temp += `<td><input type="checkbox" id="${data.invoice[i].id}" name="invoice-${i}" value="${data.invoice[i].id}"></td>`;
           temp += '</tr>';
         }
 
@@ -393,6 +462,8 @@ const previewData = async () => {
 
       }
       temp += '</table>';
+      temp += '<button type="submit" class="btn--primary">Submit</button>';
+      temp += '</form>';
 
       return temp;
 
@@ -408,7 +479,7 @@ const simpleInvoice = async () => {
       'http://alma-proxy:5555/almaws/v1/acq/invoices/?q=all&limit=20&offset=0&expand=none&invoice_workflow_status=Waiting%20to%20be%20Sent'
     ).then(response => response.json());
 
-      console.log(data);
+      // console.log(data);
       let apipayload = [];
   
       // console.log(`today is ${today}`);
@@ -434,7 +505,7 @@ const simpleInvoice = async () => {
 };
 
 
-const aggieEnterprisePaymentRequest = async () => {
+const aggieEnterprisePaymentRequest = async (invoices) => {
 
   const paymentRequest = `mutation scmInvoicePaymentRequest($data: ScmInvoicePaymentRequestInput!) {
     scmInvoicePaymentCreate(data: $data) {
@@ -454,7 +525,9 @@ const aggieEnterprisePaymentRequest = async () => {
   const query = paymentRequest;
 
   try {
-    const variableInputs = await setData();
+    const variableInputs = await setSelectedData(invoices);
+    // const variableInputs = await setData();
+    console.log('variable inputs are ' + JSON.stringify(variableInputs));
     if (variableInputs) {
       for (i in variableInputs) {
         variables = variableInputs[i];
@@ -494,117 +567,36 @@ const aggieEnterprisePaymentRequest = async () => {
 
 };
 
-const aggieEnterprisePaymentStatus = async () => {
+const checkPayments = async () => {
 
-  const requestId = "9632c9d7-a252-463a-ab6d-10346b75d12e";
-
-  const query = `query {
-    scmPurchaseRequisitionRequestStatus(requestId: "${requestId}") {
-      requestStatus {
-              requestId
-              consumerTrackingId
-              consumerReferenceId
-              consumerNotes
-              requestDateTime
-              requestStatus
-              lastStatusDateTime
-              processedDateTime
-              errorMessages
-          }
-          validationResults {
-              valid
-              errorMessages
-              messageProperties
-          }
+const query = `query scmInvoicePaymentRequestStatusByConsumerTracking($consumerTrackingId: String!) {
+  scmInvoicePaymentRequestStatusByConsumerTracking(consumerTrackingId: $consumerTrackingId) {
+    requestStatus {
+      requestId
+      consumerNotes
+      operationName
+      requestDateTime
+      requestStatus
+      lastStatusDateTime
+      processedDateTime
+      errorMessages
+      batchRequest
     }
-  }`;
-
-
-
-  // const query = `query scmPurchaseRequisitionRequestStatus($requestId: ${requestId}) {
-  //   scmPurchaseRequisitionRequestStatus(requestId: $requestId) {
-  //     requestStatus {
-  //             requestId
-  //             consumerTrackingId
-  //             consumerReferenceId
-  //             consumerNotes
-  //             requestDateTime
-  //             requestStatus
-  //             lastStatusDateTime
-  //             processedDateTime
-  //             errorMessages
-  //         }
-  //         validationResults {
-  //             valid
-  //             errorMessages
-  //             messageProperties
-  //         }
-  //   }
-  // }`;
-
-  try {
-  //   if (variableInputs) {
-  //     for (i in variableInputs) {
-        // variables = variableInputs[i];
-        // const variables =  "6ad96d2a-3a97-4517-80aa-cb8eec51ae7c";
-        await fetch(process.env.SIT_2_URL, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${process.env.ACCESS_TOKEN}`,
-          },
-          body: JSON.stringify({
-            query,
-          }),
-        })
-          .then((res) => res.json())
-          .then(
-            (result) =>
-              console.log(JSON.stringify(result)) // display errors on tool
-          );
-  //     }
-  //   }
-  }
-  catch (error) {
-    console.log(error);
-  }
-
-};
-
-const scmPurchaseRequisitionRequestStatusByConsumerTracking = async () => {
-
-  const query = `query scmPurchaseRequisitionRequestStatusByConsumerTracking($consumerTrackingId: String!) {
-    scmPurchaseRequisitionRequestStatusByConsumerTracking(consumerTrackingId: $consumerTrackingId) {
-      requestStatus {
-        requestId
-        consumerNotes
-        operationName
-        requestDateTime
-        requestStatus
-        lastStatusDateTime
-        processedDateTime
-        errorMessages
-
-        batchRequest
-        
-      }
-      processingResult {
-        status
-        requestDateTime
-        lastStatusCheckDateTime
-        processedDateTime
-        errorMessages
-        hasWarnings
-
-
-      }
-      validationResults {
-        valid
-        errorMessages
-        messageProperties
-      }
+    processingResult {
+      status
+      requestDateTime
+      lastStatusCheckDateTime
+      processedDateTime
+      errorMessages
+      hasWarnings
     }
-  }`;
+    validationResults {
+      valid
+      errorMessages
+      messageProperties
+    }
+  }
+}`;
 
 
   try {
@@ -652,6 +644,13 @@ exports.getSendPage = (req, res, next) => {
       });
 }
 
+exports.sendAllInvoices = async (req, res, next) => {
+  aggieEnterprisePaymentRequest().then(
+    res.render('sent', {
+      title: 'Payment Processor - Data Sent',
+    }));
+}
+
 exports.getDataSentPage = (req, res, next) => {
   aggieEnterprisePaymentRequest();
       res.render('sent', {
@@ -665,6 +664,15 @@ exports.getPreviewCompletePage = async (req, res, next) => {
       title: 'Payment Processor - Complete Data Preview',
       body: bodystuff,
     });
+}
+
+exports.getPreviewSingleInvoicePage = async (req, res, next) => {
+  const invoiceID = req.params.invoiceId;
+  const bodystuff = await almatoHTMLTableComplete(invoiceID);
+  res.render('previewcomplete', {
+    title: 'Payment Processor - Complete Data Preview',
+    body: bodystuff,
+  });
 }
 
 exports.getPreviewPage = async (req, res, next) => {
@@ -685,10 +693,38 @@ exports.getPreviewJSON = async (req, res, next) => {
 }
 
 exports.getCheckStatus = async (req, res, next) => {
-    const bodyraw = await scmPurchaseRequisitionRequestStatusByConsumerTracking();
+    const bodyraw = await checkPayments();
     const bodystuff = JSON.stringify(bodyraw, null, 2);
     res.render('checkstatus', {
       title: 'Payment Processor - Check Payment Status',
       body: bodystuff,
     });
+}
+
+exports.sendSelectedInvoices = async (req, res, next) => {
+  console.log(JSON.stringify(req.body));
+  if (req.body) {
+    // for each item in req.body, get value and push to array
+    const invoices = [];
+    for (i in req.body) {
+      invoices.push(req.body[i]);
+    }
+    aggieEnterprisePaymentRequest(invoices)
+    .then(() => {
+      //   const bodyraw = await setData();
+      //   const bodystuff = JSON.stringify(bodyraw, null, 2);
+        res.render('sent', {
+          title: 'Payment Processor - Data Sent',
+      });
+        });
+  }
+  else {
+    res.render('send', {
+      title: 'Payment Processor - Send Data',
+    });
+  }
+
+
+
+
 }

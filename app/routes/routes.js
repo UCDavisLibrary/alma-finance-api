@@ -33,17 +33,22 @@ service_url: process.env.APP_URL,
 
 
 router.get('/', controller.getHomepage );
-  
-router.get('/senddata', controller.getSendPage);
-  
+
+router.get('/checkstatus', controller.getCheckStatus);
+
 router.get('/datasent', controller.getDataSentPage);
   
 router.get('/preview', controller.getPreviewPage);
+
+router.post('/preview', controller.sendSelectedInvoices);
+
+router.get('/preview/:invoiceId', controller.getPreviewSingleInvoicePage);
 
 router.get('/previewcomplete', controller.getPreviewCompletePage);
   
 router.get('/previewjson', controller.getPreviewJSON);
 
-router.get('/checkstatus', controller.getCheckStatus);
+router.get('/senddata', controller.getSendPage);
+
 
 module.exports = router;

@@ -1,4 +1,6 @@
 const express = require('express');
+const bodyParser = require('body-parser');
+
 const cors = require('cors');
 const PORT = process.env.PORT || 5000;
 
@@ -16,6 +18,9 @@ app.set('views', __dirname + '/views');
 // here you set that you're using `ejs` template engine, and the
 // default extension is `ejs`
 app.set('view engine', 'ejs');
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use('/views', express.static(process.cwd() + '/views')); //make public static
 
