@@ -1,7 +1,7 @@
 // const firstTest = require('./firstTest.json');
 
-const sit2TEst = require('../json/sit2Test.json');
-const sentRequests = require('../json/mySentRequests.json');
+// const sit2TEst = require('../json/sit2Test.json');
+// const sentRequests = require('../json/mySentRequests.json');
 
 const routes = require('../routes/routes')
 
