@@ -38,9 +38,9 @@ router.get('/checkstatus', controller.getCheckStatus);
 
 router.get('/datasent', controller.getDataSentPage);
   
-router.get('/preview', controller.getPreviewPage);
+// router.get('/preview', controller.getPreviewPage);
 
-router.post('/preview', controller.sendSelectedInvoices);
+// router.post('/preview', controller.sendSelectedInvoices);
 
 router.get('/preview/:invoiceId', controller.getPreviewSingleInvoicePage);
 
@@ -48,7 +48,9 @@ router.get('/previewcomplete', controller.getPreviewCompletePage);
   
 router.get('/previewjson', controller.getPreviewJSON);
 
-router.get('/senddata', controller.getSendPage);
+// router.get('/review', controller.getReviewPage);
+
+// router.get('/senddata', controller.getSendPage);
 
 
 module.exports = router;

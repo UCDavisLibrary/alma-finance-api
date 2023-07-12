@@ -236,7 +236,7 @@ const setData = async () => {
 const setSelectedData = async (invoiceids) => {
   // console.log(invoiceids);
   try {
-    data = {invoice: []};
+    data = {invoice: []}; // mimics structure of a bulk invoice payload in setData()
     // data = [];
     for (invoice of invoiceids) {
       // console.log(invoice);
@@ -470,6 +470,79 @@ const previewData = async () => {
   }
   catch(error) {console.log(error)};
 
+};
+
+const reviewSentDataTable = async () => {
+  try {
+    const data = await fetch(
+      'http://alma-proxy:5555/almaws/v1/acq/invoices/?q=all&limit=20&offset=0&expand=none&invoice_workflow_status=Waiting%20to%20be%20Sent'
+    ).then(response => response.json());
+
+      // console.log('data is: ' + JSON.stringify(data));
+      const today = new Date().toLocaleDateString('sv-SE', {
+        timeZone: 'America/Los_Angeles',
+      });
+  
+      // console.log(`today is ${today}`);
+      // from test app
+      let temp = '';
+      temp += '<h3>Invoice Data</h3>';
+      temp += '<p>';
+      temp += data.total_record_count;
+      temp += ' invoices found</p>';
+      temp += '<form action="/preview" method="POST">';
+      temp += '<table>'
+      temp += '<tr>';
+      temp += '<th>Vendor ID</th>';
+      temp += '<th>Vendor Name</th>';
+      temp += '<th>Invoice #</th>';	
+      temp += '<th>Amount</th>'; 	
+      temp += '<th>Date</th>';	
+      temp += '<th>Invoice Total</th>'; 
+      temp += '<th>Send</th>';
+      temp += '</tr>';
+      for (i in data.invoice) {
+        // console.log(JSON.stringify(data.invoice));
+        let nozee = data.invoice[i].invoice_date;
+        if (nozee.includes('Z')) {
+          nozee = nozee.substring(0, nozee.length - 1);
+        } else {
+          nozee = data.invoice[i].invoice_date;
+        }
+        const vendor = data.invoice[i].vendor.value;
+        // console.log(`Vendor is ${vendor}`);
+
+        try {
+          const vendordata = await getVendorData(vendor);
+          // console.log('vendor data is ' + JSON.stringify(vendordata));
+          
+          if (vendordata) {
+  
+          temp += '<tr>';
+      
+          temp += `<td>${vendordata.code}</td>`;
+          temp += `<td>${vendordata.name}</td>`;
+          temp += `<td>${data.invoice[i].id}</td>`;
+          temp += `<td>$${data.invoice[i].total_amount}</td>`;
+          temp += `<td>${nozee}</td>`;	
+          temp += `<td>$${data.invoice[i].total_amount}</td>`;
+          temp += `<td><input type="checkbox" id="${data.invoice[i].id}" name="invoice-${i}" value="${data.invoice[i].id}"></td>`;
+          temp += '</tr>';
+        }
+
+        }
+
+        catch (error) {console.log(error);}
+
+      }
+      temp += '</table>';
+      temp += '<button type="submit" class="btn--primary">Submit</button>';
+      temp += '</form>';
+
+      return temp;
+
+  }
+  catch(error) {console.log(error)};
 
 };
 
@@ -678,7 +751,7 @@ exports.getPreviewSingleInvoicePage = async (req, res, next) => {
 exports.getPreviewPage = async (req, res, next) => {
   const bodystuff = await previewData();
   res.render('preview', {
-    title: 'Payment Processor - Data Preview',
+    title: 'Payment Processor - Select Data',
     body: bodystuff,
   });
 }
@@ -690,6 +763,13 @@ exports.getPreviewJSON = async (req, res, next) => {
       title: 'Payment Processor - JSON Preview',
       body: bodystuff,
     });
+}
+
+exports.getReviewPage = async (req, res, next) => {
+  res.render('review', {
+    title: 'Payment Processor - Select Data',
+    body: bodystuff,
+  });
 }
 
 exports.getCheckStatus = async (req, res, next) => {
@@ -705,11 +785,11 @@ exports.sendSelectedInvoices = async (req, res, next) => {
   console.log(JSON.stringify(req.body));
   if (req.body) {
     // for each item in req.body, get value and push to array
-    const invoices = [];
+    const invoiceids = [];
     for (i in req.body) {
-      invoices.push(req.body[i]);
+      invoiceids.push(req.body[i]);
     }
-    aggieEnterprisePaymentRequest(invoices)
+    aggieEnterprisePaymentRequest(invoiceids)
     .then(() => {
       //   const bodyraw = await setData();
       //   const bodystuff = JSON.stringify(bodyraw, null, 2);
