@@ -36,15 +36,15 @@ router.get('/', controller.getHomepage );
 
 router.get('/checkstatus', controller.getCheckStatus);
 
-router.get('/oraclestatus', controller.getOracleStatus);
-
 router.get('/datasent', controller.getDataSentPage);
+
+router.get('/oraclestatus', controller.getOracleStatus);
   
 router.get('/preview', controller.getPreviewPage);
 
 router.post('/preview', controller.sendSelectedInvoices);
 
-router.get('/preview/:invoiceId', controller.getPreviewSingleInvoicePage);
+router.get('/invoice/:invoiceId', controller.getPreviewSingleInvoicePage);
 
 router.get('/previewcomplete', controller.getPreviewCompletePage);
   

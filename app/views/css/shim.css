@@ -5,7 +5,7 @@ td {
   margin-top: 1rem;
 }
 .invoicediv {
-  transition: all 1s ease;
+  transition: all 3s ease;
 }
 
 .visible {
@@ -21,4 +21,27 @@ td {
   justify-content: space-between;
   width: 50%;
   max-width: 500px;
+}
+.btn-success {
+  color: #fff;
+  background-color: #28a745;
+  border-color: #28a745;
+}
+.btn-success:hover {
+  color: #28a745;
+  background-color: #fff;
+  border-color: #28a745;
+}
+.btn-danger {
+  color: #fff;
+  background-color: #dc3545;
+  border-color: #dc3545;
+}
+.btn-danger:hover {
+  color: #dc3545;
+  background-color: #fff;
+  border-color: #dc3545;
+}
+.nopadding {
+  padding: 0 !important;
 }

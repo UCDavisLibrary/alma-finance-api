@@ -5,14 +5,15 @@
 
 const routes = require('../routes/routes')
 
-async function almatoHTMLTableComplete(input) {
+async function almatoHTMLTableComplete(input, requestResponse) {
   console.log('alma table input is: ' + input);
 
   try {
 
     const checkdata = async () => {
     if (input) {
-      let data = await setSelectedData([input]);
+      let step1 = await setSelectedData([input]);
+      let data = await reformatAlmaInvoiceforAPI(step1);
       return data;
     }
     else {
@@ -33,18 +34,29 @@ async function almatoHTMLTableComplete(input) {
       const header = data[i].data.header;
       const payload = data[i].data.payload;
       const invoiceLines = data[i].data.payload.invoiceLines;
-  
+    if (input) {
+      temp += '<div class="l-2col">';
+      temp += '<div class="l-first">';
+    }
       temp += '<div class="invoice-header"><h4>Invoice ';
       temp += parseInt(i) + 1;
       temp += ' - ';
       temp += header.consumerTrackingId;
-      temp += '</h4>  <button onClick="toggle(table';
+      temp += '</h4>';
+      if (!input) {
+      temp += '<button onClick="toggle(table';
       temp += i;
-      temp += ')">show</button></div><br>';
+      temp += ')">show</button>';
+      }
+      temp += '</div><br>';
       temp += '<table id="table';
       temp += i;
+      if (!input) {
       temp += '"class="invoicediv hidden">';
-  
+      }
+      else {
+        temp += '"class="invoicediv">';
+      }
       for (const [key, value] of Object.entries(header)) {
         temp += '<tr><td>';
         temp += key;
@@ -109,10 +121,35 @@ async function almatoHTMLTableComplete(input) {
         }
       }
       temp += '</table>';
+      if (input) {
+        temp += '</div>';
+          temp += '<div class="l-second">';
+          if (requestResponse) {
+            temp += '<h4>Errors</h4>';
+            temp += JSON.stringify(requestResponse);
+          }
+          // const errorReport = await aggieEnterprisePaymentRequest([input]);
+          // if (errorReport) {
+          //   temp += '<h4>Errors</h4>';
+          //   temp += JSON.stringify(errorReport);
+
+          //   temp += '<table class="error-table">';
+          //   for (j in erorreport) {
+          //     // const error = erorreport[j].data.scmInvoicePaymentCreate.validationResults.errorMessages;
+          //     if (error) {
+          //       temp += '<tr><td>';
+          //       temp += JSON.stringify(errorReport);
+          //       temp += '</td></tr>';
+          //     }
+          //   }
+            temp += '</table>';
+          }
+          temp += '</div>';
+        temp += '</div>';
+      }
     }
   
     return temp;
-  }
   }
   catch (error) {
     console.log(error);
@@ -415,6 +452,9 @@ const basicDataTable = async (data, version) => {
       else if (version === 'review') {
         temp += '<th>Results</th>';
       }
+      else {
+        temp += '<th></th>';
+      }
       temp += '</tr>';
       for (i in data.invoice) {
         // let vendors = [];
@@ -448,14 +488,31 @@ const basicDataTable = async (data, version) => {
           }
           else if (version === 'review') {
             if (data.invoice[i].data) {
-            temp += `<td><a href="/results/">${data.invoice[i].data.scmInvoicePaymentCreate.requestStatus.requestStatus}</a></td>`;
+              if (data.invoice[i].data.scmInvoicePaymentCreate.requestStatus.requestStatus === 'PENDING') {
+                temp += `<td><btn class="btn btn-success">Success</btn></td>`;
+                }
+                if (data.invoice[i].data.scmInvoicePaymentCreate.validationResults.errorMessages[0].includes("A request already exists for your consumerId and consumerTrackingId")) {
+                  temp += `<td><a class="btn btn-success">Success</a></td>`;
+                  }
+                  temp += '</tr>';
             }
             else if (data.invoice[i].errors) {
-              temp += `<td><a href="/results/">${data.invoice[i].errors}</a></td>`;
+              temp += `<td><btn class="btn btn-danger" onClick="toggle(table${data.invoice[i].id})">Errors</btn></td>`;
+              temp += '</tr>';
+              temp += `<tr>`;
+              temp += '<td colspan="7" >';
+              temp += `<div class="invoicediv hidden" id="table${data.invoice[i].id}">`;
+              temp += JSON.stringify(data.invoice[i].errors ? data.invoice[i].errors : data.invoice[i].data);
+              temp += '</div>';
+              temp += '</td>';
+              temp += '</tr>';
+            }
+            else {
+              temp += `<td></td>`;
+              temp += '</tr>';
             }
           }
-          temp += '</tr>';
-          
+
         }
 
         }
@@ -833,7 +890,7 @@ exports.sendSelectedInvoices = async (req, res, next) => {
         console.log('requestresults = ' + JSON.stringify(requestresults));
 
         const invoicedata = await getAlmaIndividualInvoiceData(invoiceids);
-        console.log('invoicedata = ' + JSON.stringify(invoicedata));
+        // console.log('invoicedata = ' + JSON.stringify(invoicedata));
         data = {invoice: []}
         for (i in invoicedata.invoice) {
           const invoice = invoicedata.invoice[i];
@@ -843,7 +900,8 @@ exports.sendSelectedInvoices = async (req, res, next) => {
         }
         
         const version = 'review';
-        const bodystuff = await basicDataTable(data, version);
+        const bodystuff = 
+            await basicDataTable(data, version);
             res.render('review', {
             title: 'Payment Processor - Data Sent',
             body: bodystuff,
@@ -861,7 +919,17 @@ exports.sendSelectedInvoices = async (req, res, next) => {
     });
   }
 
+}
 
-
-
+createDetailsPage = (invoiceId, requestResultBody) => {
+  const bodystuff = almatoHTMLTableComplete(invoiceId, requestResultBody);
+  getReviewPage = async (req, res, next) => {
+    const data = await getAlmaInvoicesWaitingToBESent();
+    const version = 'review';
+    const bodystuff = await basicDataTable(data, version);
+    res.render('review', {
+      title: 'Payment Processor - Select Data',
+      body: bodystuff,
+    });
+  }
 }
