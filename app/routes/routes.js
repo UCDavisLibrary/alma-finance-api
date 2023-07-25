@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 var session = require('express-session');
 var CASAuthentication = require('node-cas-authentication');
-const controller = require('../controllers/controller')
+const controller = require('../controllers/route-controllers')
 
 const router = express.Router();
 
