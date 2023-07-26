@@ -4,3 +4,4 @@
 /app/wait.html
 /alma-cors-proxy/acp.env
 /app/json/
+/env/mysql.env

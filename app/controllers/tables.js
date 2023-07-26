@@ -1,5 +1,6 @@
 const {getVendorData, getAlmaInvoicesWaitingToBESent} = require('./apicalls');
 const {reformatAlmaInvoiceforAPI} = require('./formatdata');
+const {postAddInvoice} = require('./dbcalls');
 
 exports.basicDataTable = async (data, version) => {
     console.log('data is: ' + JSON.stringify(data));
@@ -81,9 +82,11 @@ exports.basicDataTable = async (data, version) => {
               else if (data.invoice[i].data) {
 
                 if (data.invoice[i].data.scmInvoicePaymentCreate.requestStatus.requestStatus === 'PENDING') {
+                  postAddInvoice(data.invoice[i].id, data.invoice[i].data);
                   temp += `<td><btn class="btn btn-success">Success</btn></td>`;
                   }
                 else if (data.invoice[i].data.scmInvoicePaymentCreate.validationResults.errorMessages[0].includes("A request already exists for your consumerId and consumerTrackingId")) {
+                  postAddInvoice(data.invoice[i].id, data.invoice[i].data);
                 temp += `<td><a class="btn btn-success">Success</a></td>`;
                 }
                 else if (data.invoice[i].data.scmInvoicePaymentCreate.validationResults.errorMessages) {
