@@ -137,7 +137,7 @@ exports.aggieEnterprisePaymentRequest = async (invoices) => {
     }
   }
   
-  exports.checkStatusInOracle = async () => {
+  exports.checkStatusInOracle = async (variableInputs) => {
   
     const query = `query scmInvoicePaymentSearch($filter: ScmInvoicePaymentFilterInput!) {
       scmInvoicePaymentSearch(filter: $filter) {
@@ -176,12 +176,12 @@ exports.aggieEnterprisePaymentRequest = async (invoices) => {
       }
     }`;
     
-    const variables = 
-    { "filter":   
-    {
-      "invoiceNumber": {"contains": "Wolters_AE11076"},
-    } 
-    };
+    // const variables = 
+    // { "filter":   
+    // {
+    //   "invoiceNumber": {"contains": "Wolters_AE11076"},
+    // } 
+    // };
   
     // {
     //   "searchCommon": SearchCommonInputs,
@@ -189,11 +189,10 @@ exports.aggieEnterprisePaymentRequest = async (invoices) => {
     //   "supplierNumber": StringFilterInput,
     //   "invoiceDate": DateFilterInput
     // }
-    
+
       try {
-  
-  
-  
+        inputstoreturn = [];
+        for (let variables of variableInputs) {
             // console.log(variables);
             await fetch(process.env.SIT_2_URL, {
               method: 'POST',
@@ -210,13 +209,17 @@ exports.aggieEnterprisePaymentRequest = async (invoices) => {
               .then(
                 (result) => {
                   console.log(JSON.stringify(result));
+                  inputstoreturn.push(result);
                 }
               );
           }
-  
-    
+          return inputstoreturn;
+
+        }
       
       catch (error) {
         console.log(error);
       }
     }
+
+    

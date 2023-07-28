@@ -1,5 +1,5 @@
 const {almatoHTMLTableComplete, basicDataTable} = require('../controllers/tables');
-const {aggieEnterprisePaymentRequest, checkPayments} = require('../controllers/graphqlcalls');
+const {aggieEnterprisePaymentRequest, checkPayments, checkStatusInOracle} = require('../controllers/graphqlcalls');
 const {getAlmaInvoicesWaitingToBESent, getAlmaIndividualInvoiceData} = require('../controllers/apicalls');
 const {reformatAlmaInvoiceforAPI, filterOutSubmittedInvoices} = require('../controllers/formatdata');
 const {getInvoices, getInvoiceIDs, getInvoiceNumbers} = require('../controllers/dbcalls');
@@ -99,10 +99,39 @@ exports.getCheckStatus = async (req, res, next) => {
 }
 
 exports.getOracleStatus = async (req, res, next) => {
-  const bodystuff = await checkStatusInOracle();
-  res.render('checkstatus', {
-    title: 'Payment Processor - Check Payment Status',
-    body: bodystuff,
+  let invoicenumbers = await getInvoiceNumbers();
+  invoicenumbers = invoicenumbers[0];
+  for (i in invoicenumbers) {
+    invoicenumbers[i] =
+       { "filter":   
+    {
+      "invoiceNumber": {"contains": invoicenumbers[i].invoicenumber}
+    }
+  }
+  }
+  const requestresults = await checkStatusInOracle(invoicenumbers);
+
+  let invoiceids = await getInvoiceIDs();
+  invoiceids = invoiceids[0];
+  for (i in invoiceids) {
+    invoiceids[i] = invoiceids[i].invoiceid;
+  }
+  // console.log('requestresults = ' + JSON.stringify(requestresults));
+  console.log('invoiceids = ' + JSON.stringify(invoiceids));
+  const invoicedata = await getAlmaIndividualInvoiceData(invoiceids);
+  // console.log('invoicedata = ' + JSON.stringify(invoicedata));
+  data = {invoice: []}
+  for (i in invoicedata.invoice) {
+    const invoice = invoicedata.invoice[i];
+    const request = requestresults[i];
+    const combined = {...invoice, ...request};
+    data.invoice.push(combined);
+  }
+  const version = 'review';
+  const bodystuff = await basicDataTable(data, version);
+  res.render('review', {
+      title: 'Payment Processor - Data Sent',
+      body: bodystuff,
   });
 }
 

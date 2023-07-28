@@ -122,6 +122,24 @@ exports.basicDataTable = async (data, version) => {
                   }
                 temp += '</tr>';
               }
+              else if (data.invoice[i].data.scmInvoicePaymentSearch) {
+
+                if (data.invoice[i].data.scmInvoicePaymentSearch.metadata.returnedResultCount === 0) {
+                  temp += `<td><btn class="btn btn-danger">NOT FOUND</btn></td>`;
+                  }
+                else {
+                    temp += `<td><btn class="btn btn-success" onClick="toggle(table${data.invoice[i].id})">PAID</btn></td>`;
+                    temp += '</tr>';
+                    temp += `<tr>`;
+                    temp += '<td colspan="7" >';
+                    temp += `<div class="invoicediv hidden" id="table${data.invoice[i].id}">`;
+                    temp += JSON.stringify(data.invoice[i].data.scmInvoicePaymentSearch.data[0]);
+                    temp += '</div>';
+                    temp += '</td>';
+                    temp += '</tr>';
+                  }
+                temp += '</tr>';
+              }
 
               else {
                 temp += `<td></td>`;
