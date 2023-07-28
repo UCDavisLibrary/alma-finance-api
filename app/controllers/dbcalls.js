@@ -17,3 +17,7 @@ exports.postAddInvoice = (number, id, requestbody) => {
   exports.getInvoiceIDs = () => {
     return Invoice.fetchInvoiceIDs();
   }
+
+  exports.getInvoiceNumbers = () => {
+    return Invoice.fetchInvoiceNumbers();
+  }

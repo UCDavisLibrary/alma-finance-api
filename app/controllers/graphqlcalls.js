@@ -1,6 +1,6 @@
 const Invoice = require('../models/invoice');
 
-const { setSelectedData } = require("./apicalls");
+const { setSelectedData, simpleInvoice } = require("./apicalls");
 
 const {reformatAlmaInvoiceforAPI} = require("./formatdata");
 
@@ -68,7 +68,7 @@ exports.aggieEnterprisePaymentRequest = async (invoices) => {
   
   };
   
-  const checkPayments = async () => {
+  exports.checkPayments = async (variableInputs) => {
   
   const query = `query scmInvoicePaymentRequestStatusByConsumerTracking($consumerTrackingId: String!) {
     scmInvoicePaymentRequestStatusByConsumerTracking(consumerTrackingId: $consumerTrackingId) {
@@ -101,10 +101,10 @@ exports.aggieEnterprisePaymentRequest = async (invoices) => {
   
   
     try {
-      const variableInputs = await simpleInvoice();
-      // console.log(JSON.stringify(variableInputs));
+      // const variableInputs = await simpleInvoice();
+      console.log(JSON.stringify(variableInputs));
       const inputstoreturn = [];
-      if (variableInputs) {
+      console.log(variableInputs);
         for (input of variableInputs) {
           variables = input;
           // console.log(variables);
@@ -128,7 +128,7 @@ exports.aggieEnterprisePaymentRequest = async (invoices) => {
             );
         }
   
-      }
+      
       return inputstoreturn;
   
     }
@@ -137,7 +137,7 @@ exports.aggieEnterprisePaymentRequest = async (invoices) => {
     }
   }
   
-  const checkStatusInOracle = async () => {
+  exports.checkStatusInOracle = async () => {
   
     const query = `query scmInvoicePaymentSearch($filter: ScmInvoicePaymentFilterInput!) {
       scmInvoicePaymentSearch(filter: $filter) {

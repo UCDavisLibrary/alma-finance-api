@@ -29,6 +29,10 @@ module.exports = class Invoice {
     return db.execute('SELECT invoiceid FROM invoices');
   }
 
+  static fetchInvoiceNumbers() {
+    return db.execute('SELECT invoicenumber FROM invoices');
+  }
+
   static findById(id) {
     return db.execute('SELECT * FROM invoices WHERE invoices.id = ?', [id]);
   }

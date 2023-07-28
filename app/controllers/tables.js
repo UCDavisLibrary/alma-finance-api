@@ -81,7 +81,7 @@ exports.basicDataTable = async (data, version) => {
                     temp += '</td>';
                     temp += '</tr>';
                   }
-              else if (data.invoice[i].data) {
+              else if (data.invoice[i].data.scmInvoicePaymentCreate) {
 
                 if (data.invoice[i].data.scmInvoicePaymentCreate.requestStatus.requestStatus === 'PENDING') {
                   postAddInvoice(data.invoice[i].number, data.invoice[i].id, data.invoice[i].data);
@@ -98,6 +98,24 @@ exports.basicDataTable = async (data, version) => {
                     temp += '<td colspan="7" >';
                     temp += `<div class="invoicediv hidden" id="table${data.invoice[i].id}">`;
                     temp += JSON.stringify(data.invoice[i].data.scmInvoicePaymentCreate.validationResults.errorMessages);
+                    temp += '</div>';
+                    temp += '</td>';
+                    temp += '</tr>';
+                  }
+                temp += '</tr>';
+              }
+              else if (data.invoice[i].data.scmInvoicePaymentRequestStatusByConsumerTracking) {
+
+                if (data.invoice[i].data.scmInvoicePaymentRequestStatusByConsumerTracking.requestStatus.requestStatus === 'COMPLETE') {
+                  temp += `<td><btn class="btn btn-success">Success</btn></td>`;
+                  }
+                else {
+                    temp += `<td><btn class="btn btn-danger" onClick="toggle(table${data.invoice[i].id})">Errors</btn></td>`;
+                    temp += '</tr>';
+                    temp += `<tr>`;
+                    temp += '<td colspan="7" >';
+                    temp += `<div class="invoicediv hidden" id="table${data.invoice[i].id}">`;
+                    temp += JSON.stringify(data.invoice[i].data.scmInvoicePaymentRequestStatusByConsumerTracking.requestStatus.errorMessages);
                     temp += '</div>';
                     temp += '</td>';
                     temp += '</tr>';

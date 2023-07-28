@@ -1,8 +1,8 @@
 const {almatoHTMLTableComplete, basicDataTable} = require('../controllers/tables');
-const {aggieEnterprisePaymentRequest} = require('../controllers/graphqlcalls');
+const {aggieEnterprisePaymentRequest, checkPayments} = require('../controllers/graphqlcalls');
 const {getAlmaInvoicesWaitingToBESent, getAlmaIndividualInvoiceData} = require('../controllers/apicalls');
 const {reformatAlmaInvoiceforAPI, filterOutSubmittedInvoices} = require('../controllers/formatdata');
-const {getInvoices} = require('../controllers/dbcalls');
+const {getInvoices, getInvoiceIDs, getInvoiceNumbers} = require('../controllers/dbcalls');
 
 
 exports.getHomepage = (req, res, next) => {
@@ -11,23 +11,11 @@ exports.getHomepage = (req, res, next) => {
     });
 }
 
-exports.getSendPage = (req, res, next) => {
-    res.render('send', {
-        title: 'Payment Processor - Send Data',
-      });
-}
-
-exports.sendAllInvoices = async (req, res, next) => {
-  aggieEnterprisePaymentRequest().then(
-    res.render('sent', {
-      title: 'Payment Processor - Data Sent',
-    }));
-}
-
-exports.getDataSentPage = (req, res, next) => {
-  aggieEnterprisePaymentRequest();
-      res.render('sent', {
-        title: 'Payment Processor - Data Sent',
+exports.getPreviewCompletePage = async (req, res, next) => {
+    const bodystuff = await almatoHTMLTableComplete();
+    res.render('previewcomplete', {
+      title: 'Payment Processor - Complete Data Preview',
+      body: bodystuff,
     });
 }
 
@@ -74,12 +62,40 @@ exports.getReviewPage = async (req, res, next) => {
 }
 
 exports.getCheckStatus = async (req, res, next) => {
-    const requestStatuses = await checkPayments();
-    const bodystuff = await reviewData(requestStatuses)
-    res.render('checkstatus', {
-      title: 'Payment Processor - Check Payment Status',
-      body: bodystuff,
+    let invoicenumbers = await getInvoiceNumbers();
+    invoicenumbers = invoicenumbers[0];
+    for (i in invoicenumbers) {
+      invoicenumbers[i] = {consumerTrackingId : invoicenumbers[i].invoicenumber};
+    }
+    const requestresults = await checkPayments(invoicenumbers);
+
+    let invoiceids = await getInvoiceIDs();
+    invoiceids = invoiceids[0];
+    for (i in invoiceids) {
+      invoiceids[i] = invoiceids[i].invoiceid;
+    }
+    // console.log('requestresults = ' + JSON.stringify(requestresults));
+    console.log('invoiceids = ' + JSON.stringify(invoiceids));
+    const invoicedata = await getAlmaIndividualInvoiceData(invoiceids);
+    // console.log('invoicedata = ' + JSON.stringify(invoicedata));
+    data = {invoice: []}
+    for (i in invoicedata.invoice) {
+      const invoice = invoicedata.invoice[i];
+      const request = requestresults[i];
+      const combined = {...invoice, ...request};
+      data.invoice.push(combined);
+    }
+    const version = 'review';
+    const bodystuff = await basicDataTable(data, version);
+    res.render('review', {
+        title: 'Payment Processor - Data Sent',
+        body: bodystuff,
     });
+
+    // res.render('checkstatus', {
+    //   title: 'Payment Processor - Check Payment Status',
+    //   body: bodystuff,
+    // });
 }
 
 exports.getOracleStatus = async (req, res, next) => {
@@ -117,9 +133,8 @@ exports.sendSelectedInvoices = async (req, res, next) => {
         }
         
         const version = 'review';
-        const bodystuff = 
-            await basicDataTable(data, version);
-            res.render('review', {
+        const bodystuff = await basicDataTable(data, version);
+        res.render('review', {
             title: 'Payment Processor - Data Sent',
             body: bodystuff,
         });
