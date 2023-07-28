@@ -1,8 +1,8 @@
 const {almatoHTMLTableComplete, basicDataTable} = require('../controllers/tables');
 const {aggieEnterprisePaymentRequest} = require('../controllers/graphqlcalls');
 const {getAlmaInvoicesWaitingToBESent, getAlmaIndividualInvoiceData} = require('../controllers/apicalls');
-const {reformatAlmaInvoiceforAPI} = require('../controllers/formatdata');
-
+const {reformatAlmaInvoiceforAPI, filterOutSubmittedInvoices} = require('../controllers/formatdata');
+const {getInvoices} = require('../controllers/dbcalls');
 
 
 exports.getHomepage = (req, res, next) => {
@@ -31,14 +31,6 @@ exports.getDataSentPage = (req, res, next) => {
     });
 }
 
-exports.getPreviewCompletePage = async (req, res, next) => {
-    const bodystuff = await almatoHTMLTableComplete();
-    res.render('previewcomplete', {
-      title: 'Payment Processor - Complete Data Preview',
-      body: bodystuff,
-    });
-}
-
 exports.getPreviewSingleInvoicePage = async (req, res, next) => {
   const invoiceID = req.params.invoiceId;
   const bodystuff = await almatoHTMLTableComplete(invoiceID);
@@ -49,7 +41,10 @@ exports.getPreviewSingleInvoicePage = async (req, res, next) => {
 }
 
 exports.getPreviewPage = async (req, res, next) => {
-  const data = await getAlmaInvoicesWaitingToBESent();
+  const data1 = await getAlmaInvoicesWaitingToBESent();
+  // console.log('data1 = ' + JSON.stringify(data1));
+  const data = await filterOutSubmittedInvoices(data1);
+  // console.log('data = ' + JSON.stringify(data));
   const version = 'preview';
   const bodystuff = await basicDataTable(data, version);
   res.render('preview', {
@@ -96,7 +91,7 @@ exports.getOracleStatus = async (req, res, next) => {
 }
 
 exports.sendSelectedInvoices = async (req, res, next) => {
-  console.log(JSON.stringify(req.body));
+  // console.log(JSON.stringify(req.body));
   if (req.body) {
     // for each item in req.body, get value and push to array
 
@@ -107,9 +102,9 @@ exports.sendSelectedInvoices = async (req, res, next) => {
         invoiceids.push(req.body[i]);
       }
       const requestresults = await aggieEnterprisePaymentRequest(invoiceids);
-      console.log('requestresults = ' + JSON.stringify(requestresults));
+      // console.log('requestresults = ' + JSON.stringify(requestresults));
       if (requestresults) {
-        console.log('requestresults = ' + JSON.stringify(requestresults));
+        // console.log('requestresults = ' + JSON.stringify(requestresults));
 
         const invoicedata = await getAlmaIndividualInvoiceData(invoiceids);
         // console.log('invoicedata = ' + JSON.stringify(invoicedata));

@@ -1,15 +1,19 @@
 const db = require('../util/database');
 
+// optional; can be stored in database
+const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
+
 module.exports = class Invoice {
-  constructor(id, responsebody) {
+  constructor(number, id, responsebody) {
+    this.number = number;
     this.id = id;
     this.responsebody = responsebody;
   }
 
   save() {
     return db.execute(
-      'INSERT INTO invoices (id, responsebody) VALUES (?, ?)',
-      [this.id, this.responsebody]
+      'INSERT INTO invoices (invoicenumber, invoiceid, responsebody, datetime) VALUES (?, ?, ?, ?)',
+      [this.number, this.id, this.responsebody, now]
     );
   }
 
@@ -19,6 +23,10 @@ module.exports = class Invoice {
 
   static fetchAll() {
     return db.execute('SELECT * FROM invoices');
+  }
+
+  static fetchInvoiceIDs() {
+    return db.execute('SELECT invoiceid FROM invoices');
   }
 
   static findById(id) {

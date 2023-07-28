@@ -1,9 +1,10 @@
-const {getVendorData, getAlmaInvoicesWaitingToBESent} = require('./apicalls');
+const {getVendorData, getAlmaInvoicesWaitingToBESent, setSelectedData} = require('./apicalls');
 const {reformatAlmaInvoiceforAPI} = require('./formatdata');
-const {postAddInvoice} = require('./dbcalls');
+const {postAddInvoice, getSubmittedInvoices} = require('./dbcalls');
 
 exports.basicDataTable = async (data, version) => {
-    console.log('data is: ' + JSON.stringify(data));
+
+
     try {
   
         // console.log('data is: ' + JSON.stringify(data));
@@ -38,6 +39,7 @@ exports.basicDataTable = async (data, version) => {
         }
         temp += '</tr>';
         for (i in data.invoice) {
+          console.log('data.invoice[i] is: ' + JSON.stringify(data.invoice[i]));
           // let vendors = [];
           // console.log(JSON.stringify(data.invoice));
           let nozee = data.invoice[i].invoice_date;
@@ -60,7 +62,7 @@ exports.basicDataTable = async (data, version) => {
         
             temp += `<td>${vendordata.code}</td>`;
             temp += `<td>${vendordata.name}</td>`;
-            temp += `<td>${data.invoice[i].id}</td>`;
+            temp += `<td><a href="/invoice/${data.invoice[i].id}" target="_blank">${data.invoice[i].id}</a></td>`;
             temp += `<td>$${data.invoice[i].total_amount}</td>`;
             temp += `<td>${nozee}</td>`;	
             temp += `<td>$${data.invoice[i].total_amount}</td>`;
@@ -82,11 +84,11 @@ exports.basicDataTable = async (data, version) => {
               else if (data.invoice[i].data) {
 
                 if (data.invoice[i].data.scmInvoicePaymentCreate.requestStatus.requestStatus === 'PENDING') {
-                  postAddInvoice(data.invoice[i].id, data.invoice[i].data);
+                  postAddInvoice(data.invoice[i].number, data.invoice[i].id, data.invoice[i].data);
                   temp += `<td><btn class="btn btn-success">Success</btn></td>`;
                   }
                 else if (data.invoice[i].data.scmInvoicePaymentCreate.validationResults.errorMessages[0].includes("A request already exists for your consumerId and consumerTrackingId")) {
-                  postAddInvoice(data.invoice[i].id, data.invoice[i].data);
+                  postAddInvoice(data.invoice[i].number, data.invoice[i].id, data.invoice[i].data);
                 temp += `<td><a class="btn btn-success">Success</a></td>`;
                 }
                 else if (data.invoice[i].data.scmInvoicePaymentCreate.validationResults.errorMessages) {
@@ -113,8 +115,9 @@ exports.basicDataTable = async (data, version) => {
   
           }
   
-          catch (error) {console.log(error);}
-  
+          catch (error) {console.log(error);
+        
+      }
         }
         temp += '</table>';
         if (version === 'preview') {
@@ -130,23 +133,24 @@ exports.basicDataTable = async (data, version) => {
   };
 
 exports.almatoHTMLTableComplete = async (input, requestResponse) => {
-  console.log('alma table input is: ' + input);
 
   try {
-
-    const checkdata = async () => {
-    if (input) {
       let step1 = await setSelectedData([input]);
       let data = await reformatAlmaInvoiceforAPI(step1);
-      return data;
-    }
-    else {
-      let step1 = await getAlmaInvoicesWaitingToBESent();
-      let data = await reformatAlmaInvoiceforAPI(step1);
-      return data;
-    }
-  }
-    const data = await checkdata(input);
+  //   const checkdata = async () => {
+  //   if (input) {
+  //     let step1 = await setSelectedData([input]);
+  //     let inputdata = await reformatAlmaInvoiceforAPI(step1);
+  //     return inputdata;
+  //   }
+  //   else {
+  //     let step1 = await getAlmaInvoicesWaitingToBESent();
+  //     const step2 = await filterOutSubmittedInvoices(data1);
+
+  //     let noinputdata = await reformatAlmaInvoiceforAPI(step2);
+  //     return noinputdata;
+  //   }
+  // }
     if (data) {
 
     console.log(data);

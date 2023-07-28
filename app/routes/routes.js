@@ -45,8 +45,6 @@ router.get('/preview', controller.getPreviewPage);
 router.post('/preview', controller.sendSelectedInvoices);
 
 router.get('/invoice/:invoiceId', controller.getPreviewSingleInvoicePage);
-
-router.get('/previewcomplete', controller.getPreviewCompletePage);
   
 router.get('/previewjson', controller.getPreviewJSON);
 

@@ -1,7 +1,7 @@
 const Invoice = require('../models/invoice');
 
-exports.postAddInvoice = (id, requestbody) => {
-    const invoice = new Invoice(id, requestbody);
+exports.postAddInvoice = (number, id, requestbody) => {
+    const invoice = new Invoice(number, id, requestbody);
     invoice.save()
       .then(() => {
         console.log('Saved Invoice');
@@ -9,3 +9,11 @@ exports.postAddInvoice = (id, requestbody) => {
       .catch(err => console.log(err));
     
   };
+
+  exports.getSubmittedInvoices = () => {
+    return Invoice.fetchAll();
+  }
+
+  exports.getInvoiceIDs = () => {
+    return Invoice.fetchInvoiceIDs();
+  }

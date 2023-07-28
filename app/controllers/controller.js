@@ -6,8 +6,6 @@
 const routes = require('../routes/routes')
 
 async function almatoHTMLTableComplete(input, requestResponse) {
-  console.log('alma table input is: ' + input);
-
   try {
 
     const checkdata = async () => {

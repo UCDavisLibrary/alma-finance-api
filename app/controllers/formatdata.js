@@ -1,4 +1,5 @@
 const {getFundData, getVendorData} = require('../controllers/apicalls');
+const {getSubmittedInvoices} = require('../controllers/dbcalls');
 
 exports.reformatAlmaInvoiceforAPI = async (data) => {
     // console.log('data length is : ' + data.length);
@@ -142,4 +143,37 @@ exports.reformatAlmaInvoiceforAPI = async (data) => {
     }
 
     return apipayload;
+  }
+
+
+exports.filterOutSubmittedInvoices = async (data) => {
+  console.log('data is : ' + JSON.stringify(data));
+  const myarray = data.invoice;
+
+      const data2 = await getSubmittedInvoices();
+      const alreadysentinvoices = data2[0];
+      console.log('alreadysentinvoices = ' + JSON.stringify(alreadysentinvoices));
+      // extract invoiceid from alreadysentinvoices
+      const invoiceids = [];
+      for (i in alreadysentinvoices) {
+        invoiceids.push(alreadysentinvoices[i].invoicenumber);
+      }
+      console.log('invoiceids = ' + JSON.stringify(invoiceids));
+      console.log('invoiceids = ' + JSON.stringify(invoiceids));
+      const filteredinvoices = [];
+      for (i in myarray) {
+        // console.log('myarray[i] = ' + JSON.stringify(myarray[i]));
+        console.log('myarray[i].id = ' + String(myarray[i].number));
+        if (!invoiceids.includes(myarray[i].number)) {
+          filteredinvoices.push(myarray[i]);
+        }
+      }
+
+
+
+      // console.log('filteredinvoices = ' + JSON.stringify(filteredinvoices));
+      data = {invoice: []};
+      data.invoice.push(...filteredinvoices);
+      return data;
+      
   }
