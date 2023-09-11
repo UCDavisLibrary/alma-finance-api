@@ -1,8 +1,9 @@
 const {almatoHTMLTableComplete, basicDataTable} = require('../controllers/tables');
 const {aggieEnterprisePaymentRequest, checkPayments, checkStatusInOracle} = require('../controllers/graphqlcalls');
-const {getAlmaInvoicesWaitingToBESent, getAlmaIndividualInvoiceData} = require('../controllers/apicalls');
+const {getAlmaInvoicesWaitingToBESent, getAlmaIndividualInvoiceData} = require('../controllers/almaapicalls');
 const {reformatAlmaInvoiceforAPI, filterOutSubmittedInvoices} = require('../controllers/formatdata');
-const {getInvoices, getInvoiceIDs, getInvoiceNumbers} = require('../controllers/dbcalls');
+const {getInvoices, getInvoiceIDs, getInvoiceNumbers, postSaveTodaysToken} = require('../controllers/dbcalls');
+const {tokenGenerator} = require('../controllers/tokengenerator');
 
 
 exports.getHomepage = (req, res, next) => {
@@ -180,4 +181,10 @@ exports.sendSelectedInvoices = async (req, res, next) => {
     });
   }
 
+}
+
+exports.getToken = async (req, res, next) => {
+  const token = await tokenGenerator();
+// console.log('token = ' + token.access_token);
+  postSaveTodaysToken(token.access_token);
 }

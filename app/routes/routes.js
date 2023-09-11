@@ -50,5 +50,7 @@ router.get('/previewjson', controller.getPreviewJSON);
 
 router.get('/review', controller.getReviewPage);
 
+router.get('/token', controller.getToken);
+
 
 module.exports = router;

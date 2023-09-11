@@ -1,4 +1,5 @@
 const Invoice = require('../models/invoice');
+const Token = require('../models/token');
 
 exports.postAddInvoice = (number, id, requestbody) => {
     const invoice = new Invoice(number, id, requestbody);
@@ -21,3 +22,17 @@ exports.postAddInvoice = (number, id, requestbody) => {
   exports.getInvoiceNumbers = () => {
     return Invoice.fetchInvoiceNumbers();
   }
+
+exports.postSaveTodaysToken = (token) => {
+  console.log('token = ' + token);
+  const tokenObj = new Token(token);
+  tokenObj.save()
+    .then(() => {
+      console.log('Saved Token');
+      })
+    .catch(err => console.log(err));
+}
+
+exports.fetchTodaysToken = () => {
+  return Token.fetchOne();
+}

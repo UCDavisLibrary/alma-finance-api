@@ -1,4 +1,4 @@
-const {getFundData, getVendorData} = require('../controllers/apicalls');
+const {getFundData, getVendorData} = require('./almaapicalls');
 const {getSubmittedInvoices} = require('../controllers/dbcalls');
 
 exports.reformatAlmaInvoiceforAPI = async (data) => {

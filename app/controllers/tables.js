@@ -1,4 +1,4 @@
-const {getVendorData, getAlmaInvoicesWaitingToBESent, setSelectedData} = require('./apicalls');
+const {getVendorData, getAlmaInvoicesWaitingToBESent, setSelectedData} = require('./almaapicalls');
 const {reformatAlmaInvoiceforAPI} = require('./formatdata');
 const {postAddInvoice, getSubmittedInvoices} = require('./dbcalls');
 
@@ -16,9 +16,9 @@ exports.basicDataTable = async (data, version) => {
         // from test app
         let temp = '';
         temp += '<h3>Invoice Data</h3>';
-        temp += '<p>';
-        temp += data.total_record_count;
-        temp += ' invoices found</p>';
+        // temp += '<p>';
+        // temp += data.total_record_count;
+        // temp += ' invoices found</p>';
         temp += '<form action="/preview" method="POST">';
         temp += '<table>'
         temp += '<tr>';
@@ -55,7 +55,7 @@ exports.basicDataTable = async (data, version) => {
           try {
             const vendordata = await getVendorData(vendor);
             // let vendordata = await getVendorDataBatch(vendors);
-            // console.log('vendor data is ' + JSON.stringify(vendordata));
+            console.log('vendor data is ' + JSON.stringify(vendordata));
             
             if (vendordata) {
             temp += '<tr>';
@@ -75,6 +75,7 @@ exports.basicDataTable = async (data, version) => {
                     temp += '</tr>';
                     temp += `<tr>`;
                     temp += '<td colspan="7" >';
+                    temp += `<a onclick="toggle(table${data.invoice[i].id})">View Error Data-></a>`;
                     temp += `<div class="invoicediv hidden" id="table${data.invoice[i].id}">`;
                     temp += JSON.stringify(data.invoice[i].errors);
                     temp += '</div>';
@@ -96,6 +97,7 @@ exports.basicDataTable = async (data, version) => {
                     temp += '</tr>';
                     temp += `<tr>`;
                     temp += '<td colspan="7" >';
+                    temp += `<a onclick="toggle(table${data.invoice[i].id})">View Error Data-></a>`;
                     temp += `<div class="invoicediv hidden" id="table${data.invoice[i].id}">`;
                     temp += JSON.stringify(data.invoice[i].data.scmInvoicePaymentCreate.validationResults.errorMessages);
                     temp += '</div>';
@@ -114,6 +116,7 @@ exports.basicDataTable = async (data, version) => {
                     temp += '</tr>';
                     temp += `<tr>`;
                     temp += '<td colspan="7" >';
+                    temp += `<a onclick="toggle(table${data.invoice[i].id})">View Error Data-></a>`;
                     temp += `<div class="invoicediv hidden" id="table${data.invoice[i].id}">`;
                     temp += JSON.stringify(data.invoice[i].data.scmInvoicePaymentRequestStatusByConsumerTracking.requestStatus.errorMessages);
                     temp += '</div>';
@@ -132,6 +135,7 @@ exports.basicDataTable = async (data, version) => {
                     temp += '</tr>';
                     temp += `<tr>`;
                     temp += '<td colspan="7" >';
+                    temp += `<a onclick="toggle(table${data.invoice[i].id})">View Payment Data-></a>`;
                     temp += `<div class="invoicediv hidden" id="table${data.invoice[i].id}">`;
                     temp += JSON.stringify(data.invoice[i].data.scmInvoicePaymentSearch.data[0]);
                     temp += '</div>';

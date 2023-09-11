@@ -1,8 +1,12 @@
 const Invoice = require('../models/invoice');
 
-const { setSelectedData, simpleInvoice } = require("./apicalls");
+const { setSelectedData } = require("./almaapicalls");
 
 const {reformatAlmaInvoiceforAPI} = require("./formatdata");
+
+const { retreiveToken } = require("./tokengenerator");
+
+const token = retreiveToken();
 
 exports.aggieEnterprisePaymentRequest = async (invoices) => {
 
@@ -33,11 +37,11 @@ exports.aggieEnterprisePaymentRequest = async (invoices) => {
           variables = variableInputs[i];
           let successfulInputs = [];
           let failedInputs = [];
-          await fetch(process.env.SIT_2_URL, {
+          await fetch(process.env.UAT_URL, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              Authorization: `Bearer ${process.env.ACCESS_TOKEN}`,
+              Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify({
               query,
@@ -90,6 +94,14 @@ exports.aggieEnterprisePaymentRequest = async (invoices) => {
         processedDateTime
         errorMessages
         hasWarnings
+        jobs {
+          jobId
+          jobStatus
+          assignedJobId
+          jobReport
+          completedDateTime
+          failedRecords
+        }
       }
       validationResults {
         valid
@@ -108,11 +120,11 @@ exports.aggieEnterprisePaymentRequest = async (invoices) => {
         for (input of variableInputs) {
           variables = input;
           // console.log(variables);
-          await fetch(process.env.SIT_2_URL, {
+          await fetch(process.env.UAT_URL, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              Authorization: `Bearer ${process.env.ACCESS_TOKEN}`,
+              Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify({
               query,
@@ -194,11 +206,11 @@ exports.aggieEnterprisePaymentRequest = async (invoices) => {
         inputstoreturn = [];
         for (let variables of variableInputs) {
             // console.log(variables);
-            await fetch(process.env.SIT_2_URL, {
+            await fetch(process.env.UAT_URL, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
-                Authorization: `Bearer ${process.env.ACCESS_TOKEN}`,
+                Authorization: `Bearer ${token}`,
               },
               body: JSON.stringify({
                 query,
