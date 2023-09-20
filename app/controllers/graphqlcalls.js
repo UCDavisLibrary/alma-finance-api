@@ -4,9 +4,7 @@ const { setSelectedData } = require("./almaapicalls");
 
 const {reformatAlmaInvoiceforAPI} = require("./formatdata");
 
-const { retreiveToken } = require("./tokengenerator");
-
-const token = retreiveToken();
+const {tokenGenerator} = require("./tokengenerator");
 
 exports.aggieEnterprisePaymentRequest = async (invoices) => {
 
@@ -26,10 +24,14 @@ exports.aggieEnterprisePaymentRequest = async (invoices) => {
     }}`;
   
     const query = paymentRequest;
+    const step1 = await setSelectedData(invoices);
+    const variableInputs = await reformatAlmaInvoiceforAPI(step1);
+    const token = await tokenGenerator();
+    // const token = process.env.ACCESS_TOKEN;
   
     try {
-      const step1 = await setSelectedData(invoices);
-      const variableInputs = await reformatAlmaInvoiceforAPI(step1);
+
+      console.log('token = ' + token);
   
       let results = [];
       if (variableInputs) {
@@ -114,6 +116,7 @@ exports.aggieEnterprisePaymentRequest = async (invoices) => {
   
     try {
       // const variableInputs = await simpleInvoice();
+      const token = await tokenGenerator();
       console.log(JSON.stringify(variableInputs));
       const inputstoreturn = [];
       console.log(variableInputs);
@@ -203,6 +206,7 @@ exports.aggieEnterprisePaymentRequest = async (invoices) => {
     // }
 
       try {
+        const token = await tokenGenerator();
         inputstoreturn = [];
         for (let variables of variableInputs) {
             // console.log(variables);
@@ -234,4 +238,39 @@ exports.aggieEnterprisePaymentRequest = async (invoices) => {
       }
     }
 
-    
+    exports.checkErpRolesOracle = async () => {
+  
+      const query = `query erpRoles {
+        erpRoles
+      }`;
+  
+        try {
+          const token = await tokenGenerator();
+
+              // console.log(variables);
+              await fetch(process.env.UAT_URL, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                  query,
+                }),
+              })
+                .then((res) => res.json())
+                .then(
+                  (result) => {
+
+                    console.log(JSON.stringify(result.data.erpRoles));
+                    // return result;
+                  }
+                );
+            
+  
+          }
+        
+        catch (error) {
+          console.log(error);
+        }
+      }

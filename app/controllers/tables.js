@@ -22,10 +22,8 @@ exports.basicDataTable = async (data, version) => {
         temp += '<form action="/preview" method="POST">';
         temp += '<table>'
         temp += '<tr>';
-        temp += '<th>Vendor ID</th>';
+        temp += '<th>Invoice Number</th>';
         temp += '<th>Vendor Name</th>';
-        temp += '<th>Invoice #</th>';	
-        temp += '<th>Amount</th>'; 	
         temp += '<th>Date</th>';	
         temp += '<th>Invoice Total</th>';
         if (version === 'preview') {
@@ -60,10 +58,8 @@ exports.basicDataTable = async (data, version) => {
             if (vendordata) {
             temp += '<tr>';
         
-            temp += `<td>${vendordata.code}</td>`;
+            temp += `<td>${data.invoice[i].number} (<a href="/invoice/${data.invoice[i].id}" target="_blank">view details</a>)</td>`;
             temp += `<td>${vendordata.name}</td>`;
-            temp += `<td><a href="/invoice/${data.invoice[i].id}" target="_blank">${data.invoice[i].id}</a></td>`;
-            temp += `<td>$${data.invoice[i].total_amount}</td>`;
             temp += `<td>${nozee}</td>`;	
             temp += `<td>$${data.invoice[i].total_amount}</td>`;
             if (version === 'preview') {
@@ -158,6 +154,9 @@ exports.basicDataTable = async (data, version) => {
           catch (error) {console.log(error);
         
       }
+        }
+        if (version === 'preview') {
+          temp += '<tr><td colspan="3" class="noborder"></td><td class="noborder alignright">Select All All</td><td class="noborder"><input type="checkbox" onClick="checkall(this)" /></td></tr>';
         }
         temp += '</table>';
         if (version === 'preview') {

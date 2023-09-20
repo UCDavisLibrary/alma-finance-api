@@ -1,5 +1,3 @@
-const { fetchTodaysToken } = require('./dbcalls');
-
 exports.tokenGenerator = async () => {
     try {
         const response = await fetch(
@@ -15,17 +13,8 @@ exports.tokenGenerator = async () => {
         let data = await response.json();
         if (data) {
             console.log(data);
-            return data;
+            return data.access_token;
         }
-    } catch(error) {
-        console.log(error);
-        }
-    }
-
-exports.retreiveToken = async () => {
-    try {
-        const token = await fetchTodaysToken();
-        return token;
     } catch(error) {
         console.log(error);
         }

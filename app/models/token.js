@@ -19,7 +19,7 @@ module.exports = class Token {
 //   }
 
   static fetchOne() {
-    return db.execute('SELECT * FROM tokens ORDER BY datetime DESC LIMIT 1');
+    return db.execute('SELECT token FROM tokens ORDER BY id DESC LIMIT 1');
   }
 
 //   static fetchInvoiceIDs() {

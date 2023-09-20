@@ -1,5 +1,5 @@
 const {almatoHTMLTableComplete, basicDataTable} = require('../controllers/tables');
-const {aggieEnterprisePaymentRequest, checkPayments, checkStatusInOracle} = require('../controllers/graphqlcalls');
+const {aggieEnterprisePaymentRequest, checkPayments, checkStatusInOracle, checkErpRolesOracle} = require('../controllers/graphqlcalls');
 const {getAlmaInvoicesWaitingToBESent, getAlmaIndividualInvoiceData} = require('../controllers/almaapicalls');
 const {reformatAlmaInvoiceforAPI, filterOutSubmittedInvoices} = require('../controllers/formatdata');
 const {getInvoices, getInvoiceIDs, getInvoiceNumbers, postSaveTodaysToken} = require('../controllers/dbcalls');
@@ -187,4 +187,8 @@ exports.getToken = async (req, res, next) => {
   const token = await tokenGenerator();
 // console.log('token = ' + token.access_token);
   postSaveTodaysToken(token.access_token);
+}
+
+exports.checkERPRoles = async (req, res, next) => {
+  checkErpRolesOracle();
 }

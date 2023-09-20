@@ -32,25 +32,27 @@ service_url: process.env.APP_URL,
 
 
 
-router.get('/', controller.getHomepage );
+router.get('/', cas.bounce, controller.getHomepage );
 
-router.get('/checkstatus', controller.getCheckStatus);
+router.get('/checkstatus', cas.bounce, controller.getCheckStatus);
 
-router.get('/oraclestatus', controller.getOracleStatus);
+router.get('/oraclestatus', cas.bounce, controller.getOracleStatus);
   
-router.get('/preview', controller.getPreviewPage);
+router.get('/preview', cas.bounce, controller.getPreviewPage);
 
-router.post('/preview', controller.sendSelectedInvoices);
+router.post('/preview', cas.bounce, controller.sendSelectedInvoices);
 
-router.get('/invoice/:invoiceId', controller.getPreviewSingleInvoicePage);
+router.get('/invoice/:invoiceId', cas.bounce, controller.getPreviewSingleInvoicePage);
 
-router.get('/previewcomplete', controller.getPreviewCompletePage);
+router.get('/previewcomplete', cas.bounce, controller.getPreviewCompletePage);
   
-router.get('/previewjson', controller.getPreviewJSON);
+router.get('/previewjson', cas.bounce, controller.getPreviewJSON);
 
-router.get('/review', controller.getReviewPage);
+router.get('/review', cas.bounce, controller.getReviewPage);
 
-router.get('/token', controller.getToken);
+router.get('/token', cas.bounce, controller.getToken);
+
+router.get('/roles', cas.bounce, controller.checkERPRoles);
 
 
 module.exports = router;

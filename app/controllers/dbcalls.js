@@ -33,6 +33,19 @@ exports.postSaveTodaysToken = (token) => {
     .catch(err => console.log(err));
 }
 
-exports.fetchTodaysToken = () => {
-  return Token.fetchOne();
+exports.fetchTodaysToken = async () => {
+
+  try {
+    const response = await Token.fetchOne();
+    if (response) {
+      // console.log('response = ' + JSON.stringify(response));
+      const token = response[0][0].token;
+      console.log('token = ' + token);
+      console.log(typeof token);
+      return token;
+    }
+  }
+  catch (error) {
+    console.log(error);
+  }
 }
