@@ -37,9 +37,7 @@ exports.basicDataTable = async (data, version) => {
         }
         temp += '</tr>';
         for (i in data.invoice) {
-          console.log('data.invoice[i] is: ' + JSON.stringify(data.invoice[i]));
-          // let vendors = [];
-          // console.log(JSON.stringify(data.invoice));
+          // console.log('data.invoice[i] is: ' + JSON.stringify(data.invoice[i]));
           let nozee = data.invoice[i].invoice_date;
           if (nozee.includes('Z')) {
             nozee = nozee.substring(0, nozee.length - 1);
@@ -47,13 +45,11 @@ exports.basicDataTable = async (data, version) => {
             nozee = data.invoice[i].invoice_date;
           }
           const vendor = data.invoice[i].vendor.value;
-          // vendors.push(vendor);
-          // console.log(`Vendor is ${vendor}`);
+
   
           try {
             const vendordata = await getVendorData(vendor);
-            // let vendordata = await getVendorDataBatch(vendors);
-            console.log('vendor data is ' + JSON.stringify(vendordata));
+            // console.log('vendor data is ' + JSON.stringify(vendordata));
             
             if (vendordata) {
             temp += '<tr>';

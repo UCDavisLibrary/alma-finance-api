@@ -7,17 +7,11 @@
     <%- include('include/header'); %>
     <div class="l-container pt-2">
       <h2>Welcome to the forms App</h2>
-      <% if (isUser) { %>
       <p>Here are the forms:</p>
       <ul>
-        <li><a href="/preview">Preview Alma invoice data before sending</a></li>
-        <li>
-          <a href="/send">Send Alma invoice data to Aggie Enterprise Server</a>
-        </li>
+        <li><a href="/admin/users">View Users</a></li>
+        <li><a href="/admin/add-user">Add users to application</a></li>
       </ul>
-      <% } else { %>
-      <p>You are not logged in. Please log in to access the forms.</p>
-      <% } %>
     </div>
     <%- include('include/footer'); %>
   </body>

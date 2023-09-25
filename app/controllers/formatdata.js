@@ -147,7 +147,7 @@ exports.reformatAlmaInvoiceforAPI = async (data) => {
 
 
 exports.filterOutSubmittedInvoices = async (data) => {
-  console.log('data is : ' + JSON.stringify(data));
+  // console.log('data is : ' + JSON.stringify(data));
   const myarray = data.invoice;
 
       const data2 = await getSubmittedInvoices();

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <%- include('include/head'); %>
+  </head>
+  <body>
+    <%- include('include/header'); %>
+
+    <main>
+      <div class="l-container pt-2">
+          
+        <% if (users.length > 0) { %>
+            <h1>users</h1>
+            <table>
+              <tr>
+                <th>user Name</th>
+                <th>email</th>
+                <th>kerberos</th>
+                <th>library</th>
+              </tr>
+
+          <% let i = 0; for (let user of users) { %>
+            <tr>
+              <td><%= user.firstname %> <%= user.lastname %></td>
+              <td><%= user.email %></td>
+              <td><%= user.kerberos %></td>
+              <td><%= user.library %></td>
+              <td>
+                <a
+                href="/admin/edit-user/<%= user.id %>"
+                class="btn"
+                >Edit user</a
+              >
+              </td>
+            </tr>
+          <% i++; } %>
+        </table>
+        <p><a href="/admin/add-user" class="btn">Add user</a></p>
+
+      </div>
+
+        <% } else { %>
+        <h1>No users Found!</h1>
+        <p><a href="/admin/add-user" class="btn">Add user</a></p>
+
+        <% } %>
+      </div>
+    </main>
+
+    <%- include('include/footer'); %>
+  </body>
+</html>

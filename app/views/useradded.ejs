@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <%- include('include/head'); %>
+  </head>
+  <body>
+    <%- include('include/header'); %>
+    <div class="l-container pt-2">
+      <h2>User Added</h2>
+
+      <p><strong>Name:</strong> <%= body.firstname %> <%= body.lastname %></p>
+      <p><strong>Email:</strong> <%= body.email %></p>
+      <p><strong>Kerberos ID:</strong> <%= body.kerberos %></p>
+      <p><strong>Library:</strong> <%=body.library %></p>
+
+      <hr />
+
+      <p><a href="/admin/users">View all users</a></p>
+    </div>
+    <%- include('include/footer'); %>
+  </body>
+</html>

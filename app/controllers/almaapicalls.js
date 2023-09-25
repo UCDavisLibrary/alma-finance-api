@@ -49,9 +49,9 @@ exports.simpleInvoice = async () => {
   
   };
   
-exports.getAlmaInvoicesWaitingToBESent = async () => {
+exports.getAlmaInvoicesWaitingToBESent = async (owner) => {
     const data = await fetch(
-      'http://alma-proxy:5555/almaws/v1/acq/invoices/?q=all&limit=20&offset=0&expand=none&invoice_workflow_status=Waiting%20to%20be%20Sent'
+      `http://alma-proxy:5555/almaws/v1/acq/invoices/?q=all&limit=20&offset=0&expand=none&invoice_workflow_status=Waiting%20to%20be%20Sent&owner=${owner}`
     ).then(response => response.json());
     return data;
   };
@@ -97,20 +97,6 @@ exports.getFundData = async (fundCode) => {
       console.log(error);
     }
   };
-  
-// exports.setData = async () => {
-//     try {
-//       const data = await fetch(
-//         'http://alma-proxy:5555/almaws/v1/acq/invoices/?q=all&limit=20&offset=0&expand=none&invoice_workflow_status=Waiting%20to%20be%20Sent'
-//       ).then(response => response.json());
-  
-//         const apipayload = await reformatAlmaInvoiceforAPI(data);
-//         return apipayload;
-  
-//     }
-//     catch(error) {console.log(error)};
-  
-//   };
   
 exports.setSelectedData = async (invoiceids) => {
     console.log(invoiceids);

@@ -1,0 +1,97 @@
+<div class="l-container">
+    <form
+      id="user-form"
+      method="POST"
+      action="/admin/<% if (editMode) { %>edit-user<% } else { %>add-user<% } %>"
+    >
+      <fieldset>
+        <h2>User Information</h2>
+        <div class="field-container">
+          <label class="text-muted form-label" for="firstname">First Name </label>
+          <input
+            required
+            placeholder="First Name"
+            type="text"
+            id="firstname"
+            class="form-control"
+            name="firstname"
+            value="<% if (editMode) { %><%= user.firstname %><% } %>"
+          />
+        </div>
+  
+        <div class="field-container">
+          <label class="text-muted form-label" for="lastname">Last Name </label>
+          <input
+            required
+            placeholder="Last Name"
+            type="text"
+            id="lastname"
+            class="form-control"
+            name="lastname"
+            value="<% if (editMode) { %><%= user.lastname %><% } %>"
+          />
+        </div>
+  
+        <div class="field-container">
+          <label class="text-muted form-label" for="email">email</label>
+          <input
+            required
+            placeholder="email"
+            type="text"
+            id="email"
+            class="form-control"
+            name="email"
+            value="<% if (editMode) { %><%= user.email %><% } %>"
+          />
+        </div>
+  
+        <div class="field-container">
+          <label class="text-muted form-label" for="kerberos">Kerberos ID </label>
+          <input
+            required
+            placeholder="Kerberos ID"
+            type="text"
+            id="kerberos"
+            class="form-control"
+            name="kerberos"
+            value="<% if (editMode) { %><%= user.kerberos %><% } %>"
+          />
+        </div>
+
+        <div class="field-container">
+            <label title="" for="library" class="form-check-label"
+              >Library</label
+            >
+            <input required name="library" type="radio" id="library"
+            class="form-check-input" value="Shields" <% if (editMode && user.library ===
+            'Shields' ) { %>checked<% } %> /><label
+              title=""
+              for="library"
+              class="form-check-label"
+              >Shields</label
+            >
+            <input required name="library" type="radio" id="library"
+            class="form-check-input" value="Law" <% if (editMode && user.library ===
+            'Law' ) { %>checked<% } %> /><label
+              title=""
+              for="library"
+              class="form-check-label"
+              >Law</label
+            >
+          </div>
+  
+        <% if (editMode) { %>
+  
+        <input type="hidden" value="<%= user.id %>" name="userId" />
+  
+        <% } %>
+  
+        <div class="field-container--small views-filters__submit-field">
+          <button type="submit" class="btn--primary">
+            <% if (editMode) { %>Update<% } else { %>Submit<% } %>
+          </button>
+        </div>
+      </fieldset>
+    </form>
+  </div>
+  

@@ -40,7 +40,7 @@ router.get('/oraclestatus', cas.bounce, controller.getOracleStatus);
   
 router.get('/preview', cas.bounce, controller.getPreviewPage);
 
-router.post('/preview', cas.bounce, controller.sendSelectedInvoices);
+router.post('/preview', controller.sendSelectedInvoices);
 
 router.get('/invoice/:invoiceId', cas.bounce, controller.getPreviewSingleInvoicePage);
 
@@ -53,6 +53,30 @@ router.get('/review', cas.bounce, controller.getReviewPage);
 router.get('/token', cas.bounce, controller.getToken);
 
 router.get('/roles', cas.bounce, controller.checkERPRoles);
+
+// router.get('/logout', cas.logout, controller.getLogout);
+
+// router.get('/login', cas.bounce, controller.getLogin);
+
+// router.get('/loginfailed', cas.bounce, controller.getLoginFailed);
+
+router.get('/admin', cas.bounce, controller.getAdminView);
+
+// router.get('/admin/manageusers', cas.bounce, controller.getAdminManageUsers);
+
+router.get('/admin/users', cas.bounce, controller.getAdminViewUsers);
+
+router.get('/admin/add-user', cas.bounce, controller.getAdminAddUser);
+
+router.post('/admin/add-user', controller.postAdminAddUser);
+
+// router.get(
+//   '/admin/edit-user/:userId',
+//   cas.bounce,
+//   controller.getAdminEditUser
+// );
+
+// router.post('/admin/edit-user/', controller.postAdminAddUser);
 
 
 module.exports = router;
