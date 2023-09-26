@@ -146,11 +146,11 @@ exports.reformatAlmaInvoiceforAPI = async (data) => {
   }
 
 
-exports.filterOutSubmittedInvoices = async (data) => {
+exports.filterOutSubmittedInvoices = async (data, library) => {
   // console.log('data is : ' + JSON.stringify(data));
   const myarray = data.invoice;
 
-      const data2 = await getSubmittedInvoices();
+      const data2 = await getSubmittedInvoices(library);
       const alreadysentinvoices = data2[0];
       console.log('alreadysentinvoices = ' + JSON.stringify(alreadysentinvoices));
       // extract invoiceid from alreadysentinvoices

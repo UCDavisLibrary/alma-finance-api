@@ -7,13 +7,14 @@ module.exports = class Invoice {
   constructor(number, id, responsebody) {
     this.number = number;
     this.id = id;
+    this.library = library;
     this.responsebody = responsebody;
   }
 
   save() {
     return db.execute(
-      'INSERT INTO invoices (invoicenumber, invoiceid, responsebody, datetime) VALUES (?, ?, ?, ?)',
-      [this.number, this.id, this.responsebody, now]
+      'INSERT INTO invoices (invoicenumber, invoiceid, library, responsebody, datetime) VALUES (?, ?, ?, ?, ?)',
+      [this.number, this.id, this.library, this.responsebody, now]
     );
   }
 
@@ -21,16 +22,16 @@ module.exports = class Invoice {
     return db.execute('DELETE FROM invoices WHERE invoices.id = ?', [id]);
   }
 
-  static fetchAll() {
-    return db.execute('SELECT * FROM invoices');
+  static fetchAll(library) {
+    return db.execute('SELECT * FROM invoices WHERE invoices.library = ?', [library]);
   }
 
   static fetchInvoiceIDs() {
     return db.execute('SELECT invoiceid FROM invoices');
   }
 
-  static fetchInvoiceNumbers() {
-    return db.execute('SELECT invoicenumber FROM invoices');
+  static fetchInvoiceNumbers(library) {
+    return db.execute('SELECT invoicenumber FROM invoices WHERE invoices.library = ?', [library]);
   }
 
   static findById(id) {

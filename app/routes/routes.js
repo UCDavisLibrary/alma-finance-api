@@ -40,7 +40,7 @@ router.get('/oraclestatus', cas.bounce, controller.getOracleStatus);
   
 router.get('/preview', cas.bounce, controller.getPreviewPage);
 
-router.post('/preview', controller.sendSelectedInvoices);
+router.post('/preview', cas.bounce, controller.sendSelectedInvoices);
 
 router.get('/invoice/:invoiceId', cas.bounce, controller.getPreviewSingleInvoicePage);
 
@@ -50,9 +50,9 @@ router.get('/previewjson', cas.bounce, controller.getPreviewJSON);
 
 router.get('/review', cas.bounce, controller.getReviewPage);
 
-router.get('/token', cas.bounce, controller.getToken);
+router.get('/token', cas.bounce, controller.getAdminCheckToken);
 
-router.get('/roles', cas.bounce, controller.checkERPRoles);
+router.get('/roles', cas.bounce, controller.getAdmincheckERPRoles);
 
 // router.get('/logout', cas.logout, controller.getLogout);
 

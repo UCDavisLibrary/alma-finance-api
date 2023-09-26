@@ -2,8 +2,8 @@ const Invoice = require('../models/invoice');
 const Token = require('../models/token');
 const User = require('../models/user');
 
-exports.postAddInvoice = (number, id, requestbody) => {
-    const invoice = new Invoice(number, id, requestbody);
+exports.postAddInvoice = (number, id, library, requestbody) => {
+    const invoice = new Invoice(number, id, library, requestbody);
     invoice.save()
       .then(() => {
         console.log('Saved Invoice');
@@ -12,16 +12,16 @@ exports.postAddInvoice = (number, id, requestbody) => {
     
   };
 
-  exports.getSubmittedInvoices = () => {
-    return Invoice.fetchAll();
+  exports.getSubmittedInvoices = (library) => {
+    return Invoice.fetchAll(library);
   }
 
   exports.getInvoiceIDs = () => {
     return Invoice.fetchInvoiceIDs();
   }
 
-  exports.getInvoiceNumbers = () => {
-    return Invoice.fetchInvoiceNumbers();
+  exports.getInvoiceNumbers = (library) => {
+    return Invoice.fetchInvoiceNumbers(library);
   }
 
 exports.postSaveTodaysToken = (token) => {

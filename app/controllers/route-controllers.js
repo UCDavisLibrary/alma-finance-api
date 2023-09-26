@@ -43,12 +43,14 @@ exports.getHomepage = async (req, res, next) => {
     res.render('index', {
       title: 'Payment Processor - Home',
       isUser: true,
+      isAdmin: false,
   });
   }
   else {
     res.render('index', {
       title: 'Payment Processor - Home',
       isUser: false,
+      isAdmin: false,
     });
   };
 
@@ -59,36 +61,23 @@ exports.getPreviewCompletePage = async (req, res, next) => {
     res.render('previewcomplete', {
       title: 'Payment Processor - Complete Data Preview',
       body: bodystuff,
-      isUser: false
+      isUser: false,
+      isAdmin: false,
+
     });
 }
 
 exports.getPreviewSingleInvoicePage = async (req, res, next) => {
+  const cas_user = req.session[cas.session_name];
+  const userdata = await fetchUser(cas_user);
+  if (userdata) {
   const invoiceID = req.params.invoiceId;
   const bodystuff = await almatoHTMLTableComplete(invoiceID);
   res.render('previewcomplete', {
     title: 'Payment Processor - Complete Data Preview',
     body: bodystuff,
-    isUser: false
+    isUser: true
   });
-}
-
-exports.getPreviewPage = async (req, res, next) => {
-  const cas_user = req.session[cas.session_name];
-  const userdata = await fetchUser(cas_user);
-  if (userdata) {
-    const library = userdata.library;
-    if (library) {
-      const data1 = await getAlmaInvoicesWaitingToBESent(library);
-      const data = await filterOutSubmittedInvoices(data1);
-      const version = 'preview';
-      const bodystuff = await basicDataTable(data, version);
-      res.render('preview', {
-        title: 'Payment Processor - Select Data',
-        body: bodystuff,
-        isUser: false
-      });
-    }
 }
 else {
   res.render('index', {
@@ -98,21 +87,55 @@ else {
 }
 }
 
+exports.getPreviewPage = async (req, res, next) => {
+  const cas_user = req.session[cas.session_name];
+  const userdata = await fetchUser(cas_user);
+  console.log('userdata = ' + JSON.stringify(userdata));
+  if (userdata) {
+    const library = userdata.library;
+    if (library) {
+      const data1 = await getAlmaInvoicesWaitingToBESent(library);
+      console.log('data1 = ' + JSON.stringify(data1));
+      const data = await filterOutSubmittedInvoices(data1, library);
+      console.log('data = ' + JSON.stringify(data));
+      const version = 'preview';
+      const bodystuff = await basicDataTable(data, version, library);
+      res.render('preview', {
+        title: 'Payment Processor - Select Data',
+        body: bodystuff,
+        isUser: true,
+        isAdmin: false,
+      });
+    }
+  }
+  else {
+    res.redirect('/');
+  }
+}
+
 exports.getPreviewJSON = async (req, res, next) => {
+  const cas_user = req.session[cas.session_name];
+  const admin = process.env.ADMIN;
+  if (cas_user === admin) {
     const data = await getAlmaInvoicesWaitingToBESent();
     const bodyraw = await reformatAlmaInvoiceforAPI(data);
     const bodystuff = JSON.stringify(bodyraw, null, 2);
     res.render('preview-json', {
       title: 'Payment Processor - JSON Preview',
       body: bodystuff,
-      isUser: false
+      isUser: true,
+      isAdmin: true,
     });
+  }
+  else {
+    res.redirect('/');
+  }
 }
 
 exports.getReviewPage = async (req, res, next) => {
   const data = await getAlmaInvoicesWaitingToBESent();
   const version = 'review';
-  const bodystuff = await basicDataTable(data, version);
+  const bodystuff = await basicDataTable(data, version, library);
   res.render('review', {
     title: 'Payment Processor - Select Data',
     body: bodystuff,
@@ -121,22 +144,91 @@ exports.getReviewPage = async (req, res, next) => {
 }
 
 exports.getCheckStatus = async (req, res, next) => {
-    let invoicenumbers = await getInvoiceNumbers();
+  const cas_user = req.session[cas.session_name];
+  const userdata = await fetchUser(cas_user);
+  if (userdata) {
+    const library = userdata.library;
+    let invoicenumbers = await getInvoiceNumbers(library);
     invoicenumbers = invoicenumbers[0];
-    for (i in invoicenumbers) {
-      invoicenumbers[i] = {consumerTrackingId : invoicenumbers[i].invoicenumber};
+    if (invoicenumbers.length === 0) {
+      const bodystuff = 'No invoices found.';
+      res.render('review', {
+        title: 'Payment Processor - Data Sent',
+        body: bodystuff,
+        isUser: true,
+        isAdmin: false,
+      });
     }
-    const requestresults = await checkPayments(invoicenumbers);
+    else {
+      console.log('invoicenumbers = ' + JSON.stringify(invoicenumbers));
+      for (i in invoicenumbers) {
+        invoicenumbers[i] = {consumerTrackingId : invoicenumbers[i].invoicenumber};
+      }
+      const requestresults = await checkPayments(invoicenumbers);
+      let invoiceids = await getInvoiceIDs();
+      invoiceids = invoiceids[0];
+      for (i in invoiceids) {
+        invoiceids[i] = invoiceids[i].invoiceid;
+      }
+      const invoicedata = await getAlmaIndividualInvoiceData(invoiceids);
+      // console.log('invoicedata = ' + JSON.stringify(invoicedata.invoice.length));
+      let data = {invoice: []}
+      for (i in invoicedata.invoice) {
+        const invoice = invoicedata.invoice[i];
+        const request = requestresults[i];
+        const combined = {...invoice, ...request};
+        data.invoice.push(combined);
+      }
+      const version = 'review';
+      const bodystuff = await basicDataTable(data, version, library);
+      console.log('bodystuff = ' + bodystuff);
+      res.render('review', {
+          title: 'Payment Processor - Data Sent',
+          body: bodystuff,
+          isUser: true,
+          isAdmin: false,
+      });
+    }
+
+  }
+  else {
+    res.redirect('/');
+  }
+}
+
+exports.getOracleStatus = async (req, res, next) => {
+  const cas_user = req.session[cas.session_name];
+  const userdata = await fetchUser(cas_user);
+  if (userdata) {
+  const library = userdata.library;
+  let invoicenumbers = await getInvoiceNumbers(library);
+  invoicenumbers = invoicenumbers[0];
+  if (invoicenumbers.length === 0) {
+    const bodystuff = 'No invoices found.';
+    res.render('review', {
+      title: 'Payment Processor - Data Sent',
+      body: bodystuff,
+      isUser: true,
+      isAdmin: false,
+    });
+  }
+  else {
+    for (i in invoicenumbers) {
+      invoicenumbers[i] =
+        { "filter":   
+      {
+        "invoiceNumber": {"contains": invoicenumbers[i].invoicenumber}
+      }
+    }
+    }
+    const requestresults = await checkStatusInOracle(invoicenumbers);
 
     let invoiceids = await getInvoiceIDs();
     invoiceids = invoiceids[0];
     for (i in invoiceids) {
       invoiceids[i] = invoiceids[i].invoiceid;
     }
-    // console.log('requestresults = ' + JSON.stringify(requestresults));
-    console.log('invoiceids = ' + JSON.stringify(invoiceids));
     const invoicedata = await getAlmaIndividualInvoiceData(invoiceids);
-    // console.log('invoicedata = ' + JSON.stringify(invoicedata));
     data = {invoice: []}
     for (i in invoicedata.invoice) {
       const invoice = invoicedata.invoice[i];
@@ -145,55 +237,18 @@ exports.getCheckStatus = async (req, res, next) => {
       data.invoice.push(combined);
     }
     const version = 'review';
-    const bodystuff = await basicDataTable(data, version);
+    const bodystuff = await basicDataTable(data, version, library);
     res.render('review', {
         title: 'Payment Processor - Data Sent',
         body: bodystuff,
-        isUser: false
-    });
-
-    // res.render('checkstatus', {
-    //   title: 'Payment Processor - Check Payment Status',
-    //   body: bodystuff,
-    // });
-}
-
-exports.getOracleStatus = async (req, res, next) => {
-  let invoicenumbers = await getInvoiceNumbers();
-  invoicenumbers = invoicenumbers[0];
-  for (i in invoicenumbers) {
-    invoicenumbers[i] =
-       { "filter":   
-    {
-      "invoiceNumber": {"contains": invoicenumbers[i].invoicenumber}
+        isUser: false,
+        isAdmin: false,
+      });
     }
   }
+  else {
+    res.redirect('/');
   }
-  const requestresults = await checkStatusInOracle(invoicenumbers);
-
-  let invoiceids = await getInvoiceIDs();
-  invoiceids = invoiceids[0];
-  for (i in invoiceids) {
-    invoiceids[i] = invoiceids[i].invoiceid;
-  }
-  // console.log('requestresults = ' + JSON.stringify(requestresults));
-  console.log('invoiceids = ' + JSON.stringify(invoiceids));
-  const invoicedata = await getAlmaIndividualInvoiceData(invoiceids);
-  // console.log('invoicedata = ' + JSON.stringify(invoicedata));
-  data = {invoice: []}
-  for (i in invoicedata.invoice) {
-    const invoice = invoicedata.invoice[i];
-    const request = requestresults[i];
-    const combined = {...invoice, ...request};
-    data.invoice.push(combined);
-  }
-  const version = 'review';
-  const bodystuff = await basicDataTable(data, version);
-  res.render('review', {
-      title: 'Payment Processor - Data Sent',
-      body: bodystuff,
-      isUser: false
-  });
 }
 
 exports.sendSelectedInvoices = async (req, res, next) => {
@@ -221,14 +276,26 @@ exports.sendSelectedInvoices = async (req, res, next) => {
           const combined = {...invoice, ...request};
           data.invoice.push(combined);
         }
-        
+        const cas_user = req.session[cas.session_name];
+        const userdata = await fetchUser(cas_user);
+        if (userdata) {
         const version = 'review';
-        const bodystuff = await basicDataTable(data, version);
+        const bodystuff = await basicDataTable(data, version. library);
         res.render('review', {
             title: 'Payment Processor - Data Sent',
             body: bodystuff,
-            isUser: false
+            isUser: true,
+            isAdmin: false
         });
+        }
+        else {
+          res.render('review', {
+            title: 'Payment Processor - Data Sent',
+            body: bodystuff,
+            isUser: false,
+            isAdmin: false
+        });
+        }
       }
     }
     catch (error) {
@@ -237,20 +304,25 @@ exports.sendSelectedInvoices = async (req, res, next) => {
 
   }
   else {
-    res.render('send', {
-      title: 'Payment Processor - Send Data',
+    res.render('index', {
+      title: 'Payment Processor - Home',
+      isUser: false,
+      isAdmin: false,
     });
   }
 
 }
 
-exports.getToken = async (req, res, next) => {
+exports.getAdminCheckToken = async (req, res, next) => {
+  const cas_user = req.session[cas.session_name];
+  const admin = process.env.ADMIN;
+  if (cas_user === admin) {
   const token = await tokenGenerator();
-// console.log('token = ' + token.access_token);
   postSaveTodaysToken(token.access_token);
+  }
 }
 
-exports.checkERPRoles = async (req, res, next) => {
+exports.getAdmincheckERPRoles = async (req, res, next) => {
   checkErpRolesOracle();
 }
 
@@ -260,12 +332,12 @@ exports.getAdminView = async (req, res, next) => {
   if (cas_user === admin) {
     res.render('admin', {
       title: 'Payment Processor - Admin',
+      isUser: true,
+      isAdmin: true,
     });
   }
   else {
-    res.render('index', {
-      title: 'Payment Processor - Home',
-    });
+    res.redirect('/');
   }
 };
 
@@ -275,12 +347,12 @@ exports.getAdminManageUsers = async (req, res, next) => {
   if (cas_user === admin) {
     res.render('admin-manage-users', {
       title: 'Payment Processor - Admin',
+      isUser: true,
+      isAdmin: true,
     });
   }
   else {
-    res.render('index', {
-      title: 'Payment Processor - Home',
-    });
+    res.redirect('/');
   }
 };
 
@@ -292,6 +364,7 @@ exports.getAdminViewUsers = async (req, res, next) => {
         res.render('user-list', {
           title: 'View All Users',
           users: users,
+          isUser: true,
           isAdmin: true,
         });
     }
@@ -317,32 +390,7 @@ exports.getAdminAddUser = (req, res) => {
   }
 };
 
-exports.getEditJudge = (req, res, next) => {
-  const judgeId = req.params.judgeId;
-  const cas_user = req.session[cas.session_name];
-  if (cas_user === admin) {
-    Judge.findByPk(judgeId)
-      .then((judge) => {
-        if (!judge) {
-          return res.redirect('/admin/judges');
-        }
-        res.render('edit-judge', {
-          title: 'Edit Judge',
-          path: '/edit-application',
-          judge: judge,
-          editMode: true,
-          isJudge: false,
-          isAdmin: true,
-        });
-      })
-      .catch((err) => console.log(err));
-  } else {
-    res.redirect('/');
-  }
-};
-
 exports.postAdminAddUser = async (req, res, next) => {
-  console.log('req.body = ' + JSON.stringify(req.body));
 
   try {
 
@@ -353,6 +401,7 @@ exports.postAdminAddUser = async (req, res, next) => {
     res.render('useradded', {
       body: body,
       title: 'New User Added',
+      isUser: true,
       isAdmin: true,
       editMode: true,
     });
@@ -361,6 +410,7 @@ exports.postAdminAddUser = async (req, res, next) => {
     res.status(500).render('useradded', {
       body: body,
       title: 'Error Adding User',
+      isUser: true,
       isAdmin: true,
       editMode: true,
     });
@@ -371,33 +421,9 @@ catch (error) {
   res.status(500).render('useradded', {
     body: body,
     title: 'Error Adding User',
+    isUser: true,
     isAdmin: true,
     editMode: true,
   });
 }
-};
-
-exports.postAdminEditUser = (req, res, next) => {
-  const judgeId = req.body.judgeId;
-  const updatedfirstname = req.body.firstname;
-  const updatedlastname = req.body.lastname;
-  const updatedEmail = req.body.email;
-  const updatedKerberos = req.body.kerberos;
-  const updatedIsActive = req.body.isActive;
-
-  Judge.findByPk(judgeId)
-    .then((judge) => {
-      judge.firstname = updatedfirstname;
-      judge.lastname = updatedlastname;
-      judge.email = updatedEmail;
-      judge.kerberos = updatedKerberos;
-      judge.isActive = updatedIsActive;
-
-      return judge.save();
-    })
-    .then((result) => {
-      console.log('Updated Judge');
-      res.redirect('/admin/judges');
-    })
-    .catch((err) => console.log(err));
 };

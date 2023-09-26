@@ -2,7 +2,7 @@ const {getVendorData, getAlmaInvoicesWaitingToBESent, setSelectedData} = require
 const {reformatAlmaInvoiceforAPI} = require('./formatdata');
 const {postAddInvoice, getSubmittedInvoices} = require('./dbcalls');
 
-exports.basicDataTable = async (data, version) => {
+exports.basicDataTable = async (data, version, library) => {
 
 
     try {
@@ -11,7 +11,6 @@ exports.basicDataTable = async (data, version) => {
         const today = new Date().toLocaleDateString('sv-SE', {
           timeZone: 'America/Los_Angeles',
         });
-    
         // console.log(`today is ${today}`);
         // from test app
         let temp = '';
@@ -77,11 +76,11 @@ exports.basicDataTable = async (data, version) => {
               else if (data.invoice[i].data.scmInvoicePaymentCreate) {
 
                 if (data.invoice[i].data.scmInvoicePaymentCreate.requestStatus.requestStatus === 'PENDING') {
-                  postAddInvoice(data.invoice[i].number, data.invoice[i].id, data.invoice[i].data);
+                  postAddInvoice(data.invoice[i].number, data.invoice[i].id, library, data.invoice[i].data);
                   temp += `<td><btn class="btn btn-success">Success</btn></td>`;
                   }
                 else if (data.invoice[i].data.scmInvoicePaymentCreate.validationResults.errorMessages[0].includes("A request already exists for your consumerId and consumerTrackingId")) {
-                  postAddInvoice(data.invoice[i].number, data.invoice[i].id, data.invoice[i].data);
+                  postAddInvoice(data.invoice[i].number, data.invoice[i].id, library, data.invoice[i].data);
                 temp += `<td><a class="btn btn-success">Success</a></td>`;
                 }
                 else if (data.invoice[i].data.scmInvoicePaymentCreate.validationResults.errorMessages) {
@@ -152,7 +151,7 @@ exports.basicDataTable = async (data, version) => {
       }
         }
         if (version === 'preview') {
-          temp += '<tr><td colspan="3" class="noborder"></td><td class="noborder alignright">Select All All</td><td class="noborder"><input type="checkbox" onClick="checkall(this)" /></td></tr>';
+          temp += '<tr><td colspan="3" class="noborder"></td><td class="noborder alignright">Select All</td><td class="noborder"><input type="checkbox" onClick="checkall(this)" /></td></tr>';
         }
         temp += '</table>';
         if (version === 'preview') {
