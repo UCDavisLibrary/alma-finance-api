@@ -12,7 +12,7 @@ services:
     env_file:
       - ./env/mysql.env
     ports:
-      - '3306:3306'
+      - '3092:3092'
     volumes:
       - ./alma-finance.sql:/docker-entrypoint-initdb.d/alma-finance.sql 
       - almafinance-db:/var/lib/mysql
@@ -27,12 +27,12 @@ services:
       - /app/node_modules
     depends_on:
       - alma-proxy
-  adminer:
-    image: adminer
-    restart: always
-    ports:
-      - 8080:8080
-    depends_on:
-      - almafinance-db
+  # adminer:
+  #   image: adminer
+  #   restart: always
+  #   ports:
+  #     - 8085:8085
+  #   depends_on:
+  #     - almafinance-db
 volumes:
   almafinance-db:
