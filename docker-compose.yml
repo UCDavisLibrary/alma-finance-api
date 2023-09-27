@@ -14,7 +14,7 @@ services:
     ports:
       - '3092:3092'
     volumes:
-      - ./almafinance-db.sql:/docker-entrypoint-initdb.d/alma-finance.sql 
+      - ./almafinance-db.sql:/docker-entrypoint-initdb.d/almafinance-db.sql 
       - almafinance-db:/var/lib/mysql
   alma-finance:
     build: ./app
