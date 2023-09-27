@@ -27,12 +27,12 @@ services:
       - /app/node_modules
     depends_on:
       - alma-proxy
-  # adminer:
-  #   image: adminer
-  #   restart: always
-  #   ports:
-  #     - 8085:8085
-  #   depends_on:
-  #     - almafinance-db
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8085:8085
+    depends_on:
+      - almafinance-db
 volumes:
   almafinance-db:
