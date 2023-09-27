@@ -384,6 +384,7 @@ exports.getAdminAddUser = (req, res) => {
       title: 'Add Judge',
       editMode: false,
       isAdmin: true,
+      isUser: false
     });
   } else {
     res.redirect('/');
