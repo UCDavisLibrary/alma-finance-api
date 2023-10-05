@@ -1,6 +1,6 @@
-const {getVendorData, getAlmaInvoicesWaitingToBESent, setSelectedData} = require('./almaapicalls');
+const {getVendorData, setSelectedData, getFundData, getFundDataByID} = require('./almaapicalls');
 const {reformatAlmaInvoiceforAPI} = require('./formatdata');
-const {postAddInvoice, getSubmittedInvoices} = require('./dbcalls');
+const {postAddInvoice} = require('./dbcalls');
 
 exports.basicDataTable = async (data, version, library) => {
 
@@ -25,6 +25,7 @@ exports.basicDataTable = async (data, version, library) => {
         temp += '<th>Vendor Name</th>';
         temp += '<th>Date</th>';	
         temp += '<th>Invoice Total</th>';
+        // temp += '<th>Fund</th>';
         if (version === 'preview') {
           temp += '<th>Send</th>';
         }
@@ -47,9 +48,7 @@ exports.basicDataTable = async (data, version, library) => {
 
   
           try {
-            const vendordata = await getVendorData(vendor);
-            // console.log('vendor data is ' + JSON.stringify(vendordata));
-            
+            const vendordata = await getVendorData(vendor);            
             if (vendordata) {
             temp += '<tr>';
         
@@ -57,6 +56,21 @@ exports.basicDataTable = async (data, version, library) => {
             temp += `<td>${vendordata.name}</td>`;
             temp += `<td>${nozee}</td>`;	
             temp += `<td>$${data.invoice[i].total_amount}</td>`;
+
+            // const fund = data.invoice[i].invoice_lines.invoice_line[0].fund_distribution[0].fund_code.value;
+            // if (fund) {
+            //   try {
+            //     const funddata = await getFundData(fund);
+            //     const funddata2 = await getFundDataByID(funddata.fund[0].id);
+            //     if (funddata && funddata2) {
+            //       console.log('funddata is: ' + JSON.stringify(funddata2));
+            //       temp += `<td>${funddata.fund_name}</td>`;
+            //     }
+            //   }
+            //   catch (error) {
+            //     console.log(error);
+            //   }
+            // }
             if (version === 'preview') {
               temp += `<td><input type="checkbox" id="${data.invoice[i].id}" name="invoice-${i}" value="${data.invoice[i].id}"></td>`;
             }

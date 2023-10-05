@@ -76,13 +76,15 @@ exports.getPreviewSingleInvoicePage = async (req, res, next) => {
   res.render('previewcomplete', {
     title: 'Payment Processor - Complete Data Preview',
     body: bodystuff,
-    isUser: true
+    isUser: true,
+    isAdmin: false,
   });
 }
 else {
   res.render('index', {
     title: 'Payment Processor - Home',
     isUser: false,
+    isAdmin: false,
   });
 }
 }
@@ -95,9 +97,7 @@ exports.getPreviewPage = async (req, res, next) => {
     const library = userdata.library;
     if (library) {
       const data1 = await getAlmaInvoicesWaitingToBESent(library);
-      console.log('data1 = ' + JSON.stringify(data1));
       const data = await filterOutSubmittedInvoices(data1, library);
-      console.log('data = ' + JSON.stringify(data));
       const version = 'preview';
       const bodystuff = await basicDataTable(data, version, library);
       res.render('preview', {

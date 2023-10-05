@@ -133,3 +133,17 @@ exports.getVendorData = async (vendorcode) => {
       console.log(error);
     }
   };
+
+  exports.getFundDataByID = async (fundcode) => {
+    try {
+      const data = await fetch(
+      `http://alma-proxy:5555/almaws/v1/acq/funds/${fundcode}`
+    ).then(response => response.json());
+  
+    if (data) {
+      return data;
+    } 
+  } catch(error) {
+      console.log(error);
+    }
+  };

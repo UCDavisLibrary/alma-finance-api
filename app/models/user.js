@@ -26,7 +26,7 @@ module.exports = class User {
     return db.execute('SELECT library FROM users WHERE users.kerberos = ?', [kerberos]);
   }
 
-  static save() {
+  save() {
     return db.execute(
       'INSERT INTO users (firstname, lastname, email, kerberos, library) VALUES (?, ?, ?, ?, ?)',
       [this.firstname, this.lastname, this.email, this.kerberos, this.library]

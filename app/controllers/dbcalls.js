@@ -63,13 +63,23 @@ exports.postAddUser = async (firstname, lastname, email, kerberos, library) => {
   try {
       const usersaved = await user.save();
       if (usersaved) {
-          // console.log('Patron saved');
+          console.log('User saved');
           return true;
       };
   }
   catch (error) {
       console.log(error);
   }
+};
+
+exports.postAddInvoice = (number, id, library, requestbody) => {
+  const invoice = new Invoice(number, id, library, requestbody);
+  invoice.save()
+    .then(() => {
+      console.log('Saved Invoice');
+      })
+    .catch(err => console.log(err));
+  
 };
 
 exports.fetchAllUsers = async () => {
