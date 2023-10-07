@@ -22,7 +22,6 @@ async function almatoHTMLTableComplete(input, requestResponse) {
     const data = await checkdata(input);
     if (data) {
 
-    console.log(data);
     var temp = '';
     temp += '<h3>Invoice Data</h3>';
     temp += '<p>';
@@ -160,14 +159,11 @@ async function almatoHTMLTableComplete(input, requestResponse) {
 
 
 const reformatAlmaInvoiceforAPI = async (data) => {
-        // console.log('data length is : ' + data.length);
         let apipayload = [];
         const today = new Date().toLocaleDateString('sv-SE', {
           timeZone: 'America/Los_Angeles',
         });
     
-        // console.log(`today is ${today}`);
-        // from test app
         for (i in data.invoice) {
           let nozee = data.invoice[i].invoice_date;
           if (nozee.includes('Z')) {
@@ -176,11 +172,9 @@ const reformatAlmaInvoiceforAPI = async (data) => {
             nozee = data.invoice[i].invoice_date;
           }
           const vendor = data.invoice[i].vendor.value;
-          // console.log(`Vendor is ${vendor}`);
   
           try {
             const vendordata = await getVendorData(vendor);
-            // console.log('vendor data is ' + JSON.stringify(vendordata));
             
             if (vendordata) {
               apipayload.push({
@@ -238,12 +232,10 @@ const reformatAlmaInvoiceforAPI = async (data) => {
               unitPrice: data.invoice[i].invoice_lines.invoice_line[j].price,
             }
             for (k in data.invoice[i].invoice_lines.invoice_line[j].fund_distribution) {
-              // console.log('fund distribution' + JSON.stringify(data.invoice[i].invoice_lines.invoice_line[j].fund_distribution));
               const fundCode = data.invoice[i].invoice_lines.invoice_line[j].fund_distribution[k].fund_code.value;
               if (fundCode) {
                 try {
                   const fundData = await getFundData(fundCode);
-                  // console.log('fund data is ' + JSON.stringify(fundData));
                   if (fundData.fund) {
                     const fundString = fundData.fund[0].external_id;
                     if (fundString.includes(".")) {

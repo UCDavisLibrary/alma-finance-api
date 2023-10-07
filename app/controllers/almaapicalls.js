@@ -4,50 +4,17 @@ exports.getAlmaIndividualInvoiceData = async (invoiceids) => {
       data = {invoice: []}; // mimics structure of a bulk invoice payload in setData()
       // data = [];
       for (invoice of invoiceids) {
-        // console.log(invoice);
         const invoicedata = await fetch(
           `http://alma-proxy:5555/almaws/v1/acq/invoices/${invoice}?expand=none`
         ).then(response => response.json());
-        // console.log(invoicedata);
         data.invoice.push(invoicedata);
         }
   
-      // console.log('apipayload ' + JSON.stringify(apipayload));
       return data;
   
     }
     catch(error) {console.log(error)};
   }
-
-exports.simpleInvoice = async () => {
-    try {
-      const data = await fetch(
-        'http://alma-proxy:5555/almaws/v1/acq/invoices/?q=all&limit=20&offset=0&expand=none&invoice_workflow_status=Waiting%20to%20be%20Sent'
-      ).then(response => response.json());
-  
-        // console.log(data);
-        let apipayload = [];
-    
-        // console.log(`today is ${today}`);
-        // from test app
-        for (i in data.invoice) {
-  
-          apipayload.push({
-            // consumerId: data.invoice[i].owner.value === 'LAW' ? 'UCD LawLibrary' : 'UCD GeneralLibrary',
-            // consumerReferenceId: data.invoice[i].id,
-            consumerTrackingId: data.invoice[i].number,
-          });
-  
-        }
-        // console.log(JSON.stringify(apipayload[0]));
-        // console.log(JSON.stringify(apipayload));
-        return apipayload;
-
-    }
-    catch(error) {console.log(error)};
-  
-  
-  };
   
 exports.getAlmaInvoicesWaitingToBESent = async (owner) => {
     const data = await fetch(
@@ -99,20 +66,16 @@ exports.getFundData = async (fundCode) => {
   };
   
 exports.setSelectedData = async (invoiceids) => {
-    console.log(invoiceids);
     try {
       data = {invoice: []}; // mimics structure of a bulk invoice payload in setData()
       // data = [];
       for (invoice of invoiceids) {
-        // console.log(invoice);
         const invoicedata = await fetch(
           `http://alma-proxy:5555/almaws/v1/acq/invoices/${invoice}?expand=none`
         ).then(response => response.json());
-        // console.log(invoicedata);
         data.invoice.push(invoicedata);
         }
   
-      // console.log('apipayload ' + JSON.stringify(apipayload));
       return data;
   
     }
@@ -147,3 +110,38 @@ exports.getVendorData = async (vendorcode) => {
       console.log(error);
     }
   };
+
+  exports.getSingleInvoiceData = async (invoiceid) => {
+    try {
+      const data = await fetch(
+      `http://alma-proxy:5555/almaws/v1/acq/invoices/${invoiceid}?expand=none`
+    ).then(response => response.json());
+  
+    if (data) {
+      return data;
+    } 
+  } catch(error) {
+      console.log(error);
+    }
+  }
+
+  exports.putSingleInvoiceData = async (invoiceid, payload) => {
+    try {
+      const data = await fetch(
+      `http://alma-proxy:5555/almaws/v1/acq/invoices/${invoiceid}?expand=none`,
+      {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      }
+    ).then(response => response.json());
+  
+    if (data) {
+      return data;
+    } 
+  } catch(error) {
+      console.log(error);
+    }
+  }

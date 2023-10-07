@@ -27,12 +27,8 @@ exports.aggieEnterprisePaymentRequest = async (invoices) => {
     const step1 = await setSelectedData(invoices);
     const variableInputs = await reformatAlmaInvoiceforAPI(step1);
     const token = await tokenGenerator();
-    // const token = process.env.ACCESS_TOKEN;
   
-    try {
-
-      console.log('token = ' + token);
-  
+    try {  
       let results = [];
       if (variableInputs) {
         for (i in variableInputs) {
@@ -53,16 +49,8 @@ exports.aggieEnterprisePaymentRequest = async (invoices) => {
             .then((res) => res.json())
             .then(
               (result) => {
-                console.log(JSON.stringify(result)); // display errors on tool
                 results.push(result);
               }
-                // result.data.scmInvoicePaymentCreate.validationResults.errorMessages[0].startsWith(
-                //   'A request already exists for your consumerId and consumerTrackingId'
-                // ) ||
-                // result.data.scmInvoicePaymentCreate.validationResults.errorMessages ==
-                //   null
-                //   ? console.log('perfect') // change invoice status
-                //   : console.log(JSON.stringify(result)) // display errors on tool
             );
         }
         return results;
@@ -115,14 +103,11 @@ exports.aggieEnterprisePaymentRequest = async (invoices) => {
   
   
     try {
-      // const variableInputs = await simpleInvoice();
       const token = await tokenGenerator();
-      console.log(JSON.stringify(variableInputs));
       const inputstoreturn = [];
       console.log(variableInputs);
         for (input of variableInputs) {
           variables = input;
-          // console.log(variables);
           await fetch(process.env.UAT_URL, {
             method: 'POST',
             headers: {
@@ -190,26 +175,11 @@ exports.aggieEnterprisePaymentRequest = async (invoices) => {
         }
       }
     }`;
-    
-    // const variables = 
-    // { "filter":   
-    // {
-    //   "invoiceNumber": {"contains": "Wolters_AE11076"},
-    // } 
-    // };
-  
-    // {
-    //   "searchCommon": SearchCommonInputs,
-    //   "invoiceNumber": StringFilterInput,
-    //   "supplierNumber": StringFilterInput,
-    //   "invoiceDate": DateFilterInput
-    // }
 
       try {
         const token = await tokenGenerator();
         inputstoreturn = [];
         for (let variables of variableInputs) {
-            // console.log(variables);
             await fetch(process.env.UAT_URL, {
               method: 'POST',
               headers: {
@@ -247,7 +217,6 @@ exports.aggieEnterprisePaymentRequest = async (invoices) => {
         try {
           const token = await tokenGenerator();
 
-              // console.log(variables);
               await fetch(process.env.UAT_URL, {
                 method: 'POST',
                 headers: {

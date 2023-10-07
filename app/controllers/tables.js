@@ -1,23 +1,15 @@
 const {getVendorData, setSelectedData, getFundData, getFundDataByID} = require('./almaapicalls');
-const {reformatAlmaInvoiceforAPI} = require('./formatdata');
+const {reformatAlmaInvoiceforAPI, changeInvoiceStatus} = require('./formatdata');
 const {postAddInvoice} = require('./dbcalls');
 
 exports.basicDataTable = async (data, version, library) => {
-
-
     try {
-  
-        // console.log('data is: ' + JSON.stringify(data));
         const today = new Date().toLocaleDateString('sv-SE', {
           timeZone: 'America/Los_Angeles',
         });
-        // console.log(`today is ${today}`);
-        // from test app
+
         let temp = '';
         temp += '<h3>Invoice Data</h3>';
-        // temp += '<p>';
-        // temp += data.total_record_count;
-        // temp += ' invoices found</p>';
         temp += '<form action="/preview" method="POST">';
         temp += '<table>'
         temp += '<tr>';
@@ -25,7 +17,6 @@ exports.basicDataTable = async (data, version, library) => {
         temp += '<th>Vendor Name</th>';
         temp += '<th>Date</th>';	
         temp += '<th>Invoice Total</th>';
-        // temp += '<th>Fund</th>';
         if (version === 'preview') {
           temp += '<th>Send</th>';
         }
@@ -37,7 +28,6 @@ exports.basicDataTable = async (data, version, library) => {
         }
         temp += '</tr>';
         for (i in data.invoice) {
-          // console.log('data.invoice[i] is: ' + JSON.stringify(data.invoice[i]));
           let nozee = data.invoice[i].invoice_date;
           if (nozee.includes('Z')) {
             nozee = nozee.substring(0, nozee.length - 1);
@@ -56,21 +46,6 @@ exports.basicDataTable = async (data, version, library) => {
             temp += `<td>${vendordata.name}</td>`;
             temp += `<td>${nozee}</td>`;	
             temp += `<td>$${data.invoice[i].total_amount}</td>`;
-
-            // const fund = data.invoice[i].invoice_lines.invoice_line[0].fund_distribution[0].fund_code.value;
-            // if (fund) {
-            //   try {
-            //     const funddata = await getFundData(fund);
-            //     const funddata2 = await getFundDataByID(funddata.fund[0].id);
-            //     if (funddata && funddata2) {
-            //       console.log('funddata is: ' + JSON.stringify(funddata2));
-            //       temp += `<td>${funddata.fund_name}</td>`;
-            //     }
-            //   }
-            //   catch (error) {
-            //     console.log(error);
-            //   }
-            // }
             if (version === 'preview') {
               temp += `<td><input type="checkbox" id="${data.invoice[i].id}" name="invoice-${i}" value="${data.invoice[i].id}"></td>`;
             }
@@ -91,10 +66,13 @@ exports.basicDataTable = async (data, version, library) => {
 
                 if (data.invoice[i].data.scmInvoicePaymentCreate.requestStatus.requestStatus === 'PENDING') {
                   postAddInvoice(data.invoice[i].number, data.invoice[i].id, library, data.invoice[i].data);
+                  changeInvoiceStatus(data.invoice[i].id);
                   temp += `<td><btn class="btn btn-success">Success</btn></td>`;
+
                   }
                 else if (data.invoice[i].data.scmInvoicePaymentCreate.validationResults.errorMessages[0].includes("A request already exists for your consumerId and consumerTrackingId")) {
                   postAddInvoice(data.invoice[i].number, data.invoice[i].id, library, data.invoice[i].data);
+                  changeInvoiceStatus(data.invoice[i].id);
                 temp += `<td><a class="btn btn-success">Success</a></td>`;
                 }
                 else if (data.invoice[i].data.scmInvoicePaymentCreate.validationResults.errorMessages) {
@@ -181,27 +159,10 @@ exports.basicDataTable = async (data, version, library) => {
   };
 
 exports.almatoHTMLTableComplete = async (input, requestResponse) => {
-
   try {
       let step1 = await setSelectedData([input]);
       let data = await reformatAlmaInvoiceforAPI(step1);
-  //   const checkdata = async () => {
-  //   if (input) {
-  //     let step1 = await setSelectedData([input]);
-  //     let inputdata = await reformatAlmaInvoiceforAPI(step1);
-  //     return inputdata;
-  //   }
-  //   else {
-  //     let step1 = await getAlmaInvoicesWaitingToBESent();
-  //     const step2 = await filterOutSubmittedInvoices(data1);
-
-  //     let noinputdata = await reformatAlmaInvoiceforAPI(step2);
-  //     return noinputdata;
-  //   }
-  // }
     if (data) {
-
-    console.log(data);
     var temp = '';
     temp += '<h3>Invoice Data</h3>';
     temp += '<p>';

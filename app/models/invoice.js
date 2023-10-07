@@ -4,7 +4,7 @@ const db = require('../util/database');
 const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
 
 module.exports = class Invoice {
-  constructor(number, id, responsebody) {
+  constructor(number, id, library, responsebody) {
     this.number = number;
     this.id = id;
     this.library = library;

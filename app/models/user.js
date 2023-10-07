@@ -17,8 +17,6 @@ module.exports = class User {
   }
 
   static findByKerberos(kerberos) {
-    // console.log('kerberos = ' + kerberos);
-    // typeof kerberos;
     return db.execute('SELECT * FROM users WHERE users.kerberos = ?', [kerberos]);
   }
 

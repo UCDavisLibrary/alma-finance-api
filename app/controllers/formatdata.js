@@ -1,14 +1,12 @@
-const {getFundData, getVendorData} = require('./almaapicalls');
+const {getFundData, getVendorData, getSingleInvoiceData, putSingleInvoiceData} = require('./almaapicalls');
 const {getSubmittedInvoices} = require('../controllers/dbcalls');
 
 exports.reformatAlmaInvoiceforAPI = async (data) => {
-    // console.log('data length is : ' + data.length);
     let apipayload = [];
     const today = new Date().toLocaleDateString('sv-SE', {
       timeZone: 'America/Los_Angeles',
     });
 
-    // console.log(`today is ${today}`);
     // from test app
     for (i in data.invoice) {
       let nozee = data.invoice[i].invoice_date;
@@ -18,11 +16,9 @@ exports.reformatAlmaInvoiceforAPI = async (data) => {
         nozee = data.invoice[i].invoice_date;
       }
       const vendor = data.invoice[i].vendor.value;
-      // console.log(`Vendor is ${vendor}`);
 
       try {
         const vendordata = await getVendorData(vendor);
-        // console.log('vendor data is ' + JSON.stringify(vendordata));
         
         if (vendordata) {
           apipayload.push({
@@ -80,12 +76,10 @@ exports.reformatAlmaInvoiceforAPI = async (data) => {
           unitPrice: data.invoice[i].invoice_lines.invoice_line[j].price,
         }
         for (k in data.invoice[i].invoice_lines.invoice_line[j].fund_distribution) {
-          // console.log('fund distribution' + JSON.stringify(data.invoice[i].invoice_lines.invoice_line[j].fund_distribution));
           const fundCode = data.invoice[i].invoice_lines.invoice_line[j].fund_distribution[k].fund_code.value;
           if (fundCode) {
             try {
               const fundData = await getFundData(fundCode);
-              // console.log('fund data is ' + JSON.stringify(fundData));
               if (fundData.fund) {
                 const fundString = fundData.fund[0].external_id;
                 if (fundString.includes(".")) {
@@ -147,33 +141,47 @@ exports.reformatAlmaInvoiceforAPI = async (data) => {
 
 
 exports.filterOutSubmittedInvoices = async (data, library) => {
-  // console.log('data is : ' + JSON.stringify(data));
-  const myarray = data.invoice;
+      const myarray = data.invoice;
 
       const data2 = await getSubmittedInvoices(library);
       const alreadysentinvoices = data2[0];
-      console.log('alreadysentinvoices = ' + JSON.stringify(alreadysentinvoices));
-      // extract invoiceid from alreadysentinvoices
+
       const invoiceids = [];
       for (i in alreadysentinvoices) {
         invoiceids.push(alreadysentinvoices[i].invoicenumber);
       }
-      console.log('invoiceids = ' + JSON.stringify(invoiceids));
-      console.log('invoiceids = ' + JSON.stringify(invoiceids));
       const filteredinvoices = [];
       for (i in myarray) {
-        // console.log('myarray[i] = ' + JSON.stringify(myarray[i]));
-        console.log('myarray[i].id = ' + String(myarray[i].number));
         if (!invoiceids.includes(myarray[i].number)) {
           filteredinvoices.push(myarray[i]);
         }
       }
 
-
-
-      // console.log('filteredinvoices = ' + JSON.stringify(filteredinvoices));
       data = {invoice: []};
       data.invoice.push(...filteredinvoices);
       return data;
       
+  }
+
+  exports.changeInvoiceStatus = async (invoicenumber) => {
+    const invoice = await getSingleInvoiceData(invoicenumber);
+    if (invoice && invoice.invoice_approval_status.value === 'Waiting to be sent' && invoice.invoice_approval_status.desc === 'Ready to be paid') {
+      invoice.invoice_approval_status.value = 'Ready to be Paid';
+      invoice.invoice_approval_status.desc = 'Waiting for Payment';
+      try {
+        const result = await putSingleInvoiceData(invoicenumber, invoice);
+        if (result) {
+          return true;
+        }
+      }
+      catch (error) {
+        console.log(error);
+      }
+    }
+    else {
+      console.log('invoice not found or not in correct status');
+      return false;
+    }
+
+
   }

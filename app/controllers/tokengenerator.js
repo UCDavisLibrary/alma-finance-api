@@ -9,10 +9,8 @@ exports.tokenGenerator = async () => {
               'Authorization': `Basic ${process.env.TOKEN_AUTH}`
             }}
         )
-        // console.log(response.status);
         let data = await response.json();
         if (data) {
-            console.log(data);
             return data.access_token;
         }
     } catch(error) {

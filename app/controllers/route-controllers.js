@@ -1,7 +1,7 @@
 const {almatoHTMLTableComplete, basicDataTable} = require('../controllers/tables');
 const {aggieEnterprisePaymentRequest, checkPayments, checkStatusInOracle, checkErpRolesOracle} = require('../controllers/graphqlcalls');
 const {getAlmaInvoicesWaitingToBESent, getAlmaIndividualInvoiceData} = require('../controllers/almaapicalls');
-const {reformatAlmaInvoiceforAPI, filterOutSubmittedInvoices} = require('../controllers/formatdata');
+const {reformatAlmaInvoiceforAPI, filterOutSubmittedInvoices, changeInvoiceStatus} = require('../controllers/formatdata');
 const {getInvoices, getInvoiceIDs, getInvoiceNumbers, postSaveTodaysToken, postAddUser, fetchAllUsers, fetchUser, checkLibrary, checkIfUserExists} = require('../controllers/dbcalls');
 const {tokenGenerator} = require('../controllers/tokengenerator');
 const express = require('express');
@@ -92,7 +92,6 @@ else {
 exports.getPreviewPage = async (req, res, next) => {
   const cas_user = req.session[cas.session_name];
   const userdata = await fetchUser(cas_user);
-  console.log('userdata = ' + JSON.stringify(userdata));
   if (userdata) {
     const library = userdata.library;
     if (library) {
@@ -160,7 +159,6 @@ exports.getCheckStatus = async (req, res, next) => {
       });
     }
     else {
-      console.log('invoicenumbers = ' + JSON.stringify(invoicenumbers));
       for (i in invoicenumbers) {
         invoicenumbers[i] = {consumerTrackingId : invoicenumbers[i].invoicenumber};
       }
@@ -171,7 +169,6 @@ exports.getCheckStatus = async (req, res, next) => {
         invoiceids[i] = invoiceids[i].invoiceid;
       }
       const invoicedata = await getAlmaIndividualInvoiceData(invoiceids);
-      // console.log('invoicedata = ' + JSON.stringify(invoicedata.invoice.length));
       let data = {invoice: []}
       for (i in invoicedata.invoice) {
         const invoice = invoicedata.invoice[i];
@@ -181,7 +178,6 @@ exports.getCheckStatus = async (req, res, next) => {
       }
       const version = 'review';
       const bodystuff = await basicDataTable(data, version, library);
-      console.log('bodystuff = ' + bodystuff);
       res.render('review', {
           title: 'Payment Processor - Data Sent',
           body: bodystuff,
@@ -252,23 +248,16 @@ exports.getOracleStatus = async (req, res, next) => {
 }
 
 exports.sendSelectedInvoices = async (req, res, next) => {
-  // console.log(JSON.stringify(req.body));
   if (req.body) {
     // for each item in req.body, get value and push to array
-
     try {
-
       const invoiceids = [];
       for (i in req.body) {
         invoiceids.push(req.body[i]);
       }
       const requestresults = await aggieEnterprisePaymentRequest(invoiceids);
-      // console.log('requestresults = ' + JSON.stringify(requestresults));
       if (requestresults) {
-        // console.log('requestresults = ' + JSON.stringify(requestresults));
-
         const invoicedata = await getAlmaIndividualInvoiceData(invoiceids);
-        // console.log('invoicedata = ' + JSON.stringify(invoicedata));
         data = {invoice: []}
         for (i in invoicedata.invoice) {
           const invoice = invoicedata.invoice[i];
@@ -279,8 +268,9 @@ exports.sendSelectedInvoices = async (req, res, next) => {
         const cas_user = req.session[cas.session_name];
         const userdata = await fetchUser(cas_user);
         if (userdata) {
+          const library = userdata.library;
         const version = 'review';
-        const bodystuff = await basicDataTable(data, version. library);
+        const bodystuff = await basicDataTable(data, version, library);
         res.render('review', {
             title: 'Payment Processor - Data Sent',
             body: bodystuff,
@@ -289,12 +279,8 @@ exports.sendSelectedInvoices = async (req, res, next) => {
         });
         }
         else {
-          res.render('review', {
-            title: 'Payment Processor - Data Sent',
-            body: bodystuff,
-            isUser: false,
-            isAdmin: false
-        });
+          
+          res.redirect('/');
         }
       }
     }
@@ -392,22 +378,30 @@ exports.getAdminAddUser = (req, res) => {
 };
 
 exports.postAdminAddUser = async (req, res, next) => {
-
   try {
-
-  const body = JSON.parse(JSON.stringify(req.body));
-  const response = await postAddUser(req.body.firstname, req.body.lastname, req.body.email, req.body.kerberos, req.body.library);
-  console.log('response = ' + JSON.stringify(response));
-  if (response) {
-    res.render('useradded', {
-      body: body,
-      title: 'New User Added',
-      isUser: true,
-      isAdmin: true,
-      editMode: true,
-    });
+    const body = JSON.parse(JSON.stringify(req.body));
+    const response = await postAddUser(req.body.firstname, req.body.lastname, req.body.email, req.body.kerberos, req.body.library);
+    if (response) {
+      res.render('useradded', {
+        body: body,
+        title: 'New User Added',
+        isUser: true,
+        isAdmin: true,
+        editMode: true,
+      });
+    }
+    else {
+      res.status(500).render('useradded', {
+        body: body,
+        title: 'Error Adding User',
+        isUser: true,
+        isAdmin: true,
+        editMode: true,
+      });
+    }
   }
-  else {
+  catch (error) {
+    console.log(error);
     res.status(500).render('useradded', {
       body: body,
       title: 'Error Adding User',
@@ -416,15 +410,4 @@ exports.postAdminAddUser = async (req, res, next) => {
       editMode: true,
     });
   }
-}
-catch (error) {
-  console.log(error);
-  res.status(500).render('useradded', {
-    body: body,
-    title: 'Error Adding User',
-    isUser: true,
-    isAdmin: true,
-    editMode: true,
-  });
-}
 };
