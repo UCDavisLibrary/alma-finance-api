@@ -7,11 +7,11 @@ exports.basicDataTable = async (data, version, library) => {
         const today = new Date().toLocaleDateString('sv-SE', {
           timeZone: 'America/Los_Angeles',
         });
-
+        let invoicestotal = 0;
         let temp = '';
         temp += '<h3>Invoice Data</h3>';
         temp += '<form action="/preview" method="POST">';
-        temp += '<table>'
+        temp += '<table id="marksdatatable">'
         temp += '<tr>';
         temp += '<th>Invoice Number</th>';
         temp += '<th>Vendor Name</th>';
@@ -46,8 +46,11 @@ exports.basicDataTable = async (data, version, library) => {
             temp += `<td>${vendordata.name}</td>`;
             temp += `<td>${nozee}</td>`;	
             temp += `<td>$${data.invoice[i].total_amount}</td>`;
+            invoicestotal += data.invoice[i].total_amount;
             if (version === 'preview') {
-              temp += `<td><input type="checkbox" id="${data.invoice[i].id}" name="invoice-${i}" value="${data.invoice[i].id}"></td>`;
+              temp += `<td>
+              <input type="checkbox" id="${data.invoice[i].id}" name="invoice-${i}" value="${data.invoice[i].id}" data-price="${data.invoice[i].total_amount}">
+              </td>`;
             }
             else if (version === 'review') {
                 if (data.invoice[i].errors) {
@@ -143,7 +146,16 @@ exports.basicDataTable = async (data, version, library) => {
       }
         }
         if (version === 'preview') {
-          temp += '<tr><td colspan="3" class="noborder"></td><td class="noborder alignright">Select All</td><td class="noborder"><input type="checkbox" onClick="checkall(this)" /></td></tr>';
+          temp += `<tr>
+          <td colspan="3" class="noborder"></td>
+          <td>Total<br>
+          <span id="totalcontainer">
+          $<span id="total"></span>
+          </span>
+          <span id="total2" class="hidden">$${invoicestotal}</span>
+          </td>
+          <td class="noborder"><input type="checkbox" onClick="checkall(this)" />Select All</td>
+          </tr>`;
         }
         temp += '</table>';
         if (version === 'preview') {

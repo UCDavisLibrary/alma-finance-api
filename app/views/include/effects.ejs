@@ -14,5 +14,22 @@
     for(var i=0, n=checkboxes.length;i<n;i++) {
       checkboxes[i].checked = source.checked;
     }
+    document.getElementById('total2').classList.toggle('hidden');
+    document.getElementById('totalcontainer').classList.toggle('hidden');
   }
+
+  const output = document.getElementById('total');
+
+  output.textContent = 0;
+
+  const totalPrice = () => [...document.querySelectorAll('input[type=checkbox]:checked')]
+  .reduce((acc, {
+    dataset: {
+      price
+    }
+  }) => acc + +price, 0);
+
+document.getElementById('marksdatatable').addEventListener('change', () => output.textContent = totalPrice());
+
+
 </script>
