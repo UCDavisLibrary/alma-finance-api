@@ -147,8 +147,9 @@ exports.basicDataTable = async (data, version, library) => {
         }
         if (version === 'preview') {
           temp += `<tr>
-          <td colspan="3" class="noborder"></td>
-          <td>Total<br>
+          <td colspan="2" class="noborder"></td>
+          <td class="noborder"><strong>Selected Total:</strong></td>
+          <td>
           <span id="totalcontainer">
           $<span id="total"></span>
           </span>
