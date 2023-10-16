@@ -16,9 +16,13 @@
     }
     document.getElementById('total2').classList.toggle('hidden');
     document.getElementById('totalcontainer').classList.toggle('hidden');
+    document.getElementById('fundCodes2').classList.toggle('hidden');
+    document.getElementById('fundscontainer').classList.toggle('hidden');
   }
 
   const output = document.getElementById('total');
+
+  const distribution = document.getElementById('fundCodes');
 
   output.textContent = 0;
 
@@ -29,7 +33,45 @@
     }
   }) => acc + +price, 0);
 
+
+const totalDistribution = () => {
+ let fundArray = [];
+ let fundCodes = [];
+
+ let arr = [...document.querySelectorAll('input[type=checkbox]:checked')]
+.map(({
+  dataset: {
+    fund,
+    fundamount
+  }
+}) => 
+  {
+    return {fund: fund, fundamount: fundamount}    
+  });
+
+  arr.forEach((fund) => {
+    if (fundCodes.includes(fund.fund)) {
+      fundArray.forEach((fund) => {
+          fund.fundamount += fund.fundamount;
+      });
+    }
+    else {
+      fundArray.push({fund: fund.fund,
+        fundamount: fund.fundamount});
+      fundCodes.push(fund.fund);
+    }
+  })
+
+  return fundArray.map((fund) => {
+    return `${fund.fund}: $${fund.fundamount}</br>`;
+  }).join('');
+
+
+  }
+
+
 document.getElementById('marksdatatable').addEventListener('change', () => output.textContent = totalPrice());
+document.getElementById('marksdatatable').addEventListener('change', () => distribution.innerHTML = totalDistribution());
 
 
 </script>

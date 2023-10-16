@@ -51,3 +51,6 @@ td {
 .noborder {
   border: none !important;
 }
+.fundCodes {
+  white-space: pre;
+}

@@ -185,3 +185,29 @@ exports.filterOutSubmittedInvoices = async (data, library) => {
 
 
   }
+
+  exports.getFundCodes = async (data) => {
+
+  for (j in data.invoice[i].invoice_lines.invoice_line) {
+    for (k in data.invoice[i].invoice_lines.invoice_line[j].fund_distribution) {
+      // console.log(data.invoice[i].invoice_lines.invoice_line[j].fund_distribution[k]);
+      const fundAmount = data.invoice[i].invoice_lines.invoice_line[j].fund_distribution[k].amount;
+      const fundCode = data.invoice[i].invoice_lines.invoice_line[j].fund_distribution[k].fund_code.value;
+      if (fundCode && fundAmount) {
+        let fundCodes = [];
+        if (fundCodes.includes(fundCode)) {
+          fundcodes[fundCode].push(fundAmount);
+        }
+        else {
+          fundCodes.push(fundCode);
+        }
+        console.log(fundCodes);
+
+        
+
+
+        // temp += `${fundCode} $(${fundAmount})<br>`;
+      }
+    }
+  }
+}

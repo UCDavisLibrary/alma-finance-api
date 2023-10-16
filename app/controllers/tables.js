@@ -8,6 +8,7 @@ exports.basicDataTable = async (data, version, library) => {
           timeZone: 'America/Los_Angeles',
         });
         let invoicestotal = 0;
+        let fundCodesArray = [];
         let temp = '';
         temp += '<h3>Invoice Data</h3>';
         temp += '<form action="/preview" method="POST">';
@@ -15,7 +16,8 @@ exports.basicDataTable = async (data, version, library) => {
         temp += '<tr>';
         temp += '<th>Invoice Number</th>';
         temp += '<th>Vendor Name</th>';
-        temp += '<th>Date</th>';	
+        temp += '<th>Date</th>';
+        temp += '<th>Fund Distribution</th>';	
         temp += '<th>Invoice Total</th>';
         if (version === 'preview') {
           temp += '<th>Send</th>';
@@ -45,12 +47,53 @@ exports.basicDataTable = async (data, version, library) => {
             temp += `<td>${data.invoice[i].number} (<a href="/invoice/${data.invoice[i].id}" target="_blank">view details</a>)</td>`;
             temp += `<td>${vendordata.name}</td>`;
             temp += `<td>${nozee}</td>`;	
+            temp += `<td>`;
+            let fundCodes = [];
+            let fundArray = [];
+            for (j in data.invoice[i].invoice_lines.invoice_line) {
+            for (k in data.invoice[i].invoice_lines.invoice_line[j].fund_distribution) {
+              // console.log(data.invoice[i].invoice_lines.invoice_line[j].fund_distribution[k]);
+              const fundAmount = data.invoice[i].invoice_lines.invoice_line[j].fund_distribution[k].amount;
+              const fundCode = data.invoice[i].invoice_lines.invoice_line[j].fund_distribution[k].fund_code.value;
+              if (fundCode && fundAmount) {
+                if (fundCodes.includes(fundCode)) {
+                  fundArray.forEach((fund) => {
+                    if (fund.code === fundCode) {
+                      fund.amount += fundAmount;
+                    }
+                  });
+                  fundCodesArray.forEach((fund) => {
+                    if (fund.code === fundCode) {
+                      fund.amount += fundAmount;
+                    }
+                  });
+                }
+                else {
+                  fundArray.push({code : fundCode,
+                    amount : fundAmount});
+                  fundCodesArray.push({code : fundCode,
+                    amount : fundAmount});
+                  fundCodes.push(fundCode);
+                }
+              }
+            }
+          }
+          // console.log(fundCodes);
+          // console.log(fundArray);
+          fundArray.forEach((fund) => {
+            temp += `${fund.code}: $${fund.amount}<br>`;
+          });
+          temp += `</td>`;
             temp += `<td>$${data.invoice[i].total_amount}</td>`;
             invoicestotal += data.invoice[i].total_amount;
             if (version === 'preview') {
               temp += `<td>
-              <input type="checkbox" id="${data.invoice[i].id}" name="invoice-${i}" value="${data.invoice[i].id}" data-price="${data.invoice[i].total_amount}">
-              </td>`;
+              <input type="checkbox" id="${data.invoice[i].id}" name="invoice-${i}" value="${data.invoice[i].id}" data-price="${data.invoice[i].total_amount}"`;
+              let iterator = 0;
+              fundArray.forEach((fund) => {
+                temp += ` data-fund="${fund.code}" data-fundamount="${fund.amount}"`;
+              });
+              temp += `></td>`;
             }
             else if (version === 'review') {
                 if (data.invoice[i].errors) {
@@ -69,6 +112,7 @@ exports.basicDataTable = async (data, version, library) => {
 
                 if (data.invoice[i].data.scmInvoicePaymentCreate.requestStatus.requestStatus === 'PENDING') {
                   postAddInvoice(data.invoice[i].number, data.invoice[i].id, library, data.invoice[i].data);
+                  // email users about the invoice
                   changeInvoiceStatus(data.invoice[i].id);
                   temp += `<td><btn class="btn btn-success">Success</btn></td>`;
 
@@ -147,8 +191,17 @@ exports.basicDataTable = async (data, version, library) => {
         }
         if (version === 'preview') {
           temp += `<tr>
-          <td colspan="2" class="noborder"></td>
-          <td class="noborder"><strong>Selected Total:</strong></td>
+          <td colspan="3" class="noborder"></td>
+          <td>
+          <span id="fundscontainer">
+          <span id="fundCodes"></span>
+          </span>
+          <span id="fundCodes2" class="hidden">`;
+          fundCodesArray.forEach((fund) => {
+            temp += `${fund.code}: $${fund.amount}<br>`;
+          });
+          temp += `</span>
+          </td>
           <td>
           <span id="totalcontainer">
           $<span id="total"></span>
