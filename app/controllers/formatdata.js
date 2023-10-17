@@ -211,3 +211,21 @@ exports.filterOutSubmittedInvoices = async (data, library) => {
     }
   }
 }
+
+
+exports.changeFundIDtoCode = async (fundCode) => {
+  try {
+    const fundData = await getFundData(fundCode);
+    if (fundData.fund) {
+      const fundString = fundData.fund[0].external_id;
+      return fundString;
+
+    }
+    else {
+      return 'unable to return fund data';
+    }
+  }
+  catch (err) {
+    console.log(err);
+  }
+}

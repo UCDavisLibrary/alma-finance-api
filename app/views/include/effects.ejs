@@ -1,7 +1,6 @@
 <script>
   const toggle = (input) => {
     let thisid = input.id;
-    console.log('i did something');
     const mydiv = document.getElementById(thisid).classList;
     console.log(thisid);
     mydiv.toggle('hidden');
@@ -9,15 +8,12 @@
   };
 
   const checkall = (source) => {
-    console.log('checkall');
     checkboxes = document.querySelectorAll('input[type=checkbox]')
     for(var i=0, n=checkboxes.length;i<n;i++) {
       checkboxes[i].checked = source.checked;
     }
     document.getElementById('total2').classList.toggle('hidden');
     document.getElementById('totalcontainer').classList.toggle('hidden');
-    document.getElementById('fundCodes2').classList.toggle('hidden');
-    document.getElementById('fundscontainer').classList.toggle('hidden');
   }
 
   const output = document.getElementById('total');
@@ -46,24 +42,29 @@ const totalDistribution = () => {
   }
 }) => 
   {
-    return {fund: fund, fundamount: fundamount}    
+    return {fund: fund, amount: fundamount}    
   });
+
 
   arr.forEach((fund) => {
     if (fundCodes.includes(fund.fund)) {
-      fundArray.forEach((fund) => {
-          fund.fundamount += fund.fundamount;
+      fundArray.forEach((fundA) => {
+          fundA.fundamount.push(fund.amount);
+          let total = fundA.fundamount.reduce((a, b) => a + +b, 0);
+          fundA.fundamount = [total];
       });
     }
     else {
       fundArray.push({fund: fund.fund,
-        fundamount: fund.fundamount});
+        fundamount: [fund.amount]});
       fundCodes.push(fund.fund);
     }
   })
 
   return fundArray.map((fund) => {
-    return `${fund.fund}: $${fund.fundamount}</br>`;
+    if (fund.fund !== undefined) {
+      return `${fund.fund}: $${fund.fundamount}</br>`;
+    }
   }).join('');
 
 

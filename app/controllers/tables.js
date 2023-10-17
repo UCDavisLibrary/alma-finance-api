@@ -1,6 +1,7 @@
 const {getVendorData, setSelectedData, getFundData, getFundDataByID} = require('./almaapicalls');
-const {reformatAlmaInvoiceforAPI, changeInvoiceStatus} = require('./formatdata');
+const {reformatAlmaInvoiceforAPI, changeInvoiceStatus, changeFundIDtoCode} = require('./formatdata');
 const {postAddInvoice} = require('./dbcalls');
+const {recalcFunds} = require('../util/helper-functions');
 
 exports.basicDataTable = async (data, version, library) => {
     try {
@@ -17,7 +18,7 @@ exports.basicDataTable = async (data, version, library) => {
         temp += '<th>Invoice Number</th>';
         temp += '<th>Vendor Name</th>';
         temp += '<th>Date</th>';
-        temp += '<th>Fund Distribution</th>';	
+        temp += '<th>Fund External ID: Amount</th>';	
         temp += '<th>Invoice Total</th>';
         if (version === 'preview') {
           temp += '<th>Send</th>';
@@ -47,22 +48,17 @@ exports.basicDataTable = async (data, version, library) => {
             temp += `<td>${data.invoice[i].number} (<a href="/invoice/${data.invoice[i].id}" target="_blank">view details</a>)</td>`;
             temp += `<td>${vendordata.name}</td>`;
             temp += `<td>${nozee}</td>`;	
-            temp += `<td>`;
+                  temp += `<td>`;
             let fundCodes = [];
             let fundArray = [];
             for (j in data.invoice[i].invoice_lines.invoice_line) {
             for (k in data.invoice[i].invoice_lines.invoice_line[j].fund_distribution) {
-              // console.log(data.invoice[i].invoice_lines.invoice_line[j].fund_distribution[k]);
               const fundAmount = data.invoice[i].invoice_lines.invoice_line[j].fund_distribution[k].amount;
-              const fundCode = data.invoice[i].invoice_lines.invoice_line[j].fund_distribution[k].fund_code.value;
+              const fundLine = data.invoice[i].invoice_lines.invoice_line[j].fund_distribution[k].fund_code.value;
+              const fundCode = await changeFundIDtoCode(fundLine);
               if (fundCode && fundAmount) {
                 if (fundCodes.includes(fundCode)) {
                   fundArray.forEach((fund) => {
-                    if (fund.code === fundCode) {
-                      fund.amount += fundAmount;
-                    }
-                  });
-                  fundCodesArray.forEach((fund) => {
                     if (fund.code === fundCode) {
                       fund.amount += fundAmount;
                     }
@@ -71,17 +67,14 @@ exports.basicDataTable = async (data, version, library) => {
                 else {
                   fundArray.push({code : fundCode,
                     amount : fundAmount});
-                  fundCodesArray.push({code : fundCode,
-                    amount : fundAmount});
                   fundCodes.push(fundCode);
                 }
               }
             }
           }
-          // console.log(fundCodes);
-          // console.log(fundArray);
           fundArray.forEach((fund) => {
             temp += `${fund.code}: $${fund.amount}<br>`;
+            fundCodesArray.push(fund);
           });
           temp += `</td>`;
             temp += `<td>$${data.invoice[i].total_amount}</td>`;
@@ -196,11 +189,6 @@ exports.basicDataTable = async (data, version, library) => {
           <span id="fundscontainer">
           <span id="fundCodes"></span>
           </span>
-          <span id="fundCodes2" class="hidden">`;
-          fundCodesArray.forEach((fund) => {
-            temp += `${fund.code}: $${fund.amount}<br>`;
-          });
-          temp += `</span>
           </td>
           <td>
           <span id="totalcontainer">
