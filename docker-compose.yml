@@ -25,6 +25,8 @@ services:
     volumes:
       - ./app:/app
       - /app/node_modules
+      # - /Users/markwarren/Documents/xml:/app/xml
+      - /home/aggieenterprise/aeinput:/app/xml
     depends_on:
       - alma-proxy
   # adminer:

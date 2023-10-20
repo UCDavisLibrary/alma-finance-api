@@ -5,3 +5,4 @@
 /alma-cors-proxy/acp.env
 /app/json/
 /env/mysql.env
+/node_modules

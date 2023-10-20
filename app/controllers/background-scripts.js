@@ -33,7 +33,7 @@ exports.checkOracleStatus = async (req, res, next) => {
             if (data.paymentStatusCode === 'Y') {
             console.log(result.invoicenumber + ' is paid');
             updateStatus('PAID', datastring, result.invoicenumber);
-            changeToXML(restlt.invoicenumber, result.invoiceid, data);
+            changeToXML(result.invoicenumber, result.invoiceid, data);
             }
             else if (data.paymentStatusCode === 'N') {
             console.log(result.invoicenumber + ' is not paid');

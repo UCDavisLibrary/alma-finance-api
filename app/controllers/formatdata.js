@@ -1,6 +1,5 @@
 const {getFundData, getVendorData, getSingleInvoiceData, putSingleInvoiceData, getAlmaIndividualInvoiceXML} = require('./almaapicalls');
 const {getSubmittedInvoices} = require('../controllers/dbcalls');
-const xml2js = require('xml2js');
 const fs = require('fs');
 
 exports.reformatAlmaInvoiceforAPI = async (data) => {
@@ -233,7 +232,7 @@ exports.changeFundIDtoCode = async (fundCode) => {
 }
 
 exports.changeToXML = async (invoicenumber, invoiceid, paymentdata) => {
-  // const obj = await getAlmaIndividualInvoiceXML(invoiceid);
+  const invoice = await getAlmaIndividualInvoiceXML(invoiceid);
 //   const invoicedata = { ...obj,
 //     payment: {
 //       prepaid: false,
@@ -245,30 +244,30 @@ exports.changeToXML = async (invoicenumber, invoiceid, paymentdata) => {
 //       voucher_currency: { value: 'USD', desc: 'US Dollar' }
 //       },
 // }
+  // strip dasheds from payment date
+  const paymentdate = paymentdata.paymentDate.replace(/-/g, '');
+  const sum = paymentdata.paymentAmount === null ? 0 : paymentdata.paymentAmount;
 
-  const invoicedata = `<?xml version="1.0" encoding="UTF-8"?>
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
   <payment_confirmation_data xmlns="http://com/exlibris/repository/acq/xmlbeans">
      <invoice_list>
         <invoice>
            <invoice_number>${invoicenumber}</invoice_number>
            <unique_identifier>${invoiceid}</unique_identifier>
-           <invoice_date>${data.invoiceDate}</invoice_date>
-           <vendor_code>JPTC</vendor_code>
+           <invoice_date>${paymentdata.invoiceDate}</invoice_date>
+           <vendor_code>${invoice.vendor.value}</vendor_code>
            <payment_status>PAID</payment_status>
-           <payment_voucher_date>20231012</payment_voucher_date>
-           <payment_voucher_number>C11627743</payment_voucher_number>
+           <payment_voucher_date>${paymentdate}</payment_voucher_date>
+           <payment_voucher_number>${paymentdata.checkNumber}</payment_voucher_number>
            <voucher_amount>
               <currency>USD</currency>
-              <sum>121.05</sum>
+              <sum>${sum}</sum>
            </voucher_amount>
         </invoice>
      </invoice_list>
-  </payment_confirmation_data>`
-  console.log(invoicedata);
-  const builder = new xml2js.Builder();
-  const xml = builder.buildObject(invoicedata);
+  </payment_confirmation_data>`;
   try {
-    fs.writeFileSync(`./xml/${invoiceid}.xml`, xml);
+    fs.writeFileSync(`./xml/update_alma_${invoiceid}.xml`, xml);
     console.log('file written');
   }
   catch (err) {
