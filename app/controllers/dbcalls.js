@@ -125,7 +125,6 @@ exports.updateStatus = async (status, responsebody, invoiceid) => {
   try {
     const response = await Invoice.updateStatus(status, responsebody, invoiceid);
     if (response) {
-      console.log('status updated');
       return true;
     }
   }
