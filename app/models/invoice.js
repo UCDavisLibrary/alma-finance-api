@@ -13,8 +13,8 @@ module.exports = class Invoice {
 
   save() {
     return db.execute(
-      'INSERT INTO invoices (invoicenumber, invoiceid, library, responsebody, datetime) VALUES (?, ?, ?, ?, ?)',
-      [this.number, this.id, this.library, this.responsebody, now]
+      'INSERT INTO invoices (invoicenumber, invoiceid, library, status, responsebody, datetime) VALUES (?, ?, ?, ?, ?, ?)',
+      [this.number, this.id, this.library, 'SENT', this.responsebody, now]
     );
   }
 
@@ -34,7 +34,16 @@ module.exports = class Invoice {
     return db.execute('SELECT invoicenumber FROM invoices WHERE invoices.library = ?', [library]);
   }
 
+  static fetchAllInvoiceNumbers() {
+    return db.execute('SELECT invoicenumber FROM invoices');
+  }
+
   static findById(id) {
     return db.execute('SELECT * FROM invoices WHERE invoices.id = ?', [id]);
   }
+
+  static updateStatus(status, responsebody, invoiceid) {
+    return db.execute('UPDATE invoices SET status = ?, responsebody = ? WHERE invoiceid = ?', [status, responsebody, invoiceid]);
+  }
+
 };

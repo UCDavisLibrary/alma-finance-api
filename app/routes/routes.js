@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 var session = require('express-session');
 var CASAuthentication = require('node-cas-authentication');
-const controller = require('../controllers/route-controllers')
+const controller = require('../controllers/route-controllers');
 
 const router = express.Router();
 
@@ -69,6 +69,8 @@ router.get('/admin/users', cas.bounce, controller.getAdminViewUsers);
 router.get('/admin/add-user', cas.bounce, controller.getAdminAddUser);
 
 router.post('/admin/add-user', controller.postAdminAddUser);
+
+router.get('/background', controller.checkOracleStatusBackground);
 
 // router.get(
 //   '/admin/edit-user/:userId',

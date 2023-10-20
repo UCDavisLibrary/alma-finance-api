@@ -1,6 +1,6 @@
-const {getVendorData, setSelectedData, getFundData, getFundDataByID} = require('./almaapicalls');
-const {reformatAlmaInvoiceforAPI, changeInvoiceStatus, changeFundIDtoCode} = require('./formatdata');
-const {postAddInvoice} = require('./dbcalls');
+const {getVendorData, setSelectedData, getAlmaIndividualInvoiceXML} = require('./almaapicalls');
+const {reformatAlmaInvoiceforAPI, changeInvoiceStatus, changeFundIDtoCode, changeToXML} = require('./formatdata');
+const {postAddInvoice, updateStatus} = require('./dbcalls');
 const {recalcFunds} = require('../util/helper-functions');
 
 exports.basicDataTable = async (data, version, library) => {
@@ -105,14 +105,10 @@ exports.basicDataTable = async (data, version, library) => {
 
                 if (data.invoice[i].data.scmInvoicePaymentCreate.requestStatus.requestStatus === 'PENDING') {
                   postAddInvoice(data.invoice[i].number, data.invoice[i].id, library, data.invoice[i].data);
-                  // email users about the invoice
-                  changeInvoiceStatus(data.invoice[i].id);
                   temp += `<td><btn class="btn btn-success">Success</btn></td>`;
-
                   }
                 else if (data.invoice[i].data.scmInvoicePaymentCreate.validationResults.errorMessages[0].includes("A request already exists for your consumerId and consumerTrackingId")) {
                   postAddInvoice(data.invoice[i].number, data.invoice[i].id, library, data.invoice[i].data);
-                  changeInvoiceStatus(data.invoice[i].id);
                 temp += `<td><a class="btn btn-success">Success</a></td>`;
                 }
                 else if (data.invoice[i].data.scmInvoicePaymentCreate.validationResults.errorMessages) {
@@ -149,12 +145,19 @@ exports.basicDataTable = async (data, version, library) => {
                 temp += '</tr>';
               }
               else if (data.invoice[i].data.scmInvoicePaymentSearch) {
-
+                // console.log(data.invoice[i].data.scmInvoicePaymentSearch.data);
                 if (data.invoice[i].data.scmInvoicePaymentSearch.metadata.returnedResultCount === 0) {
                   temp += `<td><btn class="btn btn-danger">NOT FOUND</btn></td>`;
                   }
                 else {
-                    temp += `<td><btn class="btn btn-success" onClick="toggle(table${data.invoice[i].id})">PAID</btn></td>`;
+                    if (data.invoice[i].data.scmInvoicePaymentSearch.data[0].paymentStatusCode === 'Y') {
+                      temp += `<td><btn class="btn btn-success" onClick="toggle(table${data.invoice[i].id})">PAID</btn></td>`;
+                      updateStatus('PAID', data.invoice[i].id);
+                    }
+                    else if (data.invoice[i].data.scmInvoicePaymentSearch.data[0].paymentStatusCode === 'N') {
+                      temp += `<td><btn class="btn btn-warning" onClick="toggle(table${data.invoice[i].id})">NOT PAID</btn></td>`;
+                      updateStatus('NOT PAID', data.invoice[i].id);
+                    }
                     temp += '</tr>';
                     temp += `<tr>`;
                     temp += '<td colspan="7" >';

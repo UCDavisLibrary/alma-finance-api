@@ -1,9 +1,10 @@
 const {almatoHTMLTableComplete, basicDataTable} = require('../controllers/tables');
 const {aggieEnterprisePaymentRequest, checkPayments, checkStatusInOracle, checkErpRolesOracle} = require('../controllers/graphqlcalls');
-const {getAlmaInvoicesWaitingToBESent, getAlmaIndividualInvoiceData} = require('../controllers/almaapicalls');
+const {getAlmaInvoicesWaitingToBESent, getAlmaIndividualInvoiceData, getAlmaInvoicesReadyToBePaid} = require('../controllers/almaapicalls');
 const {reformatAlmaInvoiceforAPI, filterOutSubmittedInvoices, changeInvoiceStatus} = require('../controllers/formatdata');
 const {getInvoices, getInvoiceIDs, getInvoiceNumbers, postSaveTodaysToken, postAddUser, fetchAllUsers, fetchUser, checkLibrary, checkIfUserExists} = require('../controllers/dbcalls');
 const {tokenGenerator} = require('../controllers/tokengenerator');
+const {checkOracleStatus} = require('../controllers/background-scripts');
 const express = require('express');
 const router = express.Router();
 const session = require('express-session');
@@ -95,7 +96,7 @@ exports.getPreviewPage = async (req, res, next) => {
   if (userdata) {
     const library = userdata.library;
     if (library) {
-      const data1 = await getAlmaInvoicesWaitingToBESent(library);
+      const data1 = await getAlmaInvoicesReadyToBePaid(library);
       const data = await filterOutSubmittedInvoices(data1, library);
       const version = 'preview';
       const bodystuff = await basicDataTable(data, version, library);
@@ -116,7 +117,7 @@ exports.getPreviewJSON = async (req, res, next) => {
   const cas_user = req.session[cas.session_name];
   const admin = process.env.ADMIN;
   if (cas_user === admin) {
-    const data = await getAlmaInvoicesWaitingToBESent();
+    const data = await getAlmaInvoicesReadyToBePaid();
     const bodyraw = await reformatAlmaInvoiceforAPI(data);
     const bodystuff = JSON.stringify(bodyraw, null, 2);
     res.render('preview-json', {
@@ -132,7 +133,7 @@ exports.getPreviewJSON = async (req, res, next) => {
 }
 
 exports.getReviewPage = async (req, res, next) => {
-  const data = await getAlmaInvoicesWaitingToBESent();
+  const data = await getAlmaInvoicesReadyToBePaid();
   const version = 'review';
   const bodystuff = await basicDataTable(data, version, library);
   res.render('review', {
@@ -411,3 +412,7 @@ exports.postAdminAddUser = async (req, res, next) => {
     });
   }
 };
+
+exports.checkOracleStatusBackground = async (req, res, next) => {
+  checkOracleStatus();
+}

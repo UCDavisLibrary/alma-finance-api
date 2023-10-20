@@ -23,6 +23,13 @@ exports.getAlmaInvoicesWaitingToBESent = async (owner) => {
     return data;
   };
 
+  exports.getAlmaInvoicesReadyToBePaid = async (owner) => {
+    const data = await fetch(
+      `http://alma-proxy:5555/almaws/v1/acq/invoices/?q=all&limit=20&offset=0&expand=none&invoice_workflow_status=Ready%20to%20be%20Paid&owner=${owner}`
+    ).then(response => response.json());
+    return data;
+  };
+
 exports.getVendorDataBatch = async (vendorarray) => {
     const urls = [];
     for (vendorcode of vendorarray) {
@@ -144,4 +151,14 @@ exports.getVendorData = async (vendorcode) => {
   } catch(error) {
       console.log(error);
     }
+  }
+
+  exports.getAlmaIndividualInvoiceXML = async (invoice) => {
+    try {
+        const data = await fetch(
+          `http://alma-proxy:5555/almaws/v1/acq/invoices/${invoice}?expand=none`
+        ).then(response => response.json())
+      return data;
+    }
+    catch(error) {console.log(error)};
   }

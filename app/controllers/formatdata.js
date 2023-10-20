@@ -1,5 +1,7 @@
-const {getFundData, getVendorData, getSingleInvoiceData, putSingleInvoiceData} = require('./almaapicalls');
+const {getFundData, getVendorData, getSingleInvoiceData, putSingleInvoiceData, getAlmaIndividualInvoiceXML} = require('./almaapicalls');
 const {getSubmittedInvoices} = require('../controllers/dbcalls');
+const xml2js = require('xml2js');
+const fs = require('fs');
 
 exports.reformatAlmaInvoiceforAPI = async (data) => {
     let apipayload = [];
@@ -224,6 +226,50 @@ exports.changeFundIDtoCode = async (fundCode) => {
     else {
       return 'unable to return fund data';
     }
+  }
+  catch (err) {
+    console.log(err);
+  }
+}
+
+exports.changeToXML = async (invoicenumber, invoiceid, paymentdata) => {
+  // const obj = await getAlmaIndividualInvoiceXML(invoiceid);
+//   const invoicedata = { ...obj,
+//     payment: {
+//       prepaid: false,
+//       internal_copy: false,
+//       payment_status: { value: 'PAID', desc: 'Paid' },
+//       voucher_date: `${paymentdata.paymentDate}Z`,
+//       voucher_number: paymentdata.checkNumber,
+//       voucher_amount: paymentdata.paymentAmount === null ? 0 : paymentdata.paymentAmount,
+//       voucher_currency: { value: 'USD', desc: 'US Dollar' }
+//       },
+// }
+
+  const invoicedata = `<?xml version="1.0" encoding="UTF-8"?>
+  <payment_confirmation_data xmlns="http://com/exlibris/repository/acq/xmlbeans">
+     <invoice_list>
+        <invoice>
+           <invoice_number>${invoicenumber}</invoice_number>
+           <unique_identifier>${invoiceid}</unique_identifier>
+           <invoice_date>${data.invoiceDate}</invoice_date>
+           <vendor_code>JPTC</vendor_code>
+           <payment_status>PAID</payment_status>
+           <payment_voucher_date>20231012</payment_voucher_date>
+           <payment_voucher_number>C11627743</payment_voucher_number>
+           <voucher_amount>
+              <currency>USD</currency>
+              <sum>121.05</sum>
+           </voucher_amount>
+        </invoice>
+     </invoice_list>
+  </payment_confirmation_data>`
+  console.log(invoicedata);
+  const builder = new xml2js.Builder();
+  const xml = builder.buildObject(invoicedata);
+  try {
+    fs.writeFileSync(`./xml/${invoiceid}.xml`, xml);
+    console.log('file written');
   }
   catch (err) {
     console.log(err);

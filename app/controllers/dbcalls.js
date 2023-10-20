@@ -9,7 +9,6 @@ exports.postAddInvoice = (number, id, library, requestbody) => {
         console.log('Saved Invoice');
         })
       .catch(err => console.log(err));
-    
   };
 
   exports.getSubmittedInvoices = (library) => {
@@ -23,6 +22,11 @@ exports.postAddInvoice = (number, id, library, requestbody) => {
   exports.getInvoiceNumbers = (library) => {
     return Invoice.fetchInvoiceNumbers(library);
   }
+
+  exports.getAllInvoiceNumbers = () => {
+    return Invoice.fetchAllInvoiceNumbers();
+  }
+
 
 exports.postSaveTodaysToken = (token) => {
   const tokenObj = new Token(token);
@@ -115,4 +119,17 @@ exports.checkIfUserExists = async (kerberos) => {
     catch (error) {
       console.log(error);
     }
-  }         
+  }      
+  
+exports.updateStatus = async (status, responsebody, invoiceid) => {
+  try {
+    const response = await Invoice.updateStatus(status, responsebody, invoiceid);
+    if (response) {
+      console.log('status updated');
+      return true;
+    }
+  }
+  catch (error) {
+    console.log(error);
+  }
+}
