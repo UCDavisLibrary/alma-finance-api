@@ -3,6 +3,35 @@ const {checkStatusInOracle} = require('./graphqlcalls');
 const {changeToXML} = require('./formatdata');
 const nodemailer = require('nodemailer');
 
+// nodemailer setup
+const transporter = nodemailer.createTransport({
+    host: 'smtp.lib.ucdavis.edu',
+    port: 25,
+    secure: false,
+    tls: {
+      // do not fail on invalid certs
+      rejectUnauthorized: false,
+    },
+  });
+  
+  // use this if you want to run it with gmail
+//   const transporter = nodemailer.createTransport({
+//     service: 'gmail',
+//     auth: {
+//       user: process.env.TRANSPORTERUSER,
+//       pass: process.env.TRANSPORTERPASS,
+//     },
+//   });
+  
+  // verify connection configuration
+  transporter.verify(function (error, success) {
+    if (error) {
+      console.log(error);
+    } else {
+      console.log('Server is ready to take our messages');
+    }
+  });
+
 exports.checkOracleStatus = async (req, res, next) => {
     let invoicenumbers = await getAllInvoiceNumbers();
     let invoiceids = await getInvoiceIDs();
@@ -50,6 +79,8 @@ exports.checkOracleStatus = async (req, res, next) => {
             console.log('no data returned');
         }
       });
+      console.log(paidInvoices);
+      console.log(paidInvoices.length);
       if (paidInvoices.length > 0) {
         sendMail(paidInvoices);
       }
@@ -64,11 +95,11 @@ exports.checkOracleStatus = async (req, res, next) => {
 sendMail = (invoicearray) => {
     
       const mail = {
-        subject: `Thank You for Your AggieOpen Application`,
+        subject: `Invoices Paid`,
         from: `no-reply@ucdavis.edu`,
         sender: `UC Davis Library`,
-        to: `mjwarren@ucdavis.edu`, // receiver email,
-        text: `Hi, Mark, The following invoices have been paid: ${invoicearray.join(', ')}`,
+        to: process.env.DESTINATIONMAIL, // receiver email,
+        text: `Hello, The following invoices have been paid: ${invoicearray.join(', ')}`,
       };
     
         transporter.sendMail(mail, (err, data) => {
@@ -76,7 +107,7 @@ sendMail = (invoicearray) => {
             console.log(err);
             res.status(500).send('Something went wrong.');
         } else {
-            console.log(`Submitted application for ${instructorname}`);
+            console.log(`Sent invoices mail.`);
         }
     });
 
