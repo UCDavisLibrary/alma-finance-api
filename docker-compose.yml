@@ -16,6 +16,12 @@ services:
     volumes:
       - ./almafinance-db.sql:/docker-entrypoint-initdb.d/almafinance-db.sql 
       - almafinance-db:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 5s
   alma-finance:
     build: ./app
     ports:
@@ -28,7 +34,8 @@ services:
       # - /Users/markwarren/Documents/xml:/app/xml
       - /home/almadafis/aeinput:/app/xml
     depends_on:
-      - alma-proxy
+      almafinance-db:
+        condition: service_healthy
   # adminer:
   #   image: adminer
   #   restart: always
