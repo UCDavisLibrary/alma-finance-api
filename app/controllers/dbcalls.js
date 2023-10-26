@@ -27,6 +27,9 @@ exports.postAddInvoice = (number, id, library, requestbody) => {
     return Invoice.fetchAllInvoiceNumbers();
   }
 
+  exports.getAllUnpaidInvoiceNumbers = () => {
+    return Invoice.fetchAllUnpaidInvoices();
+  }
 
 exports.postSaveTodaysToken = (token) => {
   const tokenObj = new Token(token);

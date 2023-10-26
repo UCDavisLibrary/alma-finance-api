@@ -4,7 +4,7 @@ const {getAlmaInvoicesWaitingToBESent, getAlmaIndividualInvoiceData, getAlmaInvo
 const {reformatAlmaInvoiceforAPI, filterOutSubmittedInvoices, changeInvoiceStatus} = require('../controllers/formatdata');
 const {getInvoices, getInvoiceIDs, getInvoiceNumbers, postSaveTodaysToken, postAddUser, fetchAllUsers, fetchUser, checkLibrary, checkIfUserExists} = require('../controllers/dbcalls');
 const {tokenGenerator} = require('../controllers/tokengenerator');
-const {checkOracleStatus} = require('../controllers/background-scripts');
+const {checkOracleStatus, archiveInvoices} = require('../controllers/background-scripts');
 const express = require('express');
 const router = express.Router();
 const session = require('express-session');
@@ -414,5 +414,9 @@ exports.postAdminAddUser = async (req, res, next) => {
 };
 
 exports.checkOracleStatusBackground = async (req, res, next) => {
-  checkOracleStatus();
+  const archiveClean = await archiveInvoices();
+  if (archiveClean) {
+    checkOracleStatus();
+  }
+  // checkOracleStatus();
 }

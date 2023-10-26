@@ -1,7 +1,8 @@
-const {getAllInvoiceNumbers, updateStatus, getInvoiceIDs} = require('./dbcalls');
+const {getAllInvoiceNumbers, updateStatus, getInvoiceIDs, getAllUnpaidInvoiceNumbers} = require('./dbcalls');
 const {checkStatusInOracle} = require('./graphqlcalls');
 const {changeToXML} = require('./formatdata');
 const nodemailer = require('nodemailer');
+const fs = require('fs');
 
 // nodemailer setup
 const transporter = nodemailer.createTransport({
@@ -33,7 +34,7 @@ const transporter = nodemailer.createTransport({
   });
 
 exports.checkOracleStatus = async (req, res, next) => {
-    let invoicenumbers = await getAllInvoiceNumbers();
+    let invoicenumbers = await getAllUnpaidInvoiceNumbers();
     let invoiceids = await getInvoiceIDs();
     invoiceids = invoiceids[0];
     let sentinvoicenumbers = [];
@@ -57,6 +58,7 @@ exports.checkOracleStatus = async (req, res, next) => {
 
     let paidInvoices = [];
     totalresults.forEach(result => {
+        // console.log(result);
         if (result.data.scmInvoicePaymentSearch.data && result.data.scmInvoicePaymentSearch.data.length > 0) {
         console.log(JSON.stringify(result));
         let data = result.data.scmInvoicePaymentSearch.data[0];
@@ -105,11 +107,36 @@ sendMail = (invoicearray) => {
         transporter.sendMail(mail, (err, data) => {
         if (err) {
             console.log(err);
-            res.status(500).send('Something went wrong.');
+            // res.status(500).send('Something went wrong.');
         } else {
             console.log(`Sent invoices mail.`);
         }
     });
 
 
+}
+
+exports.archiveInvoices = async () => {
+    // look in folder for xml files
+    // move them to archive folder
+    // delete them from xml folder
+    const xmlfolder = '/app/almadafis/aeinput';
+    const archivefolder = '/app/almadafis/archive';
+    const files = fs.readdirSync(xmlfolder);
+    console.log(files);
+    files.forEach(file => {
+        console.log(file);
+        var oldPath = xmlfolder + '/' + file;
+        var newPath = archivefolder + '/' + file;
+        fs.rename(oldPath, newPath, function (err) {
+            if (err) {
+                console.log(err);
+                throw err;
+            } 
+            else {
+                console.log('Successfully moved to archive!');
+            }
+            })
+    });
+    return true;
 }

@@ -232,19 +232,10 @@ exports.changeFundIDtoCode = async (fundCode) => {
 }
 
 exports.changeToXML = async (invoicenumber, invoiceid, paymentdata) => {
+  // first check if invoice already exists at /almadafis/aeinput/update_alma_${invoiceid}.xml
+  // if it does, delete it
+  // then create new file with updated payment data
   const invoice = await getAlmaIndividualInvoiceXML(invoiceid);
-//   const invoicedata = { ...obj,
-//     payment: {
-//       prepaid: false,
-//       internal_copy: false,
-//       payment_status: { value: 'PAID', desc: 'Paid' },
-//       voucher_date: `${paymentdata.paymentDate}Z`,
-//       voucher_number: paymentdata.checkNumber,
-//       voucher_amount: paymentdata.paymentAmount === null ? 0 : paymentdata.paymentAmount,
-//       voucher_currency: { value: 'USD', desc: 'US Dollar' }
-//       },
-// }
-  // strip dasheds from payment date
   const paymentdate = paymentdata.paymentDate.replace(/-/g, '');
   const sum = paymentdata.paymentAmount === null ? 0 : paymentdata.paymentAmount;
 
@@ -267,7 +258,7 @@ exports.changeToXML = async (invoicenumber, invoiceid, paymentdata) => {
      </invoice_list>
   </payment_confirmation_data>`;
   try {
-    fs.writeFileSync(`./xml/update_alma_${invoiceid}.xml`, xml);
+    fs.writeFileSync(`./almadafis/aeinput/update_alma_${invoiceid}.xml`, xml);
     console.log('file written');
   }
   catch (err) {
