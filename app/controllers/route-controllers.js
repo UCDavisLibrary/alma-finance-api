@@ -2,7 +2,7 @@ const {almatoHTMLTableComplete, basicDataTable} = require('../controllers/tables
 const {aggieEnterprisePaymentRequest, checkPayments, checkStatusInOracle, checkErpRolesOracle} = require('../controllers/graphqlcalls');
 const {getAlmaInvoicesWaitingToBESent, getAlmaIndividualInvoiceData, getAlmaInvoicesReadyToBePaid} = require('../controllers/almaapicalls');
 const {reformatAlmaInvoiceforAPI, filterOutSubmittedInvoices, changeInvoiceStatus} = require('../controllers/formatdata');
-const {getInvoices, getInvoiceIDs, getInvoiceNumbers, postSaveTodaysToken, postAddUser, fetchAllUsers, fetchUser, checkLibrary, checkIfUserExists} = require('../controllers/dbcalls');
+const {getInvoices, getInvoiceIDs, getInvoiceNumbers, postSaveTodaysToken, postAddUser, fetchAllUsers, fetchUser, checkLibrary, checkIfUserExists, postEditUser} = require('../controllers/dbcalls');
 const {tokenGenerator} = require('../controllers/tokengenerator');
 const {checkOracleStatus, archiveInvoices} = require('../controllers/background-scripts');
 const express = require('express');
@@ -368,7 +368,7 @@ exports.getAdminAddUser = (req, res) => {
   const cas_user = req.session[cas.session_name];
   if (cas_user === admin) {
     res.render('edit-user', {
-      title: 'Add Judge',
+      title: 'Add User',
       editMode: false,
       isAdmin: true,
       isUser: false
@@ -420,3 +420,51 @@ exports.checkOracleStatusBackground = async (req, res, next) => {
   }
   // checkOracleStatus();
 }
+
+exports.getAdminEditUser = (req, res, next) => {
+  const userId = req.params.userId;
+  const cas_user = req.session[cas.session_name];
+  if (cas_user === admin) {
+    User.findByID(userId)
+      .then((user) => {
+        console.log(user);
+        if (!user) {
+          return res.redirect('/admin/user');
+        }
+        let userobject = user[0][0];
+        res.render('edit-user', {
+          title: 'Edit User',
+          path: '/edit-user',
+          user: userobject,
+          isUser: false,
+          isAdmin: true,
+          editMode: true,
+        });
+      })
+      .catch((err) => console.log(err));
+  } else {
+    res.redirect('/');
+  }
+};
+
+exports.postAdminEditUser = async (req, res, next) => {
+  const userId = req.body.userId;
+  const updatedFirstName = req.body.firstname;
+  const updatedLastName = req.body.lastname;
+  const updatedEmail = req.body.email;
+  const updatedKerberos = req.body.kerberos;
+  const updatedLibrary = req.body.library;
+  const userid = req.body.userId;
+
+try {
+  const result = await postEditUser(updatedFirstName, updatedLastName, updatedEmail, updatedKerberos, updatedLibrary, userid);
+  if (result) {
+    console.log('Updated user');
+    res.redirect('/admin/users');
+  }
+}
+catch (error) {
+  console.log(error);
+}
+
+};

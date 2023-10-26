@@ -69,6 +69,20 @@ exports.postAddUser = async (firstname, lastname, email, kerberos, library) => {
   }
 };
 
+exports.postEditUser = async (firstname, lastname, email, kerberos, library, id) => {
+
+  try {
+      const userupdated = await User.update(firstname, lastname, email, kerberos, library, id);
+      if (userupdated) {
+          console.log('User updated');
+          return true;
+      };
+  }
+  catch (error) {
+      console.log(error);
+  }
+};
+
 exports.fetchAllUsers = async () => {
   
     try {

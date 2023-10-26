@@ -72,13 +72,13 @@ router.post('/admin/add-user', controller.postAdminAddUser);
 
 router.get('/background', controller.checkOracleStatusBackground);
 
-// router.get(
-//   '/admin/edit-user/:userId',
-//   cas.bounce,
-//   controller.getAdminEditUser
-// );
+router.get(
+  '/admin/edit-user/:userId',
+  cas.bounce,
+  controller.getAdminEditUser
+);
 
-// router.post('/admin/edit-user/', controller.postAdminAddUser);
+router.post('/admin/edit-user/', controller.postAdminEditUser);
 
 
 module.exports = router;

@@ -20,6 +20,14 @@ module.exports = class User {
     return db.execute('SELECT * FROM users WHERE users.kerberos = ?', [kerberos]);
   }
 
+  static update(firstname, lastname, email, kerberos, library, id) {
+    return db.execute('UPDATE users SET firstname = ?, lastname = ?, email = ?, kerberos = ?, library = ? WHERE id = ?', [firstname, lastname, email, kerberos, library, id]);
+  }
+
+  static findByID(id) {
+    return db.execute('SELECT * FROM users WHERE users.id = ?', [id]);
+  }
+
   static checkLibrary(kerberos) {
     return db.execute('SELECT library FROM users WHERE users.kerberos = ?', [kerberos]);
   }
