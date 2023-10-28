@@ -59,25 +59,31 @@
         </div>
 
         <div class="field-container">
-            <label title="" for="library" class="form-check-label"
-              >Library</label
-            >
-            <input required name="library" type="radio" id="library"
-            class="form-check-input" value="SHLDS" <% if (editMode && user.library ===
-            'SHLDS' ) { %>checked<% } %> /><label
-              title=""
-              for="library"
-              class="form-check-label"
-              >Shields</label
-            >
-            <input required name="library" type="radio" id="library"
-            class="form-check-input" value="LAW" <% if (editMode && user.library ===
-            'LAW' ) { %>checked<% } %> /><label
-              title=""
-              for="library"
-              class="form-check-label"
-              >Law</label
-            >
+            <legend>
+              Library
+            </legend>
+            <ul class="list--reset">
+              <li>
+                <label
+                  title=""
+                  for="library"
+                  class="form-check-label"
+                  ><input required name="library" type="radio" id="library"
+                  class="form-check-input" value="SHLDS" <% if (editMode && user.library ===
+                  'SHLDS' ) { %>checked<% } %> /> Shields</label
+                >
+              </li>
+              <li>
+                <label
+                  title=""
+                  for="library"
+                  class="form-check-label"
+                  ><input required name="library" type="radio" id="library"
+                  class="form-check-input" value="LAW" <% if (editMode && user.library ===
+                  'LAW' ) { %>checked<% } %> /> Law</label
+                >
+              </li>
+            </ul>
           </div>
   
         <% if (editMode) { %>

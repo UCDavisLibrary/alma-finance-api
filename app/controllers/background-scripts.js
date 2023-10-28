@@ -34,34 +34,37 @@ const transporter = nodemailer.createTransport({
   });
 
 exports.checkOracleStatus = async (req, res, next) => {
-    let invoicenumbers = await getAllUnpaidInvoiceNumbers();
-    let invoiceids = await getInvoiceIDs();
-    invoiceids = invoiceids[0];
+  // const invoicenumbers1 = await getAllUnpaidInvoiceNumbers();
+  const invoicenumbers1 = await getAllUnpaidInvoiceNumbers();
+  console.log(invoicenumbers1);
+    let invoiceids = [];
     let sentinvoicenumbers = [];
-    invoicenumbers = invoicenumbers[0];
-    if (invoicenumbers.length === 0) {
+    const invoices = invoicenumbers1[0];
+    if (invoices.length === 0) {
       console.log('no invoices found');
     }
     else {
-      for (i in invoicenumbers) {
-        console.log(invoicenumbers[i].invoicenumber);
+      for (i in invoices) {
         sentinvoicenumbers[i] =
           { "filter":   
         {
-          "invoiceNumber": {"contains": invoicenumbers[i].invoicenumber}
+          "invoiceNumber": {"contains": invoices[i].invoicenumber}
         }
       }
+        invoiceids[i] = {
+          invoicenumber: invoices[i].invoicenumber,
+          invoiceid: invoices[i].invoiceid
+        }
+
       }
       const requestresults = await checkStatusInOracle(sentinvoicenumbers);
-    let results1 = invoiceids.map((item, i) => Object.assign({}, item, requestresults[i]));
-    let totalresults = invoicenumbers.map((item, i) => Object.assign({}, item, results1[i]));
+    let totalresults = invoiceids.map((item, i) => Object.assign({}, item, requestresults[i]));
 
     let paidInvoices = [];
     totalresults.forEach(result => {
-        // console.log(result);
         if (result.data.scmInvoicePaymentSearch.data && result.data.scmInvoicePaymentSearch.data.length > 0) {
-        console.log(JSON.stringify(result));
         let data = result.data.scmInvoicePaymentSearch.data[0];
+        console.log(data);
         let datastring = JSON.stringify(data);            
             if (data.paymentStatusCode === 'Y') {
             console.log(result.invoicenumber + ' is paid');
@@ -81,8 +84,6 @@ exports.checkOracleStatus = async (req, res, next) => {
             console.log('no data returned');
         }
       });
-      console.log(paidInvoices);
-      console.log(paidInvoices.length);
       if (paidInvoices.length > 0) {
         sendMail(paidInvoices);
       }

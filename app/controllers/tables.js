@@ -1,5 +1,6 @@
 const {getVendorData, setSelectedData, getAlmaIndividualInvoiceXML} = require('./almaapicalls');
 const {reformatAlmaInvoiceforAPI, changeInvoiceStatus, changeFundIDtoCode, changeToXML} = require('./formatdata');
+const {checkStatusInOracle, checkPayments} = require('./graphqlcalls');
 const {postAddInvoice, updateStatus} = require('./dbcalls');
 const {recalcFunds} = require('../util/helper-functions');
 
@@ -104,11 +105,11 @@ exports.basicDataTable = async (data, version, library) => {
               else if (data.invoice[i].data.scmInvoicePaymentCreate) {
 
                 if (data.invoice[i].data.scmInvoicePaymentCreate.requestStatus.requestStatus === 'PENDING') {
-                  postAddInvoice(data.invoice[i].number, data.invoice[i].id, library, data.invoice[i].data);
+                  // postAddInvoice(data.invoice[i].number, data.invoice[i].id, library, data.invoice[i].data);
                   temp += `<td><btn class="btn btn-success">Success</btn></td>`;
                   }
                 else if (data.invoice[i].data.scmInvoicePaymentCreate.validationResults.errorMessages[0].includes("A request already exists for your consumerId and consumerTrackingId")) {
-                  postAddInvoice(data.invoice[i].number, data.invoice[i].id, library, data.invoice[i].data);
+                  // postAddInvoice(data.invoice[i].number, data.invoice[i].id, library, data.invoice[i].data);
                 temp += `<td><a class="btn btn-success">Success</a></td>`;
                 }
                 else if (data.invoice[i].data.scmInvoicePaymentCreate.validationResults.errorMessages) {
@@ -145,18 +146,17 @@ exports.basicDataTable = async (data, version, library) => {
                 temp += '</tr>';
               }
               else if (data.invoice[i].data.scmInvoicePaymentSearch) {
-                // console.log(data.invoice[i].data.scmInvoicePaymentSearch.data);
                 if (data.invoice[i].data.scmInvoicePaymentSearch.metadata.returnedResultCount === 0) {
                   temp += `<td><btn class="btn btn-danger">NOT FOUND</btn></td>`;
                   }
                 else {
                     if (data.invoice[i].data.scmInvoicePaymentSearch.data[0].paymentStatusCode === 'Y') {
                       temp += `<td><btn class="btn btn-success" onClick="toggle(table${data.invoice[i].id})">PAID</btn></td>`;
-                      updateStatus('PAID', data.invoice[i].id);
+                      // updateStatus('PAID', data.invoice[i].id);
                     }
                     else if (data.invoice[i].data.scmInvoicePaymentSearch.data[0].paymentStatusCode === 'N') {
                       temp += `<td><btn class="btn btn-warning" onClick="toggle(table${data.invoice[i].id})">NOT PAID</btn></td>`;
-                      updateStatus('NOT PAID', data.invoice[i].id);
+                      // updateStatus('NOT PAID', data.invoice[i].id);
                     }
                     temp += '</tr>';
                     temp += `<tr>`;
@@ -217,9 +217,22 @@ exports.basicDataTable = async (data, version, library) => {
 
 exports.almatoHTMLTableComplete = async (input, requestResponse) => {
   try {
-      let step1 = await setSelectedData([input]);
-      let data = await reformatAlmaInvoiceforAPI(step1);
+      const step1 = await setSelectedData([input]);
+      const data = await reformatAlmaInvoiceforAPI(step1);
+
     if (data) {
+      const oracleinvoicenumber =
+          [{ "filter":   
+        {
+          "invoiceNumber": {"contains": data[i].data.header.consumerTrackingId}
+        }
+      }];
+      const aeinvoicenumber = [{consumerTrackingId : data[i].data.header.consumerTrackingId}];
+
+      const oracledata = await checkStatusInOracle(oracleinvoicenumber);
+      console.log('oracledata is ' + oracledata);
+      const aggieenterprisedata = await checkPayments(aeinvoicenumber);
+      console.log('aggieenterprisedata is ' + aggieenterprisedata);
     var temp = '';
     temp += '<h3>Invoice Data</h3>';
     temp += '<p>';
@@ -229,10 +242,8 @@ exports.almatoHTMLTableComplete = async (input, requestResponse) => {
       const header = data[i].data.header;
       const payload = data[i].data.payload;
       const invoiceLines = data[i].data.payload.invoiceLines;
-    if (input) {
-      temp += '<div class="l-2col">';
-      temp += '<div class="l-first">';
-    }
+      temp += '<div style="display: flex;">';
+      temp += '<div>';
       temp += '<div class="invoice-header"><h4>Invoice ';
       temp += parseInt(i) + 1;
       temp += ' - ';
@@ -246,12 +257,7 @@ exports.almatoHTMLTableComplete = async (input, requestResponse) => {
       temp += '</div><br>';
       temp += '<table id="table';
       temp += i;
-      if (!input) {
-      temp += '"class="invoicediv hidden">';
-      }
-      else {
-        temp += '"class="invoicediv">';
-      }
+      temp += '"class="invoicediv">';
       for (const [key, value] of Object.entries(header)) {
         temp += '<tr><td>';
         temp += key;
@@ -316,30 +322,24 @@ exports.almatoHTMLTableComplete = async (input, requestResponse) => {
         }
       }
       temp += '</table>';
-      if (input) {
         temp += '</div>';
-          temp += '<div class="l-second">';
-          if (requestResponse) {
+          temp += '<div>';
+          if (aggieenterprisedata) {
             temp += '<h4>Errors</h4>';
-            temp += JSON.stringify(requestResponse);
+            if (oracledata) {
+              temp += '<h5>Oracle Error Data</h5>';
+              temp += '<pre>';
+              temp += JSON.stringify(oracledata, null, 2);
+              temp += '</pre>';
+              temp += '<br>';
+            }
+            temp += '<h5>Aggie Enterprise Error Data</h5>';
+            temp += '<pre>';
+            temp += JSON.stringify(aggieenterprisedata, null, 2);
+            temp += '</pre>';
           }
-          // const errorReport = await aggieEnterprisePaymentRequest([input]);
-          // if (errorReport) {
-          //   temp += '<h4>Errors</h4>';
-          //   temp += JSON.stringify(errorReport);
-
-          //   temp += '<table class="error-table">';
-          //   for (j in erorreport) {
-          //     // const error = erorreport[j].data.scmInvoicePaymentCreate.validationResults.errorMessages;
-          //     if (error) {
-          //       temp += '<tr><td>';
-          //       temp += JSON.stringify(errorReport);
-          //       temp += '</td></tr>';
-          //     }
-          //   }
-            temp += '</table>';
-            temp += '</div>';
-        }
+          temp += '</table>';
+          temp += '</div>';
       }
     }
   

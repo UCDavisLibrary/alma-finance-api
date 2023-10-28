@@ -15,8 +15,8 @@ exports.postAddInvoice = (number, id, library, requestbody) => {
     return Invoice.fetchAll(library);
   }
 
-  exports.getInvoiceIDs = () => {
-    return Invoice.fetchInvoiceIDs();
+  exports.getInvoiceIDs = (library) => {
+    return Invoice.fetchInvoiceIDs(library);
   }
 
   exports.getInvoiceNumbers = (library) => {

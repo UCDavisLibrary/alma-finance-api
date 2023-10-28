@@ -36,7 +36,6 @@ var cas = new CASAuthentication({
   // return_to: 'http://localhost:9999',
 });
 
-
 exports.getHomepage = async (req, res, next) => {
   const cas_user = req.session[cas.session_name];
   const userdata = await fetchUser(cas_user);
@@ -45,6 +44,7 @@ exports.getHomepage = async (req, res, next) => {
       title: 'Payment Processor - Home',
       isUser: true,
       isAdmin: false,
+      userName: userdata.firstname,
   });
   }
   else {
@@ -54,7 +54,6 @@ exports.getHomepage = async (req, res, next) => {
       isAdmin: false,
     });
   };
-
 }
 
 exports.getPreviewCompletePage = async (req, res, next) => {
@@ -198,8 +197,9 @@ exports.getOracleStatus = async (req, res, next) => {
   const userdata = await fetchUser(cas_user);
   if (userdata) {
   const library = userdata.library;
-  let invoicenumbers = await getInvoiceNumbers(library);
-  invoicenumbers = invoicenumbers[0];
+  const getinvoicenumbers = await getInvoiceNumbers(library);
+  const invoicenumbers = getinvoicenumbers[0];
+  console.log(invoicenumbers);
   if (invoicenumbers.length === 0) {
     const bodystuff = 'No invoices found.';
     res.render('review', {
@@ -219,8 +219,7 @@ exports.getOracleStatus = async (req, res, next) => {
     }
     }
     const requestresults = await checkStatusInOracle(invoicenumbers);
-
-    let invoiceids = await getInvoiceIDs();
+    let invoiceids = await getInvoiceIDs(library);
     invoiceids = invoiceids[0];
     for (i in invoiceids) {
       invoiceids[i] = invoiceids[i].invoiceid;
@@ -236,9 +235,9 @@ exports.getOracleStatus = async (req, res, next) => {
     const version = 'review';
     const bodystuff = await basicDataTable(data, version, library);
     res.render('review', {
-        title: 'Payment Processor - Data Sent',
+        title: 'Sent Invoice Status',
         body: bodystuff,
-        isUser: false,
+        isUser: true,
         isAdmin: false,
       });
     }
@@ -468,3 +467,11 @@ catch (error) {
 }
 
 };
+
+exports.get404 = async (req, res, next) => {
+  res.render('404', {
+    title: 'Payment Processor - Home',
+    isUser: false,
+    isAdmin: false,
+});
+}

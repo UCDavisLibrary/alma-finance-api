@@ -191,7 +191,6 @@ exports.filterOutSubmittedInvoices = async (data, library) => {
 
   for (j in data.invoice[i].invoice_lines.invoice_line) {
     for (k in data.invoice[i].invoice_lines.invoice_line[j].fund_distribution) {
-      // console.log(data.invoice[i].invoice_lines.invoice_line[j].fund_distribution[k]);
       const fundAmount = data.invoice[i].invoice_lines.invoice_line[j].fund_distribution[k].amount;
       const fundCode = data.invoice[i].invoice_lines.invoice_line[j].fund_distribution[k].fund_code.value;
       if (fundCode && fundAmount) {

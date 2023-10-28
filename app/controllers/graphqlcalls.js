@@ -194,7 +194,6 @@ exports.aggieEnterprisePaymentRequest = async (invoices) => {
               .then((res) => res.json())
               .then(
                 (result) => {
-                  // console.log(JSON.stringify(result));
                   inputstoreturn.push(result);
                 }
               );

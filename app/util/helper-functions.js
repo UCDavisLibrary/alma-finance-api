@@ -22,10 +22,8 @@ exports.checkall = (source) => {
        }
      })
 
-     console.log(JSON.stringify('fundArray is: ' + JSON.stringify(fundArray)));
    
      return fundArray.map((fund) => {
-       console.log(JSON.stringify('fund is: ' + JSON.stringify(fund)));
        return `${fund.fund}: $${fund.fundamount}</br>`;
      }).join('');
    

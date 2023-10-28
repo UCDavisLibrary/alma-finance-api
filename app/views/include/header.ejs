@@ -9,13 +9,14 @@
     <li><a href="/">Home</a></li>
     <% if (isUser) { %>
     <li><a href="/preview">Select Data to Send</a></li>
-    <li><a href="/checkstatus">Check Payment Status (Aggie Enterprise)</a></li>
+    <!-- <li><a href="/checkstatus">Check Payment Status (Aggie Enterprise)</a></li> -->
     <li><a href="/oraclestatus">Check Payment Status (Oracle)</a></li>
     <% } %>
     <% if (isAdmin) { %>
     <li><a href="/admin/users">View Users</a></li>
-    <li><a href="/admin/add-user">Add users to application</a></li>
-    <li><a href="/previewjson">Preview JSON</a></li>
+    <li><a href="/admin/add-user">Add a new user to the application</a></li>
+    <li><a href="/admin/oraclestatus">Check All Payments Status</a></li>
+    <!-- <li><a href="/previewjson">Preview JSON</a></li> -->
     <% } %>
   </ucd-theme-primary-nav>
 

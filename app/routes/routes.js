@@ -34,7 +34,7 @@ service_url: process.env.APP_URL,
 
 router.get('/', cas.bounce, controller.getHomepage );
 
-router.get('/checkstatus', cas.bounce, controller.getCheckStatus);
+// router.get('/checkstatus', cas.bounce, controller.getCheckStatus);
 
 router.get('/oraclestatus', cas.bounce, controller.getOracleStatus);
   
@@ -44,9 +44,9 @@ router.post('/preview', cas.bounce, controller.sendSelectedInvoices);
 
 router.get('/invoice/:invoiceId', cas.bounce, controller.getPreviewSingleInvoicePage);
 
-router.get('/previewcomplete', cas.bounce, controller.getPreviewCompletePage);
+// router.get('/previewcomplete', cas.bounce, controller.getPreviewCompletePage);
   
-router.get('/previewjson', cas.bounce, controller.getPreviewJSON);
+// router.get('/previewjson', cas.bounce, controller.getPreviewJSON);
 
 router.get('/review', cas.bounce, controller.getReviewPage);
 
@@ -80,5 +80,6 @@ router.get(
 
 router.post('/admin/edit-user/', controller.postAdminEditUser);
 
+router.get('*', controller.get404);
 
 module.exports = router;

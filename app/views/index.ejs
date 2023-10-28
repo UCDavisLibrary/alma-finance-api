@@ -6,13 +6,13 @@
   <body>
     <%- include('include/header'); %>
     <div class="l-container pt-2">
-      <h2>Welcome to the forms App</h2>
+      <h2>Payments App</h2>
       <% if (isUser) { %>
-      <p>Here are the forms:</p>
+      <p>Hello, <%= userName %>! Here are your options:</p>
       <ul>
-        <li><a href="/preview">Preview Alma invoice data before sending</a></li>
+        <li><a href="/preview">Select invoices to send to Oracle.</a></li>
         <li>
-          <a href="/send">Send Alma invoice data to Aggie Enterprise Server</a>
+          <a href="/oraclestatus">Check the status of sent invoices.</a>
         </li>
       </ul>
       <% } else { %>

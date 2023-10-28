@@ -26,8 +26,8 @@ module.exports = class Invoice {
     return db.execute('SELECT * FROM invoices WHERE invoices.library = ?', [library]);
   }
 
-  static fetchInvoiceIDs() {
-    return db.execute('SELECT invoiceid FROM invoices');
+  static fetchInvoiceIDs(library) {
+    return db.execute('SELECT invoiceid FROM invoices WHERE invoices.library = ?', [library]);
   }
 
   static fetchInvoiceNumbers(library) {

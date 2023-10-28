@@ -1,5 +1,4 @@
 exports.getAlmaIndividualInvoiceData = async (invoiceids) => {
-    console.log(invoiceids);
     try {
       data = {invoice: []}; // mimics structure of a bulk invoice payload in setData()
       // data = [];
