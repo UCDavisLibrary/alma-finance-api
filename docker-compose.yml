@@ -31,8 +31,8 @@ services:
     volumes:
       - ./app:/app
       - /app/node_modules
-      # - /Users/markwarren/Documents/xml:/app/xml
-      - /home/almadafis/aeinput:/app/xml
+      # - /Users/markwarren/Documents/almadafis:/app/almadafis
+      - /home/almadafis:/app/almadafis
     depends_on:
       almafinance-db:
         condition: service_healthy
