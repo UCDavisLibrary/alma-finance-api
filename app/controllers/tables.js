@@ -105,11 +105,11 @@ exports.basicDataTable = async (data, version, library) => {
               else if (data.invoice[i].data.scmInvoicePaymentCreate) {
 
                 if (data.invoice[i].data.scmInvoicePaymentCreate.requestStatus.requestStatus === 'PENDING') {
-                  // postAddInvoice(data.invoice[i].number, data.invoice[i].id, library, data.invoice[i].data);
+                  postAddInvoice(data.invoice[i].number, data.invoice[i].id, library, data.invoice[i].data);
                   temp += `<td><btn class="btn btn-success">Success</btn></td>`;
                   }
                 else if (data.invoice[i].data.scmInvoicePaymentCreate.validationResults.errorMessages[0].includes("A request already exists for your consumerId and consumerTrackingId")) {
-                  // postAddInvoice(data.invoice[i].number, data.invoice[i].id, library, data.invoice[i].data);
+                  postAddInvoice(data.invoice[i].number, data.invoice[i].id, library, data.invoice[i].data);
                 temp += `<td><a class="btn btn-success">Success</a></td>`;
                 }
                 else if (data.invoice[i].data.scmInvoicePaymentCreate.validationResults.errorMessages) {
