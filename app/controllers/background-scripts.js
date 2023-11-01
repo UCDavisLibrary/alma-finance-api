@@ -6,32 +6,23 @@ const fs = require('fs');
 
 // nodemailer setup
 const transporter = nodemailer.createTransport({
-    host: 'smtp.lib.ucdavis.edu',
-    port: 25,
-    secure: false,
-    tls: {
-      // do not fail on invalid certs
-      rejectUnauthorized: false,
-    },
-  });
-  
-  // use this if you want to run it with gmail
-//   const transporter = nodemailer.createTransport({
-//     service: 'gmail',
-//     auth: {
-//       user: process.env.TRANSPORTERUSER,
-//       pass: process.env.TRANSPORTERPASS,
-//     },
-//   });
-  
-  // verify connection configuration
-  transporter.verify(function (error, success) {
-    if (error) {
-      console.log(error);
-    } else {
-      console.log('Server is ready to take our messages');
-    }
-  });
+  host: 'smtp.lib.ucdavis.edu',
+  port: 25,
+  secure: false,
+  tls: {
+    // do not fail on invalid certs
+    rejectUnauthorized: false,
+  },
+});
+
+// use this if you want to run it with gmail
+// const transporter = nodemailer.createTransport({
+//   service: 'gmail',
+//   auth: {
+//     user: process.env.TRANSPORTERUSER,
+//     pass: process.env.TRANSPORTERPASS,
+//   },
+// });
 
 exports.checkOracleStatus = async (req, res, next) => {
   // const invoicenumbers1 = await getAllUnpaidInvoiceNumbers();
@@ -101,7 +92,7 @@ sendMail = (invoicearray) => {
         subject: `Invoices Paid`,
         from: `no-reply@ucdavis.edu`,
         sender: `UC Davis Library`,
-        to: process.env.DESTINATIONMAIL, // receiver email,
+        to: process.env.DESTINATIONEMAIL, // receiver email,
         text: `Hello, The following invoices have been paid: ${invoicearray.join(', ')}`,
       };
     
