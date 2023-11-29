@@ -35,7 +35,7 @@ exports.aggieEnterprisePaymentRequest = async (invoices) => {
           variables = variableInputs[i];
           let successfulInputs = [];
           let failedInputs = [];
-          await fetch(process.env.UAT_URL, {
+          await fetch(process.env.BOUNDARY_APP_URL, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -108,7 +108,7 @@ exports.aggieEnterprisePaymentRequest = async (invoices) => {
       console.log(variableInputs);
         for (input of variableInputs) {
           variables = input;
-          await fetch(process.env.UAT_URL, {
+          await fetch(process.env.BOUNDARY_APP_URL, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -180,7 +180,7 @@ exports.aggieEnterprisePaymentRequest = async (invoices) => {
         const token = await tokenGenerator();
         inputstoreturn = [];
         for (let variables of variableInputs) {
-            await fetch(process.env.UAT_URL, {
+            await fetch(process.env.BOUNDARY_APP_URL, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -216,7 +216,7 @@ exports.aggieEnterprisePaymentRequest = async (invoices) => {
         try {
           const token = await tokenGenerator();
 
-              await fetch(process.env.UAT_URL, {
+              await fetch(process.env.BOUNDARY_APP_URL, {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
