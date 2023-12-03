@@ -1,5 +1,5 @@
 const {getFundData, getVendorData, getSingleInvoiceData, putSingleInvoiceData, getAlmaIndividualInvoiceXML} = require('./almaapicalls');
-const {getSubmittedInvoices} = require('../controllers/dbcalls');
+const {getSubmittedInvoices, fetchFundCodeFromId, saveFund} = require('../controllers/dbcalls');
 const fs = require('fs');
 
 exports.reformatAlmaInvoiceforAPI = async (data) => {
@@ -202,10 +202,6 @@ exports.filterOutSubmittedInvoices = async (data, library) => {
           fundCodes.push(fundCode);
         }
         console.log(fundCodes);
-
-        
-
-
         // temp += `${fundCode} $(${fundAmount})<br>`;
       }
     }
@@ -213,21 +209,36 @@ exports.filterOutSubmittedInvoices = async (data, library) => {
 }
 
 
-exports.changeFundIDtoCode = async (fundCode) => {
+exports.changeFundIDtoCode = async (fundId) => {
   try {
-    const fundData = await getFundData(fundCode);
-    if (fundData.fund) {
-      const fundString = fundData.fund[0].external_id;
-      return fundString;
-
+    const fundCode = await fetchFundCodeFromId(fundId);
+    if (fundCode) {
+      return fundCode;
     }
     else {
-      return 'unable to return fund data';
+      console.log('fund code not found in database. Trying Alma');
+      try {
+        const fundData = await getFundData(fundId);
+        if (fundData) {
+          const fundString = fundData.fund[0].external_id;
+          saveFund(fundId, fundString);
+          return fundString;
+        }
+        else {
+          return 'unable to return fund data';
+        }
+      }
+      catch (err) {
+        console.log(err);
+      }
     }
   }
   catch (err) {
+    console.log('this is the error im looking 4')
     console.log(err);
   }
+
+
 }
 
 exports.changeToXML = async (invoicenumber, invoiceid, paymentdata) => {

@@ -1,6 +1,7 @@
 const Invoice = require('../models/invoice');
 const Token = require('../models/token');
 const User = require('../models/user');
+const Fund = require('../models/fund');
 
 exports.postAddInvoice = (number, id, library, requestbody) => {
     const invoice = new Invoice(number, id, library, requestbody);
@@ -149,3 +150,32 @@ exports.updateStatus = async (status, responsebody, invoiceid) => {
     console.log(error);
   }
 }
+
+exports.fetchFundCodeFromId = async (id) => {
+  try {
+    const response = await Fund.findCodeById(id);
+    console.log('found fund code ' + response);
+    if (response) {
+      const fund = response[0][0].fundCode;
+      return fund;
+    }
+  }
+  catch (error) {
+    console.log(error);
+  }
+}
+
+exports.saveFund = async (fundId, fundCode) => {
+  const fund = new Fund(fundId, fundCode);
+
+  try {
+      const fundsaved = await fund.save();
+      if (fundsaved) {
+          console.log('Fund saved');
+          return true;
+      };
+  }
+  catch (error) {
+      console.log(error);
+  }
+};

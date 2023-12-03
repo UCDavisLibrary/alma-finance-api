@@ -39,45 +39,45 @@ exports.basicDataTable = async (data, version, library) => {
             nozee = data.invoice[i].invoice_date;
           }
           const vendor = data.invoice[i].vendor.value;
-
-  
-          try {
-            const vendordata = await getVendorData(vendor);            
-            if (vendordata) {
             temp += '<tr>';
-        
             temp += `<td>${data.invoice[i].number} (<a href="/invoice/${data.invoice[i].id}" target="_blank">view details</a>)</td>`;
-            temp += `<td>${vendordata.name}</td>`;
+            temp += `<td>${data.invoice[i].vendor.desc}</td>`;
             temp += `<td>${nozee}</td>`;	
                   temp += `<td>`;
             let fundCodes = [];
             let fundArray = [];
             for (j in data.invoice[i].invoice_lines.invoice_line) {
-            for (k in data.invoice[i].invoice_lines.invoice_line[j].fund_distribution) {
-              const fundAmount = data.invoice[i].invoice_lines.invoice_line[j].fund_distribution[k].amount;
-              const fundLine = data.invoice[i].invoice_lines.invoice_line[j].fund_distribution[k].fund_code.value;
-              const fundCode = await changeFundIDtoCode(fundLine);
-              if (fundCode && fundAmount) {
-                if (fundCodes.includes(fundCode)) {
-                  fundArray.forEach((fund) => {
-                    if (fund.code === fundCode) {
-                      fund.amount += fundAmount;
+              for (k in data.invoice[i].invoice_lines.invoice_line[j].fund_distribution) {
+                const fundAmount = data.invoice[i].invoice_lines.invoice_line[j].fund_distribution[k].amount;
+                const fundLine = data.invoice[i].invoice_lines.invoice_line[j].fund_distribution[k].fund_code.value;
+                try {
+                  const fundCode = await changeFundIDtoCode(fundLine);
+                  if (fundCode && fundAmount) {
+                    if (fundCodes.includes(fundCode)) {
+                      fundArray.forEach((fund) => {
+                        if (fund.code === fundCode) {
+                          fund.amount += fundAmount;
+                        }
+                      });
                     }
-                  });
+                    else {
+                      fundArray.push({code : fundCode,
+                        amount : fundAmount});
+                      fundCodes.push(fundCode);
+                    }
+                  }
+
                 }
-                else {
-                  fundArray.push({code : fundCode,
-                    amount : fundAmount});
-                  fundCodes.push(fundCode);
+                catch(error) {
+                  console.log(error);
                 }
               }
             }
-          }
-          fundArray.forEach((fund) => {
-            temp += `${fund.code}: $${fund.amount}<br>`;
-            fundCodesArray.push(fund);
-          });
-          temp += `</td>`;
+            fundArray.forEach((fund) => {
+              temp += `${fund.code}: $${fund.amount}<br>`;
+              fundCodesArray.push(fund);
+            });
+            temp += `</td>`;
             temp += `<td>$${data.invoice[i].total_amount}</td>`;
             invoicestotal += data.invoice[i].total_amount;
             if (version === 'preview') {
@@ -90,26 +90,23 @@ exports.basicDataTable = async (data, version, library) => {
               temp += `></td>`;
             }
             else if (version === 'review') {
-                if (data.invoice[i].errors) {
-                    temp += `<td><btn class="btn btn-danger" onClick="toggle(table${data.invoice[i].id})">Errors</btn></td>`;
-                    temp += '</tr>';
-                    temp += `<tr>`;
-                    temp += '<td colspan="7" >';
-                    temp += `<a onclick="toggle(table${data.invoice[i].id})">View Error Data-></a>`;
-                    temp += `<div class="invoicediv hidden" id="table${data.invoice[i].id}">`;
-                    temp += JSON.stringify(data.invoice[i].errors);
-                    temp += '</div>';
-                    temp += '</td>';
-                    temp += '</tr>';
-                  }
+              if (data.invoice[i].errors) {
+                  temp += `<td><btn class="btn btn-danger" onClick="toggle(table${data.invoice[i].id})">Errors</btn></td>`;
+                  temp += '</tr>';
+                  temp += `<tr>`;
+                  temp += '<td colspan="7" >';
+                  temp += `<a onclick="toggle(table${data.invoice[i].id})">View Error Data-></a>`;
+                  temp += `<div class="invoicediv hidden" id="table${data.invoice[i].id}">`;
+                  temp += JSON.stringify(data.invoice[i].errors);
+                  temp += '</div>';
+                  temp += '</td>';
+                  temp += '</tr>';
+                }
               else if (data.invoice[i].data.scmInvoicePaymentCreate) {
-
                 if (data.invoice[i].data.scmInvoicePaymentCreate.requestStatus.requestStatus === 'PENDING') {
-                  postAddInvoice(data.invoice[i].number, data.invoice[i].id, library, data.invoice[i].data);
                   temp += `<td><btn class="btn btn-success">Success</btn></td>`;
                   }
                 else if (data.invoice[i].data.scmInvoicePaymentCreate.validationResults.errorMessages[0].includes("A request already exists for your consumerId and consumerTrackingId")) {
-                  postAddInvoice(data.invoice[i].number, data.invoice[i].id, library, data.invoice[i].data);
                 temp += `<td><a class="btn btn-success">Success</a></td>`;
                 }
                 else if (data.invoice[i].data.scmInvoicePaymentCreate.validationResults.errorMessages) {
@@ -177,13 +174,7 @@ exports.basicDataTable = async (data, version, library) => {
               }
             }
   
-          }
-  
-          }
-  
-          catch (error) {console.log(error);
-        
-      }
+
         }
         if (version === 'preview') {
           temp += `<tr>
@@ -325,15 +316,15 @@ exports.almatoHTMLTableComplete = async (input, requestResponse) => {
         temp += '</div>';
           temp += '<div>';
           if (aggieenterprisedata) {
-            temp += '<h4>Errors</h4>';
+            temp += '<h4>Invoice Status Data</h4>';
             if (oracledata) {
-              temp += '<h5>Oracle Error Data</h5>';
+              temp += '<h5>Oracle Status Data</h5>';
               temp += '<pre>';
               temp += JSON.stringify(oracledata, null, 2);
               temp += '</pre>';
               temp += '<br>';
             }
-            temp += '<h5>Aggie Enterprise Error Data</h5>';
+            temp += '<h5>Aggie Enterprise Status Data</h5>';
             temp += '<pre>';
             temp += JSON.stringify(aggieenterprisedata, null, 2);
             temp += '</pre>';
