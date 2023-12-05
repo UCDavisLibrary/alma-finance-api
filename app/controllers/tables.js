@@ -10,7 +10,6 @@ exports.basicDataTable = async (data, version, library) => {
           timeZone: 'America/Los_Angeles',
         });
         let invoicestotal = 0;
-        let fundCodesArray = [];
         let temp = '';
         temp += '<h3>Invoice Data</h3>';
         temp += '<form action="/preview" method="POST">';
@@ -75,14 +74,13 @@ exports.basicDataTable = async (data, version, library) => {
             }
             fundArray.forEach((fund) => {
               temp += `${fund.code}: $${parseFloat(fund.amount).toFixed(2)}<br>`;
-              fundCodesArray.push(fund);
             });
             temp += `</td>`;
             temp += `<td>$${data.invoice[i].total_amount}</td>`;
             invoicestotal += data.invoice[i].total_amount;
             if (version === 'preview') {
               temp += `<td>
-              <input type="checkbox" id="${data.invoice[i].id}" name="invoice-${i}" value="${data.invoice[i].id}" data-price="${data.invoice[i].total_amount}"`;
+              <input type="checkbox" class="selectinvoices" id="${data.invoice[i].id}" name="invoice-${i}" value="${data.invoice[i].id}" data-price="${data.invoice[i].total_amount}"`;
               temp += `data-arraypreview='${JSON.stringify(fundArray).trim()}' `;
               temp += `data-fundarray="${fundArray}"`;
               temp += `></td>`;
