@@ -154,7 +154,6 @@ exports.updateStatus = async (status, responsebody, invoiceid) => {
 exports.fetchFundCodeFromId = async (id) => {
   try {
     const response = await Fund.findCodeById(id);
-    console.log('found fund code ' + response);
     if (response) {
       const fund = response[0][0].fundCode;
       return fund;

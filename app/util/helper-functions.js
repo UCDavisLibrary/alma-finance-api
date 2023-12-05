@@ -6,8 +6,7 @@ exports.checkall = (source) => {
   }
 
   exports.recalcFunds = (arr) => {
-    let fundArray = [];
-  
+    let fundArray = [];  
      arr.forEach((fund) => {
        if (fundArray.fund === fund.fund) {
          fundArray.forEach((fundA) => {

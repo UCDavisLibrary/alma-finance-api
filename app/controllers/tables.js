@@ -74,7 +74,7 @@ exports.basicDataTable = async (data, version, library) => {
               }
             }
             fundArray.forEach((fund) => {
-              temp += `${fund.code}: $${fund.amount}<br>`;
+              temp += `${fund.code}: $${parseFloat(fund.amount).toFixed(2)}<br>`;
               fundCodesArray.push(fund);
             });
             temp += `</td>`;
@@ -83,10 +83,8 @@ exports.basicDataTable = async (data, version, library) => {
             if (version === 'preview') {
               temp += `<td>
               <input type="checkbox" id="${data.invoice[i].id}" name="invoice-${i}" value="${data.invoice[i].id}" data-price="${data.invoice[i].total_amount}"`;
-              let iterator = 0;
-              fundArray.forEach((fund) => {
-                temp += ` data-fund="${fund.code}" data-fundamount="${fund.amount}"`;
-              });
+              temp += `data-arraypreview='${JSON.stringify(fundArray).trim()}' `;
+              temp += `data-fundarray="${fundArray}"`;
               temp += `></td>`;
             }
             else if (version === 'review') {

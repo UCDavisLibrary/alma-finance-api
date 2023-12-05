@@ -22,53 +22,66 @@
 
   output.textContent = 0;
 
-  const totalPrice = () => [...document.querySelectorAll('input[type=checkbox]:checked')]
+  const totalingPrice = () => [...document.querySelectorAll('input[type=checkbox]:checked')]
   .reduce((acc, {
     dataset: {
       price
     }
   }) => acc + +price, 0);
 
+  const totalPrice = () => {
+    let total = totalingPrice();
+    let returnthis = total.toFixed(2);
+    return returnthis;
+  }
+
 
 const totalDistribution = () => {
- let fundArray = [];
- let fundCodes = [];
-
  let arr = [...document.querySelectorAll('input[type=checkbox]:checked')]
 .map(({
   dataset: {
-    fund,
-    fundamount
+    arraypreview
   }
 }) => 
   {
-    return {fund: fund, amount: fundamount}    
+    return arraypreview;
   });
 
+  // arr is array of objects inside of array. Change into array of objects
 
-  arr.forEach((fund) => {
-    if (fundCodes.includes(fund.fund)) {
-      fundArray.forEach((fundA) => {
-          fundA.fundamount.push(fund.amount);
-          let total = fundA.fundamount.reduce((a, b) => a + +b, 0);
-          fundA.fundamount = [total];
-      });
-    }
-    else {
-      fundArray.push({fund: fund.fund,
-        fundamount: [fund.amount]});
-      fundCodes.push(fund.fund);
-    }
-  })
+  let newarry = [];
+  arr.forEach(element => {
+    console.log(element);
+    console.log(typeof element);
+    newarry.push(JSON.parse(element));
+  });
 
-  return fundArray.map((fund) => {
-    if (fund.fund !== undefined) {
-      return `${fund.fund}: $${fund.fundamount}</br>`;
-    }
-  }).join('');
+  let arr3 = newarry.flat();
 
+  console.log(arr3);
 
+  // add up amount where code is the same in each object
+
+  let result = arr3.reduce((acc, {code, amount}) => {
+    acc[code] = (acc[code] || 0) + +amount;
+    return acc;
+  }, {});
+
+  console.log(result);
+
+  console.log(typeof result);
+
+  // convert result into html
+
+  let html = '';
+
+  for (let key in result) {
+    html += `<p>${key} : $${parseFloat(result[key]).toFixed(2)}</p>`;
   }
+
+  return html;
+
+}
 
 
 document.getElementById('marksdatatable').addEventListener('change', () => output.textContent = totalPrice());
