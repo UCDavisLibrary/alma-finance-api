@@ -58,18 +58,12 @@ const totalDistribution = () => {
 
   let arr3 = newarry.flat();
 
-  console.log(arr3);
-
   // add up amount where code is the same in each object
 
   let result = arr3.reduce((acc, {code, amount}) => {
     acc[code] = (acc[code] || 0) + +amount;
     return acc;
   }, {});
-
-  console.log(result);
-
-  console.log(typeof result);
 
   // convert result into html
 

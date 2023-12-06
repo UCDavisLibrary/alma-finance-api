@@ -1,5 +1,5 @@
 const {getFundData, getVendorData, getSingleInvoiceData, putSingleInvoiceData, getAlmaIndividualInvoiceXML} = require('./almaapicalls');
-const {getSubmittedInvoices, fetchFundCodeFromId, saveFund} = require('../controllers/dbcalls');
+const {getSubmittedInvoices, fetchFundCodeFromId, saveFund, fetchVendorDataFromId, saveVendor} = require('../controllers/dbcalls');
 const fs = require('fs');
 
 exports.reformatAlmaInvoiceforAPI = async (data) => {
@@ -17,11 +17,12 @@ exports.reformatAlmaInvoiceforAPI = async (data) => {
         nozee = data.invoice[i].invoice_date;
       }
       const vendor = data.invoice[i].vendor.value;
-
       try {
-        const vendordata = await getVendorData(vendor);
+        const vendordata = await checkForVendorData(vendor);
         
         if (vendordata) {
+          console.log(vendordata);
+          console.log(typeof vendordata);
           apipayload.push({
             data: {
               header: {
@@ -80,9 +81,8 @@ exports.reformatAlmaInvoiceforAPI = async (data) => {
           const fundCode = data.invoice[i].invoice_lines.invoice_line[j].fund_distribution[k].fund_code.value;
           if (fundCode) {
             try {
-              const fundData = await getFundData(fundCode);
-              if (fundData.fund) {
-                const fundString = fundData.fund[0].external_id;
+              const fundString = await fetchFundCodeFromId(fundCode);
+              if (fundString) {
                 if (fundString.includes(".")) {
                 const glString = fundString;
                 const entity = glString.split(".")[0];
@@ -275,3 +275,29 @@ exports.changeToXML = async (invoicenumber, invoiceid, paymentdata) => {
     console.log(err);
   }
 }
+
+checkForVendorData = async (vendorId) => {
+  try {
+    const vendordatastring = await fetchVendorDataFromId(vendorId);
+    if (vendordatastring === undefined) {
+      console.log('vendor not found in database. Trying Alma');
+      try {
+        const vendorData = await getVendorData(vendorId);
+        if (vendorData) {
+          saveVendor(vendorId, vendorData);
+          return vendorData;
+        }
+      }
+      catch (err) {
+        console.log(err);
+      }
+    }
+    else if (vendordatastring) {
+      const vendordata = JSON.parse(vendordatastring);
+      return vendordata;
+    }
+  }
+  catch (error) {
+    console.log(error);
+  }
+};

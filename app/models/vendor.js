@@ -8,21 +8,13 @@ module.exports = class Vendor {
 
   save() {
     return db.execute(
-      'INSERT INTO funds (fundId, fundCode) VALUES (?, ?)',
-      [this.fundId, this.fundCode]
+      'INSERT INTO vendors (vendorId, vendorData) VALUES (?, ?)',
+      [this.vendorId, this.vendorData]
     );
   }
 
-  static deleteById(id) {
-    return db.execute('DELETE FROM funds WHERE funds.id = ?', [id]);
-  }
-
-  static fetchAll() {
-    return db.execute('SELECT * FROM funds');
-  }
-
-  static findCodeById(id) {
-    return db.execute('SELECT fundCode FROM funds WHERE funds.fundId = ?', [id]);
+  static fetchVendorDataFromId(id) {
+    return db.execute('SELECT vendorData FROM vendors WHERE vendors.vendorId = ?', [id]);
   }
 
 };

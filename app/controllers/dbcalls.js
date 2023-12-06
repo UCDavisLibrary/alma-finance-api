@@ -2,6 +2,7 @@ const Invoice = require('../models/invoice');
 const Token = require('../models/token');
 const User = require('../models/user');
 const Fund = require('../models/fund');
+const Vendor = require('../models/vendor');
 
 exports.postAddInvoice = (number, id, library, requestbody) => {
     const invoice = new Invoice(number, id, library, requestbody);
@@ -171,6 +172,33 @@ exports.saveFund = async (fundId, fundCode) => {
       const fundsaved = await fund.save();
       if (fundsaved) {
           console.log('Fund saved');
+          return true;
+      };
+  }
+  catch (error) {
+      console.log(error);
+  }
+};
+
+exports.fetchVendorDataFromId = async (vendorId) => {
+  try {
+    const response = await Vendor.fetchVendorDataFromId(vendorId);
+    if (response) {
+      const vendor = response[0][0].vendorData;
+      return vendor;
+    }
+  }
+  catch (error) {
+    console.log(error);
+  }
+}
+
+exports.saveVendor = async (vendorId, vendorData) => {
+  const vendor = new Vendor(vendorId, vendorData);
+  try {
+      const vendorsaved = await vendor.save();
+      if (vendorsaved) {
+          console.log('Vendor saved');
           return true;
       };
   }
