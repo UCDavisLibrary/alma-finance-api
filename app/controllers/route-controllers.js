@@ -1,8 +1,8 @@
 const {almatoHTMLTableComplete, basicDataTable} = require('../controllers/tables');
 const {aggieEnterprisePaymentRequest, checkPayments, checkStatusInOracle, checkErpRolesOracle} = require('../controllers/graphqlcalls');
-const {getAlmaInvoicesWaitingToBESent, getAlmaIndividualInvoiceData, getAlmaInvoicesReadyToBePaid} = require('../controllers/almaapicalls');
-const {reformatAlmaInvoiceforAPI, filterOutSubmittedInvoices, changeInvoiceStatus} = require('../controllers/formatdata');
-const {getInvoices, getInvoiceIDs, getInvoiceNumbers, postSaveTodaysToken, postAddUser, fetchAllUsers, fetchUser, checkLibrary, checkIfUserExists, postEditUser} = require('../controllers/dbcalls');
+const { getAlmaIndividualInvoiceData, getAlmaInvoicesReadyToBePaid} = require('../controllers/almaapicalls');
+const {reformatAlmaInvoiceforAPI, filterOutSubmittedInvoices } = require('../controllers/formatdata');
+const { getInvoiceIDs, getInvoiceNumbers, postSaveTodaysToken, postAddUser, fetchAllUsers, fetchUser, postEditUser, postAddInvoice} = require('../controllers/dbcalls');
 const {tokenGenerator} = require('../controllers/tokengenerator');
 const {checkOracleStatus, archiveInvoices} = require('../controllers/background-scripts');
 const express = require('express');
@@ -97,14 +97,28 @@ exports.getPreviewPage = async (req, res, next) => {
     if (library) {
       const data1 = await getAlmaInvoicesReadyToBePaid(library);
       const data = await filterOutSubmittedInvoices(data1, library);
+      console.log(data.invoice.length);
       const version = 'preview';
-      const bodystuff = await basicDataTable(data, version, library);
-      res.render('preview', {
-        title: 'Payment Processor - Select Data',
-        body: bodystuff,
-        isUser: true,
-        isAdmin: false,
-      });
+      if (data.invoice.length === 0) {
+        const bodystuff = `<h3>No Invoices</h3>
+        <p>No invoices are waiting to be sent.</p>
+        <p>If you feel you are reading this message in error, within Alma go to Acquisitions -> Waiting for Payment.</p>`;
+        res.render('preview', {
+          title: 'Payment Processor - Select Data',
+          body: bodystuff,
+          isUser: true,
+          isAdmin: false,
+        });
+      }
+      else {
+        const bodystuff = await basicDataTable(data, version, library);
+        res.render('preview', {
+          title: 'Payment Processor - Select Data',
+          body: bodystuff,
+          isUser: true,
+          isAdmin: false,
+        });
+      }
     }
   }
   else {
@@ -248,6 +262,9 @@ exports.getOracleStatus = async (req, res, next) => {
 }
 
 exports.sendSelectedInvoices = async (req, res, next) => {
+  const cas_user = req.session[cas.session_name];
+  const userdata = await fetchUser(cas_user);
+  const library = userdata.library;
   if (req.body) {
     // for each item in req.body, get value and push to array
     try {
@@ -256,45 +273,38 @@ exports.sendSelectedInvoices = async (req, res, next) => {
         invoiceids.push(req.body[i]);
       }
       const requestresults = await aggieEnterprisePaymentRequest(invoiceids);
-      if (requestresults) {
+      if (requestresults && userdata) {
         const invoicedata = await getAlmaIndividualInvoiceData(invoiceids);
         data = {invoice: []}
         for (i in invoicedata.invoice) {
           const invoice = invoicedata.invoice[i];
           const request = requestresults[i];
+          if (request.data.scmInvoicePaymentCreate.requestStatus.requestStatus === 'PENDING' || request.data.scmInvoicePaymentCreate.validationResults.errorMessages[0].includes("A request already exists for your consumerId and consumerTrackingId")) {
+            postAddInvoice(invoice.number,invoice.id, library, request.data);
+          }
           const combined = {...invoice, ...request};
           data.invoice.push(combined);
         }
-        const cas_user = req.session[cas.session_name];
-        const userdata = await fetchUser(cas_user);
-        if (userdata) {
-          const library = userdata.library;
-        const version = 'review';
-        const bodystuff = await basicDataTable(data, version, library);
-        res.render('review', {
+          const version = 'review';
+          const bodystuff = await basicDataTable(data, version, library);
+          res.render('review', {
             title: 'Payment Processor - Data Sent',
             body: bodystuff,
             isUser: true,
             isAdmin: false
-        });
+          });
         }
         else {
-          
           res.redirect('/');
         }
       }
-    }
     catch (error) {
       console.log(error);
     }
 
   }
   else {
-    res.render('index', {
-      title: 'Payment Processor - Home',
-      isUser: false,
-      isAdmin: false,
-    });
+    res.redirect('/');
   }
 
 }

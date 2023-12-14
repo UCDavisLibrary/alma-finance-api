@@ -7,7 +7,7 @@ const PORT = process.env.PORT || 5000;
 const routes = require('./routes/routes');
 const db = require('./util/database');
 const nodemailer = require('nodemailer');
-const {checkOracleStatus} = require('./controllers/background-scripts');
+const {checkOracleStatus, archivePaidInvoices} = require('./controllers/background-scripts');
 
 
 // nodemailer setup
@@ -65,6 +65,18 @@ app.listen(PORT, () => {
   console.log(`Listening on port ${PORT}...`);
 });
 
+const archiveInvoices = new CronJob(
+  // run at 6:15pm every day
+  '0 15 18 * * *',
+  async function() {
+      // once a day, archive paid invoices to the server at directory specified in docker-compose.yml
+      archivePaidInvoices();
+  },
+  null,
+  true,
+  'America/Los_Angeles'
+);
+
 const exportInvoices = new CronJob(
     // run at 6:30pm every day
     '0 30 18 * * *',
@@ -77,4 +89,5 @@ const exportInvoices = new CronJob(
     'America/Los_Angeles'
 );
 
+archiveInvoices.start();
 exportInvoices.start();
