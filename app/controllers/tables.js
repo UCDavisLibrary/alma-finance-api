@@ -339,6 +339,83 @@ exports.almatoHTMLTableComplete = async (input, requestResponse) => {
 }
 
 
+exports.paidInvoicesTable = async (data) => {
+  try {
+      const today = new Date().toLocaleDateString('sv-SE', {
+        timeZone: 'America/Los_Angeles',
+      });
+      let invoicestotal = 0;
+      let temp = '';
+      temp += '<h3>Invoice Data</h3>';
+      temp += '<form action="/preview" method="POST">';
+      temp += '<table id="marksdatatable">'
+      temp += '<tr>';
+      temp += '<th>Invoice Number</th>';
+      temp += '<th>Vendor Name</th>';
+      temp += '<th>Date</th>';
+      temp += '<th>Fund External ID: Amount</th>';	
+      temp += '<th>Invoice Total</th>';
+      temp += '<th>Time Paid</th>';
+      temp += '</tr>';
+      for (i in data.invoice) {
+        let nozee = data.invoice[i].invoice_date;
+        if (nozee.includes('Z')) {
+          nozee = nozee.substring(0, nozee.length - 1);
+        } else {
+          nozee = data.invoice[i].invoice_date;
+        }
+        const vendor = data.invoice[i].vendor.value;
+          temp += '<tr>';
+          temp += `<td>${data.invoice[i].number}<br>(<a href="/invoice/${data.invoice[i].id}" target="_blank">view details</a>)</td>`;
+          temp += `<td>${data.invoice[i].vendor.desc}</td>`;
+          temp += `<td>${nozee}</td>`;	
+                temp += `<td>`;
+          let fundCodes = [];
+          let fundArray = [];
+          for (j in data.invoice[i].invoice_lines.invoice_line) {
+            for (k in data.invoice[i].invoice_lines.invoice_line[j].fund_distribution) {
+              const fundAmount = data.invoice[i].invoice_lines.invoice_line[j].fund_distribution[k].amount;
+              const fundLine = data.invoice[i].invoice_lines.invoice_line[j].fund_distribution[k].fund_code.value;
+              try {
+                const fundCode = await changeFundIDtoCode(fundLine);
+                if (fundCode && fundAmount) {
+                  if (fundCodes.includes(fundCode)) {
+                    fundArray.forEach((fund) => {
+                      if (fund.code === fundCode) {
+                        fund.amount += fundAmount;
+                      }
+                    });
+                  }
+                  else {
+                    fundArray.push({code : fundCode,
+                      amount : fundAmount});
+                    fundCodes.push(fundCode);
+                  }
+                }
 
+              }
+              catch(error) {
+                console.log(error);
+              }
+            }
+          }
+          fundArray.forEach((fund) => {
+            temp += `${fund.code}: $${parseFloat(fund.amount).toFixed(2)}<br>`;
+          });
+          temp += `</td>`;
+          temp += `<td>$${data.invoice[i].total_amount}</td>`;
+          invoicestotal += data.invoice[i].total_amount;
+          temp += `<td>${data.invoice[i].responsebody.lastUpdateDateTime}</td>`;
+          temp += '</tr>';
+            
+          }
 
+      temp += '</table>';
+      temp += '</form>';
 
+      return temp;
+
+  }
+  catch(error) {console.log(error)};
+
+};

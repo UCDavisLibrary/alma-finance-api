@@ -1,8 +1,8 @@
-const {almatoHTMLTableComplete, basicDataTable} = require('../controllers/tables');
+const {almatoHTMLTableComplete, basicDataTable, paidInvoicesTable} = require('../controllers/tables');
 const {aggieEnterprisePaymentRequest, checkPayments, checkStatusInOracle, checkErpRolesOracle} = require('../controllers/graphqlcalls');
 const { getAlmaIndividualInvoiceData, getAlmaInvoicesReadyToBePaid} = require('../controllers/almaapicalls');
 const {reformatAlmaInvoiceforAPI, filterOutSubmittedInvoices } = require('../controllers/formatdata');
-const { getInvoiceIDs, getInvoiceNumbers, postSaveTodaysToken, postAddUser, fetchAllUsers, fetchUser, postEditUser, postAddInvoice} = require('../controllers/dbcalls');
+const { getInvoiceIDs, getInvoiceNumbers, postSaveTodaysToken, postAddUser, fetchAllUsers, fetchUser, postEditUser, postAddInvoice, getPaidInvoices, getUnpaidInvoiceNumbers} = require('../controllers/dbcalls');
 const {tokenGenerator} = require('../controllers/tokengenerator');
 const {checkOracleStatus, archiveInvoices} = require('../controllers/background-scripts');
 const express = require('express');
@@ -211,7 +211,7 @@ exports.getOracleStatus = async (req, res, next) => {
   const userdata = await fetchUser(cas_user);
   if (userdata) {
   const library = userdata.library;
-  const getinvoicenumbers = await getInvoiceNumbers(library);
+  const getinvoicenumbers = await getUnpaidInvoiceNumbers(library);
   const invoicenumbers = getinvoicenumbers[0];
   console.log(invoicenumbers);
   if (invoicenumbers.length === 0) {
@@ -255,6 +255,38 @@ exports.getOracleStatus = async (req, res, next) => {
         isAdmin: false,
       });
     }
+  }
+  else {
+    res.redirect('/');
+  }
+}
+
+exports.viewPaidInvoices = async (req, res, next) => {
+  const cas_user = req.session[cas.session_name];
+  const userdata = await fetchUser(cas_user);
+  if (userdata) {
+  const library = userdata.library;
+    let paiddata = await getPaidInvoices(library);
+    paiddata = paiddata[0];
+    let invoiceids = [];
+    for (i in paiddata) {
+      invoiceids[i] = paiddata[i].invoiceid;
+    }
+    const invoicedata = await getAlmaIndividualInvoiceData(invoiceids);
+    data = {invoice: []}
+    for (i in invoicedata.invoice) {
+      const invoice = invoicedata.invoice[i];
+      const response = {responsebody: JSON.parse(paiddata[i].responsebody)};
+      const combined = {...invoice, ...response};
+      data.invoice.push(combined);
+    }
+    const bodystuff = await paidInvoicesTable(data);
+    res.render('review', {
+        title: 'Paid Invoice Information',
+        body: bodystuff,
+        isUser: true,
+        isAdmin: false,
+      });
   }
   else {
     res.redirect('/');

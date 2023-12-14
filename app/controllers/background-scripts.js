@@ -39,7 +39,6 @@ exports.checkOracleStatus = async (req, res, next) => {
     totalresults.forEach(result => {
         if (result.data.scmInvoicePaymentSearch.data && result.data.scmInvoicePaymentSearch.data.length > 0) {
         let data = result.data.scmInvoicePaymentSearch.data[0];
-        console.log(data);
         let datastring = JSON.stringify(data);            
             if (data.paymentStatusCode === 'Y') {
             console.log(result.invoicenumber + ' is paid');
@@ -94,31 +93,6 @@ sendMail = (invoicearray) => {
 
 }
 
-exports.archiveInvoices = async () => {
-    // look in folder for xml files
-    // move them to archive folder
-    // delete them from xml folder
-    const xmlfolder = '/app/almadafis/aeinput';
-    const archivefolder = '/app/almadafis/archive';
-    const files = fs.readdirSync(xmlfolder);
-    console.log(files);
-    files.forEach(file => {
-        console.log(file);
-        var oldPath = xmlfolder + '/' + file;
-        var newPath = archivefolder + '/' + file;
-        fs.rename(oldPath, newPath, function (err) {
-            if (err) {
-                console.log(err);
-                throw err;
-            } 
-            else {
-                console.log('Successfully moved to archive!');
-            }
-            })
-    });
-    return true;
-}
-
 exports.archivePaidInvoices = async () => {
     // look in folder for xml files ending in .handled
     // move them to archive folder
@@ -126,9 +100,7 @@ exports.archivePaidInvoices = async () => {
     const xmlfolder = '/app/almadafis/aeinput';
     const archivefolder = '/app/almadafis/archive';
     const files = fs.readdirSync(xmlfolder);
-    console.log(files);
     files.forEach(file => {
-        console.log(file);
         if (file.endsWith('.handled')) {
         var oldPath = xmlfolder + '/' + file;
         var newPath = archivefolder + '/' + file;

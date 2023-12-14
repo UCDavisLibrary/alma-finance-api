@@ -37,6 +37,8 @@ router.get('/', cas.bounce, controller.getHomepage );
 // router.get('/checkstatus', cas.bounce, controller.getCheckStatus);
 
 router.get('/oraclestatus', cas.bounce, controller.getOracleStatus);
+
+router.get('/paidinvoices', cas.bounce, controller.viewPaidInvoices);
   
 router.get('/preview', cas.bounce, controller.getPreviewPage);
 

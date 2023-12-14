@@ -38,8 +38,16 @@ module.exports = class Invoice {
     return db.execute('SELECT invoicenumber FROM invoices');
   }
 
+  static fetchUnpaidInvoiceNumbers(library) {
+    return db.execute('SELECT invoicenumber FROM invoices WHERE invoices.status != ? AND invoices.library = ?', ['PAID', library]);
+  }
+
   static fetchAllUnpaidInvoices() {
     return db.execute('SELECT * FROM invoices WHERE invoices.status != ?', ['PAID']);
+  }
+
+  static fetchPaidInvoices(library) {
+    return db.execute('SELECT * FROM invoices WHERE invoices.status = ? AND invoices.library = ?', ['PAID', library]);
   }
 
   static findById(id) {

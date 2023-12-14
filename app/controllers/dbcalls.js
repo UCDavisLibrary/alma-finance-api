@@ -25,12 +25,20 @@ exports.postAddInvoice = (number, id, library, requestbody) => {
     return Invoice.fetchInvoiceNumbers(library);
   }
 
+  exports.getUnpaidInvoiceNumbers = (library) => {
+    return Invoice.fetchUnpaidInvoiceNumbers(library);
+  }
+
   exports.getAllInvoiceNumbers = () => {
     return Invoice.fetchAllInvoiceNumbers();
   }
 
   exports.getAllUnpaidInvoiceNumbers = () => {
     return Invoice.fetchAllUnpaidInvoices();
+  }
+
+  exports.getPaidInvoices = (library) => {
+    return Invoice.fetchPaidInvoices(library);
   }
 
 exports.postSaveTodaysToken = (token) => {
