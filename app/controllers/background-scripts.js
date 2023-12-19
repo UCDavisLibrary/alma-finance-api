@@ -37,6 +37,7 @@ exports.checkOracleStatus = async (req, res, next) => {
     else {
     let paidInvoices = [];
     totalresults.forEach(result => {
+        if (result.data.scmInvoicePaymentSearch) {
         if (result.data.scmInvoicePaymentSearch.data && result.data.scmInvoicePaymentSearch.data.length > 0) {
         let data = result.data.scmInvoicePaymentSearch.data[0];
         let datastring = JSON.stringify(data);            
@@ -56,6 +57,10 @@ exports.checkOracleStatus = async (req, res, next) => {
         }
         else {
             console.log('no data returned');
+        }
+        }
+        else {
+        console.log('no data returned');
         }
       });
       if (paidInvoices.length > 0) {
