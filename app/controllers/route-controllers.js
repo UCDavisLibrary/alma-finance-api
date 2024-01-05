@@ -97,7 +97,6 @@ exports.getPreviewPage = async (req, res, next) => {
     if (library) {
       const data1 = await getAlmaInvoicesReadyToBePaid(library);
       const data = await filterOutSubmittedInvoices(data1, library);
-      console.log(data.invoice.length);
       const version = 'preview';
       if (data.invoice.length === 0) {
         const bodystuff = `<h3>No Invoices</h3>
@@ -213,7 +212,6 @@ exports.getOracleStatus = async (req, res, next) => {
   const library = userdata.library;
   const getinvoicenumbers = await getUnpaidInvoiceNumbers(library);
   const invoicenumbers = getinvoicenumbers[0];
-  console.log(invoicenumbers);
   if (invoicenumbers.length === 0) {
     const bodystuff = 'No invoices found.';
     res.render('review', {

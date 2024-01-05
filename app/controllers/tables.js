@@ -217,9 +217,7 @@ exports.almatoHTMLTableComplete = async (input, requestResponse) => {
       const aeinvoicenumber = [{consumerTrackingId : data[i].data.header.consumerTrackingId}];
 
       const oracledata = await checkStatusInOracle(oracleinvoicenumber);
-      console.log('oracledata is ' + oracledata);
       const aggieenterprisedata = await checkPayments(aeinvoicenumber);
-      console.log('aggieenterprisedata is ' + aggieenterprisedata);
     var temp = '';
     temp += '<h3>Invoice Data</h3>';
     temp += '<p>';

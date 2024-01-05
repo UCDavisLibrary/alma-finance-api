@@ -8,7 +8,6 @@ const transporter = checkTransporter();
 exports.checkOracleStatus = async (req, res, next) => {
   // const invoicenumbers1 = await getAllUnpaidInvoiceNumbers();
   const invoicenumbers1 = await getAllUnpaidInvoiceNumbers();
-  console.log(invoicenumbers1);
     let invoiceids = [];
     let sentinvoicenumbers = [];
     const invoices = invoicenumbers1[0];

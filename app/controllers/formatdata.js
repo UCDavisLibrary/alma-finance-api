@@ -21,8 +21,6 @@ exports.reformatAlmaInvoiceforAPI = async (data) => {
         const vendordata = await checkForVendorData(vendor);
         
         if (vendordata) {
-          console.log(vendordata);
-          console.log(typeof vendordata);
           apipayload.push({
             data: {
               header: {
@@ -201,8 +199,6 @@ exports.filterOutSubmittedInvoices = async (data, library) => {
         else {
           fundCodes.push(fundCode);
         }
-        console.log(fundCodes);
-        // temp += `${fundCode} $(${fundAmount})<br>`;
       }
     }
   }
