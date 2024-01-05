@@ -205,6 +205,8 @@ exports.basicDataTable = async (data, version, library) => {
 exports.almatoHTMLTableComplete = async (input, requestResponse) => {
   try {
       const step1 = await setSelectedData([input]);
+      console.log('this is step 1');
+      console.log(step1);
       const data = await reformatAlmaInvoiceforAPI(step1);
 
     if (data) {
