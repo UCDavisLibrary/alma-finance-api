@@ -1,0 +1,48 @@
+<div class="l-container">
+  <form
+    id="vendor-form"
+    method="POST"
+    action="/admin/edit-vendor"
+  >
+    <fieldset>
+      <h2>Vendor Information</h2>
+
+      <div class="field-container">
+        <label class="text-muted form-label" for="id">ID</label>
+        <%= vendor.id %>
+      </div>
+
+      <div class="field-container">
+        <label class="text-muted form-label" for="vendorId">vendor ID</label>
+        <input
+          required
+          placeholder="vendor ID"
+          type="text"
+          id="vendorId"
+          class="form-control"
+          name="vendorId"
+          value="<% if (editMode) { %><%= vendor.vendorId %><% } %>"
+        />
+      </div>
+
+      <div class="field-container">
+        <label class="text-muted form-label" for="vendorCode">vendor Code</label>
+        <input
+          required
+          placeholder="vendor Code"
+          type="text"
+          id="vendorCode"
+          class="form-control"
+          name="vendorCode"
+          value="<% if (editMode) { %><%= vendor.vendorCode %><% } %>"
+        />
+      </div>
+
+      <div class="field-container--small views-filters__submit-field">
+        <button type="submit" class="btn--primary">
+          Update
+        </button>
+      </div>
+    </fieldset>
+  </form>
+</div>

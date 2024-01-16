@@ -105,7 +105,6 @@ exports.aggieEnterprisePaymentRequest = async (invoices) => {
     try {
       const token = await tokenGenerator();
       const inputstoreturn = [];
-      console.log(variableInputs);
         for (input of variableInputs) {
           variables = input;
           await fetch(process.env.BOUNDARY_APP_URL, {

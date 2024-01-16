@@ -2,7 +2,7 @@ const {almatoHTMLTableComplete, basicDataTable, paidInvoicesTable} = require('..
 const {aggieEnterprisePaymentRequest, checkPayments, checkStatusInOracle, checkErpRolesOracle} = require('../controllers/graphqlcalls');
 const { getAlmaIndividualInvoiceData, getAlmaInvoicesReadyToBePaid} = require('../controllers/almaapicalls');
 const {reformatAlmaInvoiceforAPI, filterOutSubmittedInvoices } = require('../controllers/formatdata');
-const { getInvoiceIDs, getInvoiceNumbers, postSaveTodaysToken, postAddUser, fetchAllUsers, fetchUser, postEditUser, postAddInvoice, getPaidInvoices, getUnpaidInvoiceNumbers} = require('../controllers/dbcalls');
+const { getInvoiceIDs, getInvoiceNumbers, postSaveTodaysToken, postAddUser, fetchAllUsers, fetchUser, postEditUser, postAddInvoice, getPaidInvoices, getUnpaidInvoiceNumbers, fetchAllFunds, fetchAllVendors, deleteFund, deleteVendor, deleteFundByFundId} = require('../controllers/dbcalls');
 const {tokenGenerator} = require('../controllers/tokengenerator');
 const {checkOracleStatus, archiveInvoices} = require('../controllers/background-scripts');
 const express = require('express');
@@ -400,6 +400,88 @@ exports.getAdminViewUsers = async (req, res, next) => {
     }
   } else {
     res.redirect('/');
+  }
+};
+
+exports.getAdminViewFunds = async (req, res, next) => {
+  const cas_user = req.session[cas.session_name];
+  if (cas_user === admin) {
+    try {
+      const funds = await fetchAllFunds();
+      // for (fund in funds) {
+      //   const id = funds[fund].id;
+      //   const fundId = funds[fund].fundId;
+      //   const fundCode = funds[fund].fundCode;
+      //   for (fund2 in funds) {
+      //     if (fund2 !== fund) {
+      //       if (funds[fund2].fundId === fundId) {
+      //         await deleteFund(id);
+      //       }
+      //     }
+      //   }
+      // }
+        res.render('fund-list', {
+          title: 'View All Funds',
+          funds: funds,
+          isUser: true,
+          isAdmin: true,
+        });
+    }
+    catch (error) {
+      console.log(error);
+      res.redirect('/admin');
+    }
+  } else {
+    res.redirect('/');
+  }
+};
+
+exports.adminDeleteFund = async (req, res, next) => {
+  const id = req.body.id;
+  try {
+    const result = await deleteFund(id);
+    if (result) {
+      console.log('Deleted fund');
+      res.redirect('/admin/funds');
+    }
+  }
+  catch (error) {
+    console.log(error);
+  }
+};
+
+exports.getAdminViewVendors = async (req, res, next) => {
+  const cas_user = req.session[cas.session_name];
+  if (cas_user === admin) {
+    try {
+      const vendors = await fetchAllVendors();
+        res.render('vendor-list', {
+          title: 'View All Vendors',
+          vendors: vendors,
+          isUser: true,
+          isAdmin: true,
+        });
+    }
+    catch (error) {
+      console.log(error);
+      res.redirect('/admin');
+    }
+  } else {
+    res.redirect('/');
+  }
+};
+
+exports.adminDeleteVendor = async (req, res, next) => {
+  const id = req.body.id;
+  try {
+    const result = await deleteVendor(id);
+    if (result) {
+      console.log('Deleted vendor');
+      res.redirect('/admin/vendors');
+    }
+  }
+  catch (error) {
+    console.log(error);
   }
 };
 

@@ -30,8 +30,6 @@ service_url: process.env.APP_URL,
 // return_to: 'http://localhost:9999',
 });
 
-
-
 router.get('/', cas.bounce, controller.getHomepage );
 
 // router.get('/checkstatus', cas.bounce, controller.getCheckStatus);
@@ -81,6 +79,14 @@ router.get(
 );
 
 router.post('/admin/edit-user/', controller.postAdminEditUser);
+
+router.get('/admin/funds', cas.bounce, controller.getAdminViewFunds);
+
+router.post('/admin/delete-fund/:fundId', controller.adminDeleteFund);
+
+router.get('/admin/vendors', cas.bounce, controller.getAdminViewVendors);
+
+router.post('/admin/delete-vendor/:vendorId', controller.adminDeleteVendor);
 
 router.get('*', controller.get404);
 

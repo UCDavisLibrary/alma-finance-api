@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <%- include('include/head'); %>
+  </head>
+  <body>
+    <%- include('include/header'); %>
+
+    <main>
+      <div class="l-container pt-2">
+          
+        <% if (vendors.length > 0) { %>
+            <h1>users</h1>
+            <table>
+              <tr>
+                <th>ID</th>
+                <th>vendor ID</th>
+                <th>vendor Code</th>
+              </tr>
+
+          <% let i = 0; for (let vendor of vendors) { %>
+            <tr>
+              <td><%= vendor.id %></td>
+              <td><%= vendor.vendorId %></td>
+              <td>
+                <button onClick="toggle('vendorDiv<%= i %>')">show</button>
+                <div id="vendorDiv<%= i %>" style="display:none">
+                <%= vendor.vendorData %>
+                </div>
+              </td>
+              <!-- <td>
+                <a
+                href="/admin/edit-vendor/<%= vendor.id %>"
+                class="btn"
+                >Edit Vendor</a
+              > -->
+              <td>
+                <a
+                href="/admin/delete-vendor/<%= vendor.id %>"
+                class="btn"
+                >Delete Vendor</a
+              >
+              </td>
+              </td>
+            </tr>
+          <% i++; } %>
+        </table>
+
+      </div>
+
+        <% } else { %>
+        <h1>No vendors Found!</h1>
+
+        <% } %>
+      </div>
+    </main>
+    <%- include('include/footer'); %>
+    <%- include('include/effects'); %>
+  </body>
+</html>

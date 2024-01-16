@@ -94,7 +94,6 @@ exports.postEditUser = async (firstname, lastname, email, kerberos, library, id)
 };
 
 exports.fetchAllUsers = async () => {
-  
     try {
       const response = await User.fetchAll();
       if (response) {
@@ -106,6 +105,68 @@ exports.fetchAllUsers = async () => {
       console.log(error);
     }
   }
+
+exports.fetchAllFunds = async () => {
+  try {
+    const response = await Fund.fetchAll();
+    if (response) {
+      const users = response[0];
+      return users;
+    }
+  }
+  catch (error) {
+    console.log(error);
+  }
+}
+
+exports.deleteFund = async (id) => {
+  try {
+    const response = await Fund.deleteById(id);
+    if (response) {
+      return true;
+    }
+  }
+  catch (error) {
+    console.log(error);
+  }
+}
+
+exports.deleteFundByFundId = async (id) => {
+  try {
+    const response = await Fund.deleteByFundId(id);
+    if (response) {
+      return true;
+    }
+  }
+  catch (error) {
+    console.log(error);
+  }
+}
+
+exports.fetchAllVendors = async () => {
+  try {
+    const response = await Vendor.fetchAll();
+    if (response) {
+      const users = response[0];
+      return users;
+    }
+  }
+  catch (error) {
+    console.log(error);
+  }
+}
+
+exports.deleteVendor = async (id) => {
+  try {
+    const response = await Vendor.deleteById(id);
+    if (response) {
+      return true;
+    }
+  }
+  catch (error) {
+    console.log(error);
+  }
+}
 
 exports.checkLibrary = async (kerberos) => {
     

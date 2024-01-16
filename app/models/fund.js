@@ -17,6 +17,10 @@ module.exports = class Fund {
     return db.execute('DELETE FROM funds WHERE funds.id = ?', [id]);
   }
 
+  static deleteByFundId(fundId) {
+    return db.execute('DELETE FROM funds WHERE funds.fundId = ?', [fundId]);
+  }
+
   static fetchAll() {
     return db.execute('SELECT * FROM funds');
   }

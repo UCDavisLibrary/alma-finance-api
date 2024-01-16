@@ -57,10 +57,8 @@ exports.reformatAlmaInvoiceforAPI = async (data) => {
         console.log(error);
       }
 
-
       for (j in data.invoice[i].invoice_lines.invoice_line) {
         let object1 = {
-          // itemName: data.invoice[i].invoice_lines.invoice_line[j].name, // should be vendor name  ok to leave blank
           itemName: '',
           itemDescription: data.invoice[i].invoice_lines.invoice_line[j].id,
           lineAmount: data.invoice[i].invoice_lines.invoice_line[j].price,

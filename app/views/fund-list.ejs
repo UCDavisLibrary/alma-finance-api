@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <%- include('include/head'); %>
+  </head>
+  <body>
+    <%- include('include/header'); %>
+
+    <main>
+      <div class="l-container pt-2">
+          
+        <% if (funds.length > 0) { %>
+            <h1>Funds</h1>
+            <table>
+              <tr>
+                <th>ID</th>
+                <th>Fund ID</th>
+                <th>Fund Code</th>
+              </tr>
+
+          <% let i = 0; for (let fund of funds) { %>
+            <tr>
+              <td><%= fund.id %></td>
+              <td><%= fund.fundId %></td>
+              <td><%= fund.fundCode %></td>
+              <!-- <td>
+                <a
+                href="/admin/edit-fund/<%= fund.id %>"
+                class="btn"
+                >Edit Fund</a
+              >
+              </td> -->
+              <td>
+                <form
+                id="fund-form"
+                method="POST"
+                action="/admin/delete-fund/<%= fund.id %>"
+              >
+                <input
+                  type="hidden"
+                  id="id"
+                  name="id"
+                  value="<%= fund.id %>"
+                />
+                <button type="submit" class="btn--primary">
+                  Delete Fund
+                </button>
+              </form>
+              </td>
+            </tr>
+          <% i++; } %>
+        </table>
+
+      </div>
+
+        <% } else { %>
+        <h1>No funds Found!</h1>
+
+        <% } %>
+      </div>
+    </main>
+
+    <%- include('include/footer'); %>
+  </body>
+</html>

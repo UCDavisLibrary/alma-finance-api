@@ -13,8 +13,16 @@ module.exports = class Vendor {
     );
   }
 
+  static fetchAll() {
+    return db.execute('SELECT * FROM vendors');
+  }
+
   static fetchVendorDataFromId(id) {
     return db.execute('SELECT vendorData FROM vendors WHERE vendors.vendorId = ?', [id]);
+  }
+
+  static deleteById(id) {
+    return db.execute('DELETE FROM vendors WHERE vendors.id = ?', [id]);
   }
 
 };
