@@ -273,14 +273,16 @@ exports.viewPaidInvoices = async (req, res, next) => {
     const invoicedata = await getAlmaIndividualInvoiceData(invoiceids);
     data = {invoice: []}
     for (i in invoicedata.invoice) {
-      const invoice = invoicedata.invoice[i];
-      const response = {responsebody: JSON.parse(paiddata[i].responsebody)};
-      const combined = {...invoice, ...response};
-      data.invoice.push(combined);
+      if (invoicedata.invoice[i] && paiddata[i].responsebody) {
+        const invoice = invoicedata.invoice[i];
+        const response = {responsebody: JSON.parse(paiddata[i].responsebody)};
+        const combined = {...invoice, ...response};
+        data.invoice.push(combined);
+      }
     }
     const bodystuff = await paidInvoicesTable(data);
     res.render('review', {
-        title: 'Paid Invoice Information',
+        title: 'Most Recently Paid Invoices',
         body: bodystuff,
         isUser: true,
         isAdmin: false,
