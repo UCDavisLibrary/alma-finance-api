@@ -208,8 +208,6 @@ exports.almatoHTMLTableComplete = async (input, requestResponse) => {
       console.log('this is step 1');
       console.log(step1);
       const data = await reformatAlmaInvoiceforAPI(step1);
-      console.log('this is data');
-      console.log(JSON.stringify(data));
     if (data) {
       const oracleinvoicenumber =
           [{ "filter":   

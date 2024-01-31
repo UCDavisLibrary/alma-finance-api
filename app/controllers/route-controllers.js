@@ -245,6 +245,7 @@ exports.getOracleStatus = async (req, res, next) => {
       data.invoice.push(combined);
     }
     const version = 'review';
+    console.log('data is ' + data);
     const bodystuff = await basicDataTable(data, version, library);
     res.render('review', {
         title: 'Sent Invoice Status',
