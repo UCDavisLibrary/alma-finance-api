@@ -236,7 +236,7 @@ exports.getOracleStatus = async (req, res, next) => {
       invoicenumbers[i] =
         { "filter":   
       {
-        "invoiceNumber": {"contains": invoicenumbers[i].invoicenumber}
+        "invoiceNumber": {"contains": invoicenumbers[i]}
       }
     }
     }
