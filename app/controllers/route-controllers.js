@@ -2,7 +2,7 @@ const {almatoHTMLTableComplete, basicDataTable, paidInvoicesTable} = require('..
 const {aggieEnterprisePaymentRequest, checkPayments, checkStatusInOracle, checkErpRolesOracle} = require('../controllers/graphqlcalls');
 const { getAlmaIndividualInvoiceData, getAlmaInvoicesReadyToBePaid} = require('../controllers/almaapicalls');
 const {reformatAlmaInvoiceforAPI, filterOutSubmittedInvoices } = require('../controllers/formatdata');
-const { getInvoiceIDs, getInvoiceNumbers, postSaveTodaysToken, postAddUser, fetchAllUsers, fetchUser, postEditUser, postAddInvoice, getPaidInvoices, getUnpaidInvoiceNumbers, fetchAllFunds, fetchAllVendors, deleteFund, deleteVendor, deleteFundByFundId} = require('../controllers/dbcalls');
+const { getInvoiceIDs, getInvoiceNumbers, postSaveTodaysToken, postAddUser, fetchAllUsers, fetchUser, postEditUser, postAddInvoice, getPaidInvoices, getUnpaidInvoiceNumbers, fetchAllFunds, fetchAllVendors, deleteFund, deleteVendor, getAllUnpaidInvoices} = require('../controllers/dbcalls');
 const {tokenGenerator} = require('../controllers/tokengenerator');
 const {checkOracleStatus, archiveInvoices} = require('../controllers/background-scripts');
 const express = require('express');
@@ -10,6 +10,7 @@ const router = express.Router();
 const session = require('express-session');
 const CASAuthentication = require('node-cas-authentication');
 const User = require('../models/user');
+const { get } = require('../routes/routes');
 const admin = process.env.ADMIN;
 
 // Set up an Express session, which is required for CASAuthentication.
@@ -211,8 +212,16 @@ exports.getOracleStatus = async (req, res, next) => {
   const userdata = await fetchUser(cas_user);
   if (userdata) {
   const library = userdata.library;
-  const getinvoicenumbers = await getUnpaidInvoiceNumbers(library);
-  const invoicenumbers = getinvoicenumbers[0];
+  const getinvoicedata = await getAllUnpaidInvoices(library);
+  const thisinvoicedata = getinvoicedata[0];
+  const invoicenumbers = [];
+  const invoiceids = [];
+  for (i in thisinvoicedata) {
+    invoicenumbers[i] = thisinvoicedata[i].invoicenumber;
+    invoiceids[i] = thisinvoicedata[i].invoiceid;
+  }
+  console.log('invoicenumbers is ' + JSON.stringify(invoicenumbers));
+  console.log('invoiceids is ' + JSON.stringify(invoiceids));
   if (invoicenumbers.length === 0) {
     const bodystuff = 'No invoices found.';
     res.render('review', {
@@ -232,11 +241,10 @@ exports.getOracleStatus = async (req, res, next) => {
     }
     }
     const requestresults = await checkStatusInOracle(invoicenumbers);
-    let invoiceids = await getInvoiceIDs(library);
-    invoiceids = invoiceids[0];
-    for (i in invoiceids) {
-      invoiceids[i] = invoiceids[i].invoiceid;
-    }
+
+    // for (i in invoiceids) {
+    //   invoiceids[i] = invoiceids[i].invoiceid;
+    // }
     const invoicedata = await getAlmaIndividualInvoiceData(invoiceids);
     console.log('invoicedata is ' + JSON.stringify(invoicedata));
     data = {invoice: []}

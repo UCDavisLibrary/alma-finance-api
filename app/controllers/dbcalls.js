@@ -29,6 +29,10 @@ exports.postAddInvoice = (number, id, library, requestbody) => {
     return Invoice.fetchUnpaidInvoiceNumbers(library);
   }
 
+  exports.getAllUnpaidInvoices = (library) => {
+    return Invoice.fetchAllUnpaidInvoices(library);
+  }
+
   exports.getAllInvoiceNumbers = () => {
     return Invoice.fetchAllInvoiceNumbers();
   }
