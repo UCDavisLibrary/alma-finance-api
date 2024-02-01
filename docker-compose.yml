@@ -31,6 +31,7 @@ services:
     volumes:
       - ./app:/app
       - /app/node_modules
+    restart: always
     depends_on:
       almafinance-db:
         condition: service_healthy
@@ -43,6 +44,7 @@ services:
       - /file-loader/node_modules
       # - /Users/markwarren/Documents/almadafis:/file-loader/almadafis
       - /home/almadafis:/file-loader/almadafis
+    restart: always
     depends_on:
       almafinance-db:
         condition: service_healthy
