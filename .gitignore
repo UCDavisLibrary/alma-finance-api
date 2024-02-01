@@ -6,3 +6,7 @@
 /app/json/
 /env/mysql.env
 /node_modules
+/file-loader/node_modules
+/file-loader/.env
+/file-loader/app.env
+/file-loader/wait.html

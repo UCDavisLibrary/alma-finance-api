@@ -31,8 +31,18 @@ services:
     volumes:
       - ./app:/app
       - /app/node_modules
-      # - /Users/markwarren/Documents/almadafis:/app/almadafis
-      - /home/almadafis:/app/almadafis
+    depends_on:
+      almafinance-db:
+        condition: service_healthy
+  finance-file-loader:
+    build: ./file-loader
+    env_file:
+      - ./file-loader/app.env
+    volumes:
+      - ./file-loader:/file-loader
+      - /file-loader/node_modules
+      # - /Users/markwarren/Documents/almadafis:/file-loader/almadafis
+      - /home/almadafis:/file-loader/almadafis
     depends_on:
       almafinance-db:
         condition: service_healthy
@@ -40,7 +50,7 @@ services:
   #   image: adminer
   #   restart: always
   #   ports:
-  #     - 8080:8080
+  #     - 8008:8080 
   #   depends_on:
   #     - almafinance-db
 volumes:
