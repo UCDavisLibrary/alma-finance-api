@@ -206,7 +206,6 @@ exports.getCheckStatus = async (req, res, next) => {
 }
 
 exports.getOracleStatus = async (req, res, next) => {
-  console.log('oracle status');
   const cas_user = req.session[cas.session_name];
   const userdata = await fetchUser(cas_user);
   if (userdata) {
@@ -238,18 +237,15 @@ exports.getOracleStatus = async (req, res, next) => {
       invoiceids[i] = invoiceids[i].invoiceid;
     }
     const invoicedata = await getAlmaIndividualInvoiceData(invoiceids);
-    console.log('invoicedata is ' + JSON.stringify(invoicedata));
     data = {invoice: []}
     for (i in invoicedata.invoice) {
-      if (invoicedata.invoice[i].id && requestresults[i]) {
       const invoice = invoicedata.invoice[i];
       const request = requestresults[i];
       const combined = {...invoice, ...request};
       data.invoice.push(combined);
-      }
     }
     const version = 'review';
-    // console.log('data is ' + JSON.stringify(data));
+    console.log('data is ' + JSON.stringify(data));
     const bodystuff = await basicDataTable(data, version, library);
     res.render('review', {
         title: 'Sent Invoice Status',

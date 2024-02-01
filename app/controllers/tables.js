@@ -31,15 +31,13 @@ exports.basicDataTable = async (data, version, library) => {
         }
         temp += '</tr>';
         for (i in data.invoice) {
-          console.log(data.invoice[i]);
           let nozee = data.invoice[i].invoice_date;
-          console.log(nozee);
           if (nozee.includes('Z')) {
             nozee = nozee.substring(0, nozee.length - 1);
           } else {
             nozee = data.invoice[i].invoice_date;
           }
-          // const vendor = data.invoice[i].vendor.value;
+          const vendor = data.invoice[i].vendor.value;
             temp += '<tr>';
             temp += `<td>${data.invoice[i].number} (<a href="/invoice/${data.invoice[i].id}" target="_blank">view details</a>)</td>`;
             temp += `<td>${data.invoice[i].vendor.desc}</td>`;
@@ -210,8 +208,6 @@ exports.almatoHTMLTableComplete = async (input, requestResponse) => {
       console.log('this is step 1');
       console.log(step1);
       const data = await reformatAlmaInvoiceforAPI(step1);
-      console.log('this is data');
-      console.log(JSON.stringify(data));
     if (data) {
       const oracleinvoicenumber =
           [{ "filter":   
@@ -361,14 +357,13 @@ exports.paidInvoicesTable = async (data) => {
       temp += '<th>Time Paid</th>';
       temp += '</tr>';
       for (i in data.invoice) {
-        console.log(data.invoice[i]);
-        let nozee = toString(data.invoice[i].invoice_date);
-        console.log(nozee);
+        let nozee = data.invoice[i].invoice_date;
         if (nozee.includes('Z')) {
           nozee = nozee.substring(0, nozee.length - 1);
         } else {
           nozee = data.invoice[i].invoice_date;
         }
+        const vendor = data.invoice[i].vendor.value;
           temp += '<tr>';
           temp += `<td>${data.invoice[i].number}<br>(<a href="/invoice/${data.invoice[i].id}" target="_blank">view details</a>)</td>`;
           temp += `<td>${data.invoice[i].vendor.desc}</td>`;
@@ -413,11 +408,12 @@ exports.paidInvoicesTable = async (data) => {
           temp += '</tr>';
             
           }
-        
+
       temp += '</table>';
       temp += '</form>';
 
       return temp;
+
   }
   catch(error) {console.log(error)};
 
