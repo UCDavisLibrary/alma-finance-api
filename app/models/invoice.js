@@ -39,15 +39,15 @@ module.exports = class Invoice {
   }
 
   static fetchUnpaidInvoiceNumbers(library) {
-    return db.execute('SELECT invoicenumber FROM invoices WHERE invoices.status != ? AND invoices.library = ? LIMIT 10', ['PAID', library]);
+    return db.execute('SELECT invoicenumber FROM invoices WHERE invoices.status != ? AND invoices.library = ?', ['PAID', library]);
   }
 
   static fetchAllUnpaidInvoices() {
-    return db.execute('SELECT * FROM invoices WHERE invoices.status != ? LIMIT 10', ['PAID']);
+    return db.execute('SELECT * FROM invoices WHERE invoices.status != ?', ['PAID']);
   }
 
   static fetchPaidInvoices(library) {
-    return db.execute('SELECT * FROM invoices WHERE invoices.status = ? AND invoices.library = ? ORDER BY invoices.id DESC LIMIT 10', ['PAID', library]);
+    return db.execute('SELECT * FROM invoices WHERE invoices.status = ? AND invoices.library = ? ORDER BY invoices.id DESC', ['PAID', library]);
   }
 
   static findById(id) {
