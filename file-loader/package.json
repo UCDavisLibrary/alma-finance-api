@@ -7,7 +7,7 @@
         "name": "Mark Warren"
     },
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1",
+        "test": "node test.js",
         "start": "node server.js",
         "watch": "webpack --config webpack-watch.config.js --watch",
         "dev": "nodemon server.js"

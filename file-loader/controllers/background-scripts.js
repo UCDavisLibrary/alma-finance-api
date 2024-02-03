@@ -125,10 +125,15 @@ exports.archivePaidInvoices = async () => {
 }
 
 getUserEmails = async () => {
-  const users = await fetchAllUsers();
-  let emails = [];
-  users.forEach(user => {
-    emails.push(user.email);
-  });
-  return emails;
+  try {
+    const users = await fetchAllUsers();
+    let emails = [];
+    users.forEach(user => {
+      emails.push(user.email);
+    });
+    return emails;
+  }
+  catch (error) {
+    console.log(error);
+  }
 }
