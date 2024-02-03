@@ -63,8 +63,14 @@ exports.checkOracleStatus = async (req, res, next) => {
         }
       });
       if (paidInvoices.length > 0) {
-        sendMail(paidInvoices);
-      }
+        try {
+          const emails = await getUserEmails();
+          sendMail(paidInvoices, emails);
+          }
+        catch (error) {
+          console.log(error);
+          }
+        }
       else {
         // console.log('No invoices have been paid');
       }
@@ -75,9 +81,7 @@ exports.checkOracleStatus = async (req, res, next) => {
 }
 
 
-sendMail = (invoicearray) => {
-
-      const emails = getUserEmails();
+sendMail = (invoicearray, emails) => {
     
       const mail = {
         subject: `Invoices Paid`,
