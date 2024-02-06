@@ -10,15 +10,13 @@
       <div class="l-container pt-2">
           
         <% if (invoices.length > 0) { %>
-            <h1>Invoices</h1>
+            <h1><%= title %></h1>
             <table>
               <tr>
                 <th>Invoice Number</th>
                 <th>Invoice ID</th>
                 <th>Library</th>
-                <th>Status</th>
-                <th>Date</th>
-                <th>Action</th>
+                <th>Paid Date</th>
               </tr>
 
           <% let i = 0; for (let invoice of invoices) { %>
@@ -26,32 +24,7 @@
               <td><%= invoice.invoicenumber %></td>
               <td><%= invoice.invoiceid %></td>
               <td><%= invoice.library %></td>
-              <td><%= invoice.status %></td>
               <td><%= invoice.datetime.toLocaleDateString() %></td>
-              <!-- <td>
-                <a
-                href="/admin/edit-invoice/<%= invoice.id %>"
-                class="btn"
-                >Edit invoice</a
-              >
-              </td> -->
-              <td>
-                <form
-                id="invoice-form"
-                method="POST"
-                action="/admin/delete-invoice/<%= invoice.id %>"
-              >
-                <input
-                  type="hidden"
-                  id="id"
-                  name="id"
-                  value="<%= invoice.id %>"
-                />
-                <button type="submit" class="btn--primary">
-                  Delete invoice
-                </button>
-              </form>
-              </td>
             </tr>
           <% i++; } %>
         </table>

@@ -146,11 +146,11 @@ exports.basicDataTable = async (data, version, library) => {
                   }
                 else {
                     if (data.invoice[i].data.scmInvoicePaymentSearch.data[0].paymentStatusCode === 'Y') {
-                      temp += `<td><btn class="btn btn-success" onClick="toggle(table${data.invoice[i].id})">PAID</btn></td>`;
+                      temp += `<td><btn class="btn btn-success" onClick="toggle(table${data.invoice[i].id})">PAYMENT SCHEDULED</btn></td>`;
                       // updateStatus('PAID', data.invoice[i].id);
                     }
                     else if (data.invoice[i].data.scmInvoicePaymentSearch.data[0].paymentStatusCode === 'N') {
-                      temp += `<td><btn class="btn btn-warning" onClick="toggle(table${data.invoice[i].id})">NOT PAID</btn></td>`;
+                      temp += `<td><btn class="btn btn-warning" onClick="toggle(table${data.invoice[i].id})">NOT YET PAID</btn></td>`;
                       // updateStatus('NOT PAID', data.invoice[i].id);
                     }
                     temp += '</tr>';

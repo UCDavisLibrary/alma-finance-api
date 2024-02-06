@@ -277,28 +277,25 @@ exports.viewPaidInvoices = async (req, res, next) => {
   const userdata = await fetchUser(cas_user);
   if (userdata) {
   const library = userdata.library;
-    let paiddata = await getPaidInvoices(library);
-    paiddata = paiddata[0];
-    let invoiceids = [];
-    for (i in paiddata) {
-      invoiceids[i] = paiddata[i].invoiceid;
-    }
-    const invoicedata = await getAlmaIndividualInvoiceData(invoiceids);
-    data = {invoice: []}
-    for (i in invoicedata.invoice) {
-      if (invoicedata.invoice[i] && paiddata[i].responsebody) {
-        const invoice = invoicedata.invoice[i];
-        const response = {responsebody: JSON.parse(paiddata[i].responsebody)};
-        const combined = {...invoice, ...response};
-        data.invoice.push(combined);
-      }
-    }
-    const bodystuff = await paidInvoicesTable(data);
-    res.render('review', {
-        title: 'Most Recently Paid Invoices',
-        body: bodystuff,
+    const paiddata = await getPaidInvoices(library);
+    const invoices = paiddata[0];
+    const totalItems = invoices.length;
+    const page = +req.query.page || 1;
+    const ITEMS_PER_PAGE = 10;
+    const theseinvoices = invoices.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
+    
+    console.log('invoices is ' + JSON.stringify(invoices));
+      res.render('paid-invoice-list', {
+        title: 'Paid Invoices',
+        invoices: theseinvoices,
         isUser: true,
         isAdmin: false,
+        currentPage: page,
+        hasNextPage: ITEMS_PER_PAGE * page < totalItems,
+        hasPreviousPage: page > 1,
+        nextPage: page + 1,
+        previousPage: page - 1,
+        lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE)
       });
   }
   else {
