@@ -26,6 +26,10 @@ module.exports = class Invoice {
     return db.execute('SELECT * FROM invoices WHERE invoices.library = ?', [library]);
   }
 
+  static fetchAllAdmin() {
+    return db.execute('SELECT * FROM invoices');
+  }
+
   static fetchInvoiceIDs(library) {
     return db.execute('SELECT invoiceid FROM invoices WHERE invoices.library = ?', [library]);
   }
@@ -56,6 +60,10 @@ module.exports = class Invoice {
 
   static updateStatus(status, responsebody, invoiceid) {
     return db.execute('UPDATE invoices SET status = ?, responsebody = ? WHERE invoiceid = ?', [status, responsebody, invoiceid]);
+  }
+
+  static fetchBySearchTerm(searchterm) {
+    return db.execute('SELECT * FROM invoices WHERE invoices.invoicenumber LIKE ? OR invoices.invoiceid LIKE ?', ['%' + searchterm + '%', '%' + searchterm + '%']);
   }
 
 };

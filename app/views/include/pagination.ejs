@@ -1,0 +1,29 @@
+<section class="pagination center">
+    <ul class="pager centered">
+
+    <% if (currentPage !== 1 && previousPage !== 1) { %>
+        <li class="pager__item">
+            <a href="?page=1">1</a>
+        </li>
+    <% } %>
+    <% if (hasPreviousPage) { %>
+        <li class="pager__item">
+            <a href="?page=<%= previousPage %>"><%= previousPage %></a>
+        </li>
+    <% } %>
+    <li class="pager__item pager__item--current">
+        <a href="?page=<%= currentPage %>" class="active"><%= currentPage %></a>
+    </li>
+    <% if (hasNextPage) { %>
+        <li class="pager__item">
+            <a href="?page=<%= nextPage %>"><%= nextPage %></a>
+        </li>
+    <% } %>
+    <% if (lastPage !== currentPage && nextPage !== lastPage) { %>
+        <li class="pager__item">
+            <a href="?page=<%= lastPage %>">Last</a>
+        </li>
+    <% } %>
+    </ul>
+    <%= lastPage %> pages total
+</section>

@@ -88,6 +88,12 @@ router.get('/admin/vendors', cas.bounce, controller.getAdminViewVendors);
 
 router.post('/admin/delete-vendor/:vendorId', controller.adminDeleteVendor);
 
+router.get('/admin/invoices', cas.bounce, controller.getAdminViewInvoices);
+
+router.get('/search', cas.bounce, controller.getSearchPage);
+
+router.post('/search', cas.bounce, controller.postSearchForInvoice);
+
 router.get('*', controller.get404);
 
 module.exports = router;

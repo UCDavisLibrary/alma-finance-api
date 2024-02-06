@@ -2,7 +2,7 @@ const {almatoHTMLTableComplete, basicDataTable, paidInvoicesTable} = require('..
 const {aggieEnterprisePaymentRequest, checkPayments, checkStatusInOracle, checkErpRolesOracle} = require('../controllers/graphqlcalls');
 const { getAlmaIndividualInvoiceData, getAlmaInvoicesReadyToBePaid} = require('../controllers/almaapicalls');
 const {reformatAlmaInvoiceforAPI, filterOutSubmittedInvoices } = require('../controllers/formatdata');
-const { getInvoiceIDs, getInvoiceNumbers, postSaveTodaysToken, postAddUser, fetchAllUsers, fetchUser, postEditUser, postAddInvoice, getPaidInvoices, getUnpaidInvoiceNumbers, fetchAllFunds, fetchAllVendors, deleteFund, deleteVendor, getAllUnpaidInvoices} = require('../controllers/dbcalls');
+const { getInvoiceIDs, getInvoiceNumbers, postSaveTodaysToken, postAddUser, fetchAllUsers, fetchUser, postEditUser, postAddInvoice, getPaidInvoices, getUnpaidInvoiceNumbers, fetchAllFunds, fetchAllVendors, deleteFund, deleteVendor, getAllUnpaidInvoices, getAllInvoicesAdmin, getInvoiceBySearchTerm} = require('../controllers/dbcalls');
 const {tokenGenerator} = require('../controllers/tokengenerator');
 const {checkOracleStatus, archiveInvoices} = require('../controllers/background-scripts');
 const express = require('express');
@@ -373,7 +373,7 @@ exports.getAdminView = async (req, res, next) => {
   if (cas_user === admin) {
     res.render('admin', {
       title: 'Payment Processor - Admin',
-      isUser: true,
+      isUser: false,
       isAdmin: true,
     });
   }
@@ -388,7 +388,7 @@ exports.getAdminManageUsers = async (req, res, next) => {
   if (cas_user === admin) {
     res.render('admin-manage-users', {
       title: 'Payment Processor - Admin',
-      isUser: true,
+      isUser: false,
       isAdmin: true,
     });
   }
@@ -405,7 +405,7 @@ exports.getAdminViewUsers = async (req, res, next) => {
         res.render('user-list', {
           title: 'View All Users',
           users: users,
-          isUser: true,
+          isUser: false,
           isAdmin: true,
         });
     }
@@ -438,7 +438,7 @@ exports.getAdminViewFunds = async (req, res, next) => {
         res.render('fund-list', {
           title: 'View All Funds',
           funds: funds,
-          isUser: true,
+          isUser: false,
           isAdmin: true,
         });
     }
@@ -473,7 +473,7 @@ exports.getAdminViewVendors = async (req, res, next) => {
         res.render('vendor-list', {
           title: 'View All Vendors',
           vendors: vendors,
-          isUser: true,
+          isUser: false,
           isAdmin: true,
         });
     }
@@ -522,7 +522,7 @@ exports.postAdminAddUser = async (req, res, next) => {
       res.render('useradded', {
         body: body,
         title: 'New User Added',
-        isUser: true,
+        isUser: false,
         isAdmin: true,
         editMode: true,
       });
@@ -531,7 +531,7 @@ exports.postAdminAddUser = async (req, res, next) => {
       res.status(500).render('useradded', {
         body: body,
         title: 'Error Adding User',
-        isUser: true,
+        isUser: false,
         isAdmin: true,
         editMode: true,
       });
@@ -542,7 +542,7 @@ exports.postAdminAddUser = async (req, res, next) => {
     res.status(500).render('useradded', {
       body: body,
       title: 'Error Adding User',
-      isUser: true,
+      isUser: false,
       isAdmin: true,
       editMode: true,
     });
@@ -604,6 +604,97 @@ catch (error) {
 }
 
 };
+
+exports.getAdminViewInvoices = async (req, res, next) => {
+  const cas_user = req.session[cas.session_name];
+  if (cas_user === admin) {
+
+
+    try {
+      const step1 = await getAllInvoicesAdmin();
+      const invoices = step1[0];
+      const totalItems = invoices.length;
+      const page = +req.query.page || 1;
+      const ITEMS_PER_PAGE = 10;
+      const theseinvoices = invoices.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
+      
+      console.log('invoices is ' + JSON.stringify(invoices));
+        res.render('invoice-list', {
+          title: 'Admin View All Invoices',
+          invoices: theseinvoices,
+          isUser: false,
+          isAdmin: true,
+          currentPage: page,
+          hasNextPage: ITEMS_PER_PAGE * page < totalItems,
+          hasPreviousPage: page > 1,
+          nextPage: page + 1,
+          previousPage: page - 1,
+          lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE)
+        });
+    }
+    catch (error) {
+      console.log(error);
+      res.redirect('/admin');
+    }
+  } else {
+    res.redirect('/');
+  }
+}
+
+exports.getSearchPage = async (req, res, next) => {
+  res.render('search', {
+    title: 'Search Invoices',
+    isUser: true,
+    isAdmin: false,
+    extraMessage: '',
+  });
+}
+
+exports.postSearchForInvoice = async (req, res, next) => {
+  const cas_user = req.session[cas.session_name];
+  const userdata = await fetchUser(cas_user);
+  if (userdata) {
+    const searchterm = req.body.searchterm;
+    const result = await getInvoiceBySearchTerm(searchterm);
+    console.log('searched result is ' + JSON.stringify(result));
+    const invoice = result[0];
+    console.log('searched invoice is ' + JSON.stringify(invoice));
+    if (invoice.length === 0) {
+      res.render('search', {
+        title: 'Search Invoices',
+        isUser: true,
+        isAdmin: false,
+        extraMessage: 'No invoice found with search term ' + searchterm,
+      });
+    }
+    else if (invoice) {
+      const invoiceID = invoice[0].invoiceid;
+      const bodystuff = await almatoHTMLTableComplete(invoiceID);
+      if (bodystuff) {
+        res.render('previewcomplete', {
+          title: 'Payment Processor - Complete Data Preview',
+          body: bodystuff,
+          isUser: true,
+          isAdmin: false,
+        });
+      }
+    }
+    else {
+      res.render('index', {
+        title: 'Payment Processor - Home',
+        isUser: false,
+        isAdmin: false,
+      });
+    }
+}
+else {
+  res.render('index', {
+    title: 'Payment Processor - Home',
+    isUser: false,
+    isAdmin: false,
+  });
+}
+}
 
 exports.get404 = async (req, res, next) => {
   res.render('404', {

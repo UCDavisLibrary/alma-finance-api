@@ -45,6 +45,14 @@ exports.postAddInvoice = (number, id, library, requestbody) => {
     return Invoice.fetchPaidInvoices(library);
   }
 
+  exports.getAllInvoicesAdmin = () => {
+    return Invoice.fetchAllAdmin();
+  }
+
+  exports.getInvoiceBySearchTerm = (searchterm) => {
+    return Invoice.fetchBySearchTerm(searchterm);
+  }
+
 exports.postSaveTodaysToken = (token) => {
   const tokenObj = new Token(token);
   tokenObj.save()

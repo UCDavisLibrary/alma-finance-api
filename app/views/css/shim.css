@@ -64,3 +64,15 @@ td {
 .fundCodes {
   white-space: pre;
 }
+.center {
+  text-align: center;
+}
+.centered {
+  margin: 1rem auto;
+  width: max-content;
+}
+.search-failed {
+  color: red;
+  font-weight: bold;
+  text-decoration: underline;
+}
