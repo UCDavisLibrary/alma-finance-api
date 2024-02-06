@@ -31,9 +31,7 @@ exports.basicDataTable = async (data, version, library) => {
         }
         temp += '</tr>';
         for (i in data.invoice) {
-          console.log(data.invoice[i]);
           let nozee = data.invoice[i].invoice_date;
-          console.log(nozee);
           if (nozee.includes('Z')) {
             nozee = nozee.substring(0, nozee.length - 1);
           } else {
@@ -207,11 +205,7 @@ exports.basicDataTable = async (data, version, library) => {
 exports.almatoHTMLTableComplete = async (input, requestResponse) => {
   try {
       const step1 = await setSelectedData([input]);
-      console.log('this is step 1');
-      console.log(step1);
       const data = await reformatAlmaInvoiceforAPI(step1);
-      console.log('this is data');
-      console.log(JSON.stringify(data));
     if (data) {
       const oracleinvoicenumber =
           [{ "filter":   
@@ -361,9 +355,7 @@ exports.paidInvoicesTable = async (data) => {
       temp += '<th>Time Paid</th>';
       temp += '</tr>';
       for (i in data.invoice) {
-        console.log(data.invoice[i]);
         let nozee = toString(data.invoice[i].invoice_date);
-        console.log(nozee);
         if (nozee.includes('Z')) {
           nozee = nozee.substring(0, nozee.length - 1);
         } else {

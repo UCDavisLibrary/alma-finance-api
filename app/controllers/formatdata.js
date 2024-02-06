@@ -139,21 +139,27 @@ exports.reformatAlmaInvoiceforAPI = async (data) => {
 
 exports.filterOutSubmittedInvoices = async (data, library) => {
       const myarray = data.invoice;
-
       const data2 = await getSubmittedInvoices(library);
       const alreadysentinvoices = data2[0];
-
       const invoiceids = [];
       for (i in alreadysentinvoices) {
         invoiceids.push(alreadysentinvoices[i].invoicenumber);
       }
       const filteredinvoices = [];
+      let counter = 0;
       for (i in myarray) {
-        if (!invoiceids.includes(myarray[i].number)) {
+        if (counter === 10) {
+          break;
+        }
+        if (invoiceids.includes(myarray[i].number)) {
+          console.log(myarray[i].number + ' already sent')
+        }
+        else {
+          console.log(myarray[i].number + ' not sent');
           filteredinvoices.push(myarray[i]);
+          counter++;
         }
       }
-
       data = {invoice: []};
       data.invoice.push(...filteredinvoices);
       return data;
@@ -228,7 +234,6 @@ exports.changeFundIDtoCode = async (fundId) => {
     }
   }
   catch (err) {
-    console.log('this is the error im looking 4')
     console.log(err);
   }
 

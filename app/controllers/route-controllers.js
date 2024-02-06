@@ -220,8 +220,6 @@ exports.getOracleStatus = async (req, res, next) => {
     invoicenumbers[i] = thisinvoicedata[i].invoicenumber;
     invoiceids[i] = thisinvoicedata[i].invoiceid;
   }
-  console.log('invoicenumbers is ' + JSON.stringify(invoicenumbers));
-  console.log('invoiceids is ' + JSON.stringify(invoiceids));
   if (invoicenumbers.length === 0) {
     const bodystuff = 'No invoices found.';
     res.render('review', {
@@ -257,7 +255,6 @@ exports.getOracleStatus = async (req, res, next) => {
       }
     }
     const version = 'review';
-    // console.log('data is ' + JSON.stringify(data));
     const bodystuff = await basicDataTable(data, version, library);
     res.render('review', {
         title: 'Sent Invoice Status',
@@ -653,9 +650,7 @@ exports.postSearchForInvoice = async (req, res, next) => {
   if (userdata) {
     const searchterm = req.body.searchterm;
     const result = await getInvoiceBySearchTerm(searchterm);
-    console.log('searched result is ' + JSON.stringify(result));
     const invoice = result[0];
-    console.log('searched invoice is ' + JSON.stringify(invoice));
     if (invoice.length === 0) {
       res.render('search', {
         title: 'Search Invoices',
