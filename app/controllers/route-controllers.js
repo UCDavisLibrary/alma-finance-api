@@ -2,7 +2,7 @@ const {almatoHTMLTableComplete, basicDataTable, paidInvoicesTable} = require('..
 const {aggieEnterprisePaymentRequest, checkPayments, checkStatusInOracle, checkErpRolesOracle} = require('../controllers/graphqlcalls');
 const { getAlmaIndividualInvoiceData, getAlmaInvoicesReadyToBePaid} = require('../controllers/almaapicalls');
 const {reformatAlmaInvoiceforAPI, filterOutSubmittedInvoices } = require('../controllers/formatdata');
-const { getInvoiceIDs, getInvoiceNumbers, postSaveTodaysToken, postAddUser, fetchAllUsers, fetchUser, postEditUser, postAddInvoice, getPaidInvoices, getUnpaidInvoiceNumbers, fetchAllFunds, fetchAllVendors, deleteFund, deleteVendor, getAllUnpaidInvoices, getAllInvoicesAdmin, getInvoiceBySearchTerm} = require('../controllers/dbcalls');
+const { getInvoiceIDs, getInvoiceNumbers, postSaveTodaysToken, postAddUser, fetchAllUsers, fetchUser, postEditUser, postAddInvoice, getPaidInvoices, getUnpaidInvoiceNumbers, fetchAllFunds, fetchAllVendors, deleteFund, deleteVendor, getAllUnpaidInvoices, getAllInvoicesAdmin, getInvoiceBySearchTerm, deleteInvoice} = require('../controllers/dbcalls');
 const {tokenGenerator} = require('../controllers/tokengenerator');
 const {checkOracleStatus, archiveInvoices} = require('../controllers/background-scripts');
 const express = require('express');
@@ -634,6 +634,20 @@ exports.getAdminViewInvoices = async (req, res, next) => {
     res.redirect('/');
   }
 }
+
+exports.adminDeleteInvoice = async (req, res, next) => {
+  const id = req.body.id;
+  try {
+    const result = await deleteInvoice(id);
+    if (result) {
+      console.log('Deleted invoice');
+      res.redirect('/admin/invoices');
+    }
+  }
+  catch (error) {
+    console.log(error);
+  }
+};
 
 exports.getSearchPage = async (req, res, next) => {
   res.render('search', {

@@ -28,3 +28,7 @@ exports.checkall = (source) => {
    
    
      }
+
+exports.generateRandomNumber = (min, max) => {
+    return Math.floor(Math.random() * (max - min) + min);
+  }

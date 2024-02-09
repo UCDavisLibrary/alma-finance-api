@@ -1,5 +1,6 @@
 const {getFundData, getVendorData, getSingleInvoiceData, putSingleInvoiceData, getAlmaIndividualInvoiceXML} = require('./almaapicalls');
 const {getSubmittedInvoices, fetchFundCodeFromId, saveFund, fetchVendorDataFromId, saveVendor} = require('../controllers/dbcalls');
+const { generateRandomNumber } = require('../util/helper-functions');
 const fs = require('fs');
 
 exports.reformatAlmaInvoiceforAPI = async (data) => {
@@ -28,7 +29,7 @@ exports.reformatAlmaInvoiceforAPI = async (data) => {
                 // consumerId: data.invoice[i].owner.value === 'LAW' ? 'UCD LawLibrary' : 'UCD GeneralLibrary',
                 consumerId: 'UCD GeneralLibrary',
                 consumerReferenceId: data.invoice[i].id,
-                consumerTrackingId: data.invoice[i].number,
+                consumerTrackingId: data.invoice[i].number + '-' + generateRandomNumber(0, 99),
               },
               payload: {
                 // accountingDate: today,

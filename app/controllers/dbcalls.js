@@ -180,6 +180,18 @@ exports.deleteVendor = async (id) => {
   }
 }
 
+exports.deleteInvoice = async (id) => {
+  try {
+    const response = await Invoice.deleteById(id);
+    if (response) {
+      return true;
+    }
+  }
+  catch (error) {
+    console.log(error);
+  }
+}
+
 exports.checkLibrary = async (kerberos) => {
     
       try {

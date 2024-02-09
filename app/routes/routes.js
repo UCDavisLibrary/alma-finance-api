@@ -90,6 +90,8 @@ router.post('/admin/delete-vendor/:vendorId', controller.adminDeleteVendor);
 
 router.get('/admin/invoices', cas.bounce, controller.getAdminViewInvoices);
 
+router.post('/admin/delete-invoice/:invoiceId', controller.adminDeleteInvoice);
+
 router.get('/search', cas.bounce, controller.getSearchPage);
 
 router.post('/search', cas.bounce, controller.postSearchForInvoice);

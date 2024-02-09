@@ -18,6 +18,7 @@
                 <th>Library</th>
                 <th>Status</th>
                 <th>Date</th>
+                <th>Link</th>
                 <th>Action</th>
               </tr>
 
@@ -28,6 +29,13 @@
               <td><%= invoice.library %></td>
               <td><%= invoice.status %></td>
               <td><%= invoice.datetime.toLocaleDateString() %></td>
+              <td>
+                <a
+                href="/invoice/<%= invoice.invoiceid %>"
+                class="btn"
+                target="_blank"
+                >View invoice</a>
+              </td>
               <!-- <td>
                 <a
                 href="/admin/edit-invoice/<%= invoice.id %>"
