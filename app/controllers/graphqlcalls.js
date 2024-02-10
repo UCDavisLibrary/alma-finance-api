@@ -6,7 +6,7 @@ const {reformatAlmaInvoiceforAPI} = require("./formatdata");
 
 const {tokenGenerator} = require("./tokengenerator");
 
-exports.aggieEnterprisePaymentRequest = async (invoices) => {
+exports.aggieEnterprisePaymentRequest = async (variableInputs) => {
 
     const paymentRequest = `mutation scmInvoicePaymentRequest($data: ScmInvoicePaymentRequestInput!) {
       scmInvoicePaymentCreate(data: $data) {
@@ -24,17 +24,18 @@ exports.aggieEnterprisePaymentRequest = async (invoices) => {
     }}`;
   
     const query = paymentRequest;
-    const step1 = await setSelectedData(invoices);
-    const variableInputs = await reformatAlmaInvoiceforAPI(step1);
+
     const token = await tokenGenerator();
-  
+
+    for (i in variableInputs) {
+
+    console.log(JSON.stringify(variableInputs[0].data.header.consumerTrackingId));
+    }
     try {  
       let results = [];
       if (variableInputs) {
         for (i in variableInputs) {
-          variables = variableInputs[i];
-          let successfulInputs = [];
-          let failedInputs = [];
+          let variables = variableInputs[i];
           await fetch(process.env.BOUNDARY_APP_URL, {
             method: 'POST',
             headers: {

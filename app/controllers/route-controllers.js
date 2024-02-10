@@ -1,10 +1,11 @@
-const {almatoHTMLTableComplete, basicDataTable, paidInvoicesTable} = require('../controllers/tables');
+const {almatoHTMLTableComplete, basicDataTable, paidInvoicesTable, almatoHTMLTablePreview} = require('../controllers/tables');
 const {aggieEnterprisePaymentRequest, checkPayments, checkStatusInOracle, checkErpRolesOracle} = require('../controllers/graphqlcalls');
-const { getAlmaIndividualInvoiceData, getAlmaInvoicesReadyToBePaid} = require('../controllers/almaapicalls');
+const { getAlmaIndividualInvoiceData, getAlmaInvoicesReadyToBePaid, setSelectedData} = require('../controllers/almaapicalls');
 const {reformatAlmaInvoiceforAPI, filterOutSubmittedInvoices } = require('../controllers/formatdata');
-const { getInvoiceIDs, getInvoiceNumbers, postSaveTodaysToken, postAddUser, fetchAllUsers, fetchUser, postEditUser, postAddInvoice, getPaidInvoices, getUnpaidInvoiceNumbers, fetchAllFunds, fetchAllVendors, deleteFund, deleteVendor, getAllUnpaidInvoices, getAllInvoicesAdmin, getInvoiceBySearchTerm, deleteInvoice} = require('../controllers/dbcalls');
+const { getInvoiceIDs, getInvoiceNumbers, postSaveTodaysToken, postAddUser, fetchAllUsers, fetchUser, postEditUser, postAddInvoice, getPaidInvoices, getUnpaidInvoiceNumbers, fetchAllFunds, fetchAllVendors, deleteFund, deleteVendor, getAllUnpaidInvoices, getAllInvoicesAdmin, getInvoiceBySearchTerm, deleteInvoice, fetchInvoiceByInvoiceId} = require('../controllers/dbcalls');
 const {tokenGenerator} = require('../controllers/tokengenerator');
 const {checkOracleStatus, archiveInvoices} = require('../controllers/background-scripts');
+const { generateRandomNumber } = require('../util/helper-functions');
 const express = require('express');
 const router = express.Router();
 const session = require('express-session');
@@ -58,7 +59,19 @@ exports.getHomepage = async (req, res, next) => {
 }
 
 exports.getPreviewCompletePage = async (req, res, next) => {
-    const bodystuff = await almatoHTMLTableComplete();
+    const dbdata = await fetchInvoiceByInvoiceId(input);
+    if (dbdata.length > 0) {
+      const bodystuff = await almatoHTMLTableComplete(input);
+      res.render('previewcomplete', {
+        title: 'Payment Processor - Complete Data Preview',
+        body: bodystuff,
+        isUser: false,
+        isAdmin: false,
+      });
+    }
+    else {
+
+    const bodystuff = await almatoHTMLTablePreview();
     res.render('previewcomplete', {
       title: 'Payment Processor - Complete Data Preview',
       body: bodystuff,
@@ -66,6 +79,7 @@ exports.getPreviewCompletePage = async (req, res, next) => {
       isAdmin: false,
 
     });
+    }
 }
 
 exports.getPreviewSingleInvoicePage = async (req, res, next) => {
@@ -73,13 +87,25 @@ exports.getPreviewSingleInvoicePage = async (req, res, next) => {
   const userdata = await fetchUser(cas_user);
   if (userdata) {
   const invoiceID = req.params.invoiceId;
-  const bodystuff = await almatoHTMLTableComplete(invoiceID);
-  res.render('previewcomplete', {
-    title: 'Payment Processor - Complete Data Preview',
-    body: bodystuff,
-    isUser: true,
-    isAdmin: false,
-  });
+  const dbdata = await fetchInvoiceByInvoiceId(invoiceID);
+  if (dbdata) {
+    const bodystuff = await almatoHTMLTableComplete(invoiceID);
+    res.render('previewcomplete', {
+      title: 'Payment Processor - Complete Data Preview',
+      body: bodystuff,
+      isUser: true,
+      isAdmin: false,
+    });
+  }
+  else {
+    const bodystuff = await almatoHTMLTablePreview(invoiceID);
+    res.render('previewcomplete', {
+      title: 'Payment Processor - Complete Data Preview',
+      body: bodystuff,
+      isUser: true,
+      isAdmin: false,
+    });
+  }
 }
 else {
   res.render('index', {
@@ -311,7 +337,13 @@ exports.sendSelectedInvoices = async (req, res, next) => {
       for (i in req.body) {
         invoiceids.push(req.body[i]);
       }
-      const requestresults = await aggieEnterprisePaymentRequest(invoiceids);
+      const step1 = await setSelectedData(invoiceids);
+      const variableInputs = await reformatAlmaInvoiceforAPI(step1);
+      const consumerTrackingIds = [];
+      for (i in variableInputs) {
+        consumerTrackingIds.push(variableInputs[i].data.header.consumerTrackingId);
+      }
+      const requestresults = await aggieEnterprisePaymentRequest(variableInputs);
       if (requestresults && userdata) {
         const invoicedata = await getAlmaIndividualInvoiceData(invoiceids);
         data = {invoice: []}
@@ -319,7 +351,7 @@ exports.sendSelectedInvoices = async (req, res, next) => {
           const invoice = invoicedata.invoice[i];
           const request = requestresults[i];
           if (request.data.scmInvoicePaymentCreate.requestStatus.requestStatus === 'PENDING' || request.data.scmInvoicePaymentCreate.validationResults.errorMessages[0].includes("A request already exists for your consumerId and consumerTrackingId")) {
-            postAddInvoice(invoice.number,invoice.id, library, request.data);
+            postAddInvoice(invoice.number,invoice.id, consumerTrackingIds[i], library, request.data);
           }
           const combined = {...invoice, ...request};
           data.invoice.push(combined);

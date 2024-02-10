@@ -17,6 +17,7 @@ exports.reformatAlmaInvoiceforAPI = async (data) => {
       } else {
         nozee = data.invoice[i].invoice_date;
       }
+      console.log('consumerTrackingId is' + data.invoice[i].number + '-' + generateRandomNumber(0, 99));
       const vendor = data.invoice[i].vendor.value;
       try {
         const vendordata = await checkForVendorData(vendor);

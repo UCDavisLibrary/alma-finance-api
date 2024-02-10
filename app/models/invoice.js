@@ -4,17 +4,18 @@ const db = require('../util/database');
 const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
 
 module.exports = class Invoice {
-  constructor(number, id, library, responsebody) {
+  constructor(number, id, trackingid, library, responsebody) {
     this.number = number;
     this.id = id;
+    this.trackingid = trackingid;
     this.library = library;
     this.responsebody = responsebody;
   }
 
   save() {
     return db.execute(
-      'INSERT INTO invoices (invoicenumber, invoiceid, library, status, responsebody, datetime) VALUES (?, ?, ?, ?, ?, ?)',
-      [this.number, this.id, this.library, 'SENT', this.responsebody, now]
+      'INSERT INTO invoices (invoicenumber, invoiceid, consumerTrackingId, library, status, responsebody, datetime) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      [this.number, this.id, this.trackingid, this.library, 'SENT', this.responsebody, now]
     );
   }
 
@@ -56,6 +57,14 @@ module.exports = class Invoice {
 
   static findById(id) {
     return db.execute('SELECT * FROM invoices WHERE invoices.id = ?', [id]);
+  }
+
+  static findByInvoiceId(invoiceid) {
+    return db.execute('SELECT * FROM invoices WHERE invoices.invoiceid = ?', [invoiceid]);
+  }
+
+  static findByInvoiceNumber(invoicenumber) {
+    return db.execute('SELECT * FROM invoices WHERE invoices.invoicenumber = ?', [invoicenumber]);
   }
 
   static updateStatus(status, responsebody, invoiceid) {

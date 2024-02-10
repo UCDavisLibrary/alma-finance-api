@@ -4,8 +4,8 @@ const User = require('../models/user');
 const Fund = require('../models/fund');
 const Vendor = require('../models/vendor');
 
-exports.postAddInvoice = (number, id, library, requestbody) => {
-    const invoice = new Invoice(number, id, library, requestbody);
+exports.postAddInvoice = (number, id, trackingid, library, requestbody) => {
+    const invoice = new Invoice(number, id, trackingid, library, requestbody);
     invoice.save()
       .then(() => {
         console.log('Saved Invoice');
@@ -299,3 +299,17 @@ exports.saveVendor = async (vendorId, vendorData) => {
       console.log(error);
   }
 };
+
+
+exports.fetchInvoiceByInvoiceId = async (invoiceId) => {
+  try {
+    const response = await Invoice.findByInvoiceId(invoiceId);
+    if (response) {
+      const invoice = response[0][0];
+      return invoice;
+    }
+  }
+  catch (error) {
+    console.log(error);
+  }
+}
