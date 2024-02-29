@@ -41,7 +41,7 @@ exports.reformatAlmaInvoiceforAPI = async (data) => {
                 invoiceNumber: data.invoice[i].number,
                 invoiceSourceCode: 'UCD GeneralLibrary',
                 // invoiceSourceCode: data.invoice[i].owner.value === 'LAW' ? 'UCD LawLibrary' : 'UCD GeneralLibrary',
-                invoiceType: 'STANDARD',
+                invoiceType: data.invoice[i].total_amount < 0 ? 'CREDIT' : 'STANDARD',
                 paymentMethodCode: 'ACCOUNTINGDEPARTMENT',
                 paymentTerms: 'IMMEDIATE',
                 purchaseOrderNumber: '',
