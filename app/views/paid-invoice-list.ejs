@@ -15,16 +15,18 @@
               <tr>
                 <th>Invoice Number</th>
                 <th>Invoice ID</th>
-                <th>Library</th>
                 <th>Paid Date</th>
+                <th>Check Number</th>
+                <th>Amount Paid</th>
               </tr>
 
           <% let i = 0; for (let invoice of invoices) { %>
             <tr>
               <td><%= invoice.invoicenumber %></td>
               <td><%= invoice.invoiceid %></td>
-              <td><%= invoice.library %></td>
               <td><%= invoice.datetime.toLocaleDateString() %></td>
+              <td><%= invoice.responsebody.checkNumber %></td>
+              <td>$<%= invoice.responsebody.paymentAmount %></td>
             </tr>
           <% i++; } %>
         </table>

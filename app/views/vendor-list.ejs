@@ -35,11 +35,21 @@
                 >Edit Vendor</a
               > -->
               <td>
-                <a
-                href="/admin/delete-vendor/<%= vendor.id %>"
-                class="btn"
-                >Delete Vendor</a
+                <form
+                id="vendor-form"
+                method="POST"
+                action="/admin/delete-vendor/<%= vendor.id %>"
               >
+                <input
+                  type="hidden"
+                  id="id"
+                  name="id"
+                  value="<%= vendor.id %>"
+                />
+                <button type="submit" class="btn--primary">
+                  Delete Vendor
+                </button>
+              </form>
               </td>
               </td>
             </tr>

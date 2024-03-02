@@ -25,4 +25,8 @@ module.exports = class Vendor {
     return db.execute('DELETE FROM vendors WHERE vendors.id = ?', [id]);
   }
 
+  static deleteByVendorId(id) {
+    return db.execute('DELETE FROM vendors WHERE vendors.vendorId = ?', [id]);
+  }
+
 };
