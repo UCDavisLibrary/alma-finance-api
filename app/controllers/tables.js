@@ -419,6 +419,7 @@ exports.almatoHTMLTableComplete = async (input, requestResponse) => {
   try {
       const step1 = await setSelectedData([input]);
       const data = await reformatAlmaInvoiceforAPI(step1);
+      console.log(JSON.stringify(data));
       const dbinvoicedata = await fetchInvoiceByInvoiceId(input);
       const consumerTrackingId = dbinvoicedata.consumerTrackingId;
       console.log(consumerTrackingId);
