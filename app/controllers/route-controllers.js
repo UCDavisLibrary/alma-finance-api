@@ -355,9 +355,11 @@ exports.sendSelectedInvoices = async (req, res, next) => {
           const invoice = invoicedata.invoice[i];
           const request = requestresults[i];
           console.log('request is ' + JSON.stringify(request));
-          if (request.errors.length > 0) {
-            console.log('error');
-            res.redirect('/invoice/' + invoiceids[i]);
+          if (request.errors) {
+            if (request.errors.length > 0) {
+              console.log('error');
+              res.redirect('/invoice/' + invoiceids[i]);
+            }
           }
           else if (request.data.scmInvoicePaymentCreate.requestStatus.requestStatus === 'PENDING' || request.data.scmInvoicePaymentCreate.validationResults.errorMessages[0].includes("A request already exists for your consumerId and consumerTrackingId")) {
             postAddInvoice(invoice.number,invoice.id, consumerTrackingIds[i], library, request.data);
