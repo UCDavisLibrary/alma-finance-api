@@ -12,6 +12,36 @@
     <%- include('include/header'); %>
     <div class="l-container pt-2">
       <h2>Preview alma data (Complete)</h2>
+      <% if (isAdmin) { %>
+          <table>
+            <tr>
+              <td>
+                <a
+                href="/admin/edit-invoice/<%= invoicedata.id %>"
+                class="btn"
+                >Edit invoice</a
+              >
+              </td>
+              <td>
+                <form
+                id="invoice-form"
+                method="POST"
+                action="/admin/delete-invoice/<%= invoicedata.id %>"
+              >
+                <input
+                  type="hidden"
+                  id="id"
+                  name="id"
+                  value="<%= invoicedata.id %>"
+                />
+                <button type="submit" class="btn--primary">
+                  Delete invoice
+                </button>
+              </form>
+              </td>
+            </tr>
+          </table>
+      <% } %>
       <%- body %>
     </div>
     <%- include('include/footer'); %> <%- include('include/effects.ejs'); %>

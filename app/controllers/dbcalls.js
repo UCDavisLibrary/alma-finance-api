@@ -53,6 +53,19 @@ exports.postAddInvoice = (number, id, trackingid, library, requestbody) => {
     return Invoice.fetchBySearchTerm(searchterm);
   }
 
+exports.getInvoiceById = (id) => {
+   try {
+    const response = Invoice.findById(id);
+    if (response) {
+      console.log(response);
+      return response; 
+    }
+    }
+    catch (error) {
+      console.log(error);
+    }
+  }
+
 exports.postSaveTodaysToken = (token) => {
   const tokenObj = new Token(token);
   tokenObj.save()
@@ -195,6 +208,33 @@ exports.deleteVendor = async (id) => {
 exports.deleteInvoice = async (id) => {
   try {
     const response = await Invoice.deleteById(id);
+    if (response) {
+      return true;
+    }
+  }
+  catch (error) {
+    console.log(error);
+  }
+}
+
+exports.postEditInvoice = async (invoicenumber, invoiceid, consumerTrackingId, library, status, responsebody, datetime, id) => {
+  const responsebodyjson = JSON.parse(responsebody);
+
+  try {
+      const invoiceupdated = await Invoice.update(invoicenumber, invoiceid, consumerTrackingId, library, status, responsebodyjson, datetime, id);
+      if (invoiceupdated) {
+          console.log('Invoice updated');
+          return true;
+      };
+  }
+  catch (error) {
+      console.log(error);
+  }
+};
+
+exports.postUpdateInvoiceStatus = async (status, id) => {
+  try {
+    const response = await Invoice.updateInvoiceStatus(status, id);
     if (response) {
       return true;
     }

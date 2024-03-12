@@ -2,7 +2,7 @@ const {almatoHTMLTableComplete, basicDataTable, paidInvoicesTable, almatoHTMLTab
 const {aggieEnterprisePaymentRequest, checkPayments, checkStatusInOracle, checkErpRolesOracle} = require('../controllers/graphqlcalls');
 const { getAlmaIndividualInvoiceData, getAlmaInvoicesReadyToBePaid, setSelectedData} = require('../controllers/almaapicalls');
 const {reformatAlmaInvoiceforAPI, filterOutSubmittedInvoices } = require('../controllers/formatdata');
-const { getInvoiceIDs, getInvoiceNumbers, postSaveTodaysToken, postAddUser, fetchAllUsers, fetchUser, postEditUser, deleteUser, postAddInvoice, getPaidInvoices, getUnpaidInvoiceNumbers, fetchAllFunds, fetchAllVendors, deleteFund, deleteVendor, getAllUnpaidInvoices, getAllInvoicesAdmin, getInvoiceBySearchTerm, deleteInvoice, fetchInvoiceByInvoiceId} = require('../controllers/dbcalls');
+const { getInvoiceIDs, getInvoiceNumbers, postSaveTodaysToken, postAddUser, fetchAllUsers, fetchUser, postEditUser, deleteUser, postAddInvoice, getPaidInvoices, getUnpaidInvoiceNumbers, fetchAllFunds, fetchAllVendors, deleteFund, deleteVendor, getAllUnpaidInvoices, getAllInvoicesAdmin, getInvoiceBySearchTerm, deleteInvoice, fetchInvoiceByInvoiceId, postEditInvoice, getInvoiceById, postUpdateInvoiceStatus} = require('../controllers/dbcalls');
 const {tokenGenerator} = require('../controllers/tokengenerator');
 const {checkOracleStatus, archiveInvoices} = require('../controllers/background-scripts');
 const { generateRandomNumber } = require('../util/helper-functions');
@@ -692,6 +692,71 @@ exports.getAdminViewInvoices = async (req, res, next) => {
   }
 }
 
+exports.getAdminEditInvoice = (req, res, next) => {
+  const id = req.params.id;
+  const cas_user = req.session[cas.session_name];
+  if (cas_user === admin) {
+    getInvoiceById(id)
+      .then((invoice) => {
+        console.log(invoice);
+        if (!invoice) {
+          return res.redirect('/admin/');
+        }
+        res.render('edit-invoice', {
+          title: 'Edit User',
+          path: '/edit-invoice',
+          invoice: invoice[0][0],
+          isUser: false,
+          isAdmin: true,
+          editMode: true,
+        });
+      })
+      .catch((err) => console.log(err));
+  } else {
+    res.redirect('/');
+  }
+};
+
+exports.postAdminEditInvoice = async (req, res, next) => {
+  const updatedInvoiceNumber = req.body.invoicenumber;
+  const updatedInvoiceId = req.body.invoiceid;
+  const updatedConsumerTrackingId = req.body.consumerTrackingId;
+  const updatedStatus = req.body.status;
+  const updatedLibrary = req.body.library;
+  const updatedResponseBody = req.body.responsebody;
+  const updatedDatetime = req.body.datetime;
+  const thisid = req.body.id;
+
+try {
+  const result = await postEditInvoice(updatedInvoiceNumber, updatedInvoiceId, updatedConsumerTrackingId, updatedLibrary, updatedStatus, updatedResponseBody, updatedDatetime, thisid);
+  if (result) {
+    console.log('Updated Invoice');
+    res.redirect('/admin/');
+  }
+}
+catch (error) {
+  console.log(error);
+}
+
+};
+
+exports.postAdminUpdateInvoiceStatus = async (req, res, next) => {
+  const status = req.body.status;
+  const id = req.body.id;
+  try {
+    const result = await postUpdateInvoiceStatus(status, id);
+    if (result) {
+      console.log('Updated invoice status');
+      res.redirect('/admin/invoices');
+    }
+  }
+  catch (error) {
+    console.log(error);
+  }
+}
+
+
+
 exports.adminDeleteInvoice = async (req, res, next) => {
   const id = req.body.id;
   try {
@@ -749,6 +814,7 @@ exports.postSearchForInvoice = async (req, res, next) => {
           body: bodystuff,
           isUser: true,
           isAdmin: cas_user === admin ? true : false,
+          invoicedata: invoice[0],
         });
       }
     }

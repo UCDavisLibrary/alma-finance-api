@@ -1,0 +1,66 @@
+<div class="l-container">
+    <form
+      id="invoice-form"
+      method="POST"
+      action="/admin/update-invoice-status/"
+    >
+      <fieldset>
+        <h2>invoice Information</h2>
+        <div class="field-container">
+          <label class="text-muted form-label" for="invoicenumber">Invoice Number </label>
+          <%= invoice.invoicenumber %>
+        </div>
+  
+        <div class="field-container">
+          <label class="text-muted form-label" for="invoiceid">Invoice ID </label>
+          <%= invoice.invoiceid %>
+        </div>
+  
+        <div class="field-container">
+          <label class="text-muted form-label" for="consumerTrackingId">Consumer Tracking ID </label>
+          <%= invoice.consumerTrackingId %>
+        </div>
+
+        <div class="field-container">
+            <legend>
+              Status
+            </legend>
+            <ul class="list--reset">
+              <li>
+                <label
+                  title=""
+                  for="status"
+                  class="form-check-label"
+                  ><input required name="status" type="radio" id="status"
+                  class="form-check-input" value="PAID" <% if (editMode && invoice.status ===
+                  'PAID' ) { %>checked<% } %> /> Paid</label
+                >
+              </li>
+              <li>
+                <label
+                  title=""
+                  for="status"
+                  class="form-check-label"
+                  ><input required name="status" type="radio" id="status"
+                  class="form-check-input" value="NOT PAID" <% if (editMode && invoice.status ===
+                  'NOT PAID' ) { %>checked<% } %> /> Not Paid</label
+                >
+              </li>
+            </ul>
+          </div>
+  
+        <% if (editMode) { %>
+  
+        <input type="hidden" name="id" value="<%= invoice.id %>" />
+  
+        <% } %>
+  
+        <div class="field-container--small views-filters__submit-field">
+          <button type="submit" class="btn--primary">
+            <% if (editMode) { %>Update<% } else { %>Submit<% } %>
+          </button>
+        </div>
+      </fieldset>
+    </form>
+  </div>
+  

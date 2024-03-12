@@ -75,4 +75,12 @@ module.exports = class Invoice {
     return db.execute('SELECT * FROM invoices WHERE invoices.invoicenumber LIKE ? OR invoices.invoiceid LIKE ?', ['%' + searchterm + '%', '%' + searchterm + '%']);
   }
 
+  static update = (number, invoiceid, trackingid, library, status, responsebody, datetime, id) => {
+    return db.execute('UPDATE invoices SET invoicenumber = ?, invoiceid = ?, consumerTrackingId = ?, library = ?, status = ?, responsebody = ?, datetime = ? WHERE id = ?', [number, invoiceid, trackingid, library, status, responsebody, datetime, id]);
+  }
+
+  static updateInvoiceStatus = (status, id) => {
+    return db.execute('UPDATE invoices SET status = ? WHERE id = ?', [status, id]);
+  }
+
 };
