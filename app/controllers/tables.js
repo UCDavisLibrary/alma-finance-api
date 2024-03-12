@@ -427,7 +427,7 @@ exports.almatoHTMLTableComplete = async (input, requestResponse) => {
       const oracleinvoicenumber =
           [{ "filter":   
         {
-          "invoiceNumber": {"contains": consumerTrackingId.length > 0 ? consumerTrackingId : data[i].data.header.consumerTrackingId}
+          "invoiceNumber": {"contains": data[i].data.payload.invoiceNumber}
         }
       }];
       const aeinvoicenumber = [{consumerTrackingId : consumerTrackingId.length > 0 ? consumerTrackingId : data[i].data.header.consumerTrackingId}];

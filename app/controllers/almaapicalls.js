@@ -22,9 +22,9 @@ exports.getAlmaInvoicesWaitingToBESent = async (owner) => {
     return data;
   };
 
-  exports.getAlmaInvoicesReadyToBePaid = async (owner) => {
+  exports.getAlmaInvoicesReadyToBePaid = async (owner, offset) => {
     const data = await fetch(
-      `http://alma-proxy:5555/almaws/v1/acq/invoices/?q=all&limit=99&offset=0&expand=none&invoice_workflow_status=Ready%20to%20be%20Paid&owner=${owner}`
+      `http://alma-proxy:5555/almaws/v1/acq/invoices/?q=all&limit=99&offset=${offset}&expand=none&invoice_workflow_status=Ready%20to%20be%20Paid&owner=${owner}`
     ).then(response => response.json());
     return data;
   };

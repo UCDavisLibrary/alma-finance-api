@@ -105,6 +105,18 @@ exports.postEditUser = async (firstname, lastname, email, kerberos, library, id)
   }
 };
 
+exports.deleteUser = async (id) => {
+  try {
+    const response = await User.deleteById(id);
+    if (response) {
+      return true;
+    }
+  }
+  catch (error) {
+    console.log(error);
+  }
+}
+
 exports.fetchAllUsers = async () => {
     try {
       const response = await User.fetchAll();

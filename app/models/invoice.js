@@ -52,7 +52,7 @@ module.exports = class Invoice {
   }
 
   static fetchPaidInvoices(library) {
-    return db.execute('SELECT * FROM invoices WHERE invoices.status = ? AND invoices.library = ? ORDER BY invoices.id DESC', ['PAID', library]);
+    return db.execute('SELECT * FROM invoices WHERE invoices.status = ? AND invoices.library = ? ORDER BY invoices.id DESC LIMIT 100', ['PAID', library]);
   }
 
   static findById(id) {

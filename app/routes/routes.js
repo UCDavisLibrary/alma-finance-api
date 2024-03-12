@@ -80,6 +80,8 @@ router.get(
 
 router.post('/admin/edit-user/', controller.postAdminEditUser);
 
+router.post('/admin/delete-user/:userId', controller.adminDeleteUser);
+
 router.get('/admin/funds', cas.bounce, controller.getAdminViewFunds);
 
 router.post('/admin/delete-fund/:fundId', controller.adminDeleteFund);
