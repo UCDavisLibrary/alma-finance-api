@@ -46,6 +46,16 @@
                   'NOT PAID' ) { %>checked<% } %> /> Not Paid</label
                 >
               </li>
+              <li>
+                <label
+                  title=""
+                  for="status"
+                  class="form-check-label"
+                  ><input required name="status" type="radio" id="status"
+                  class="form-check-input" value="SENT" <% if (editMode && invoice.status ===
+                  'SENT' ) { %>checked<% } %> /> Sent</label
+                >
+              </li>
             </ul>
           </div>
   

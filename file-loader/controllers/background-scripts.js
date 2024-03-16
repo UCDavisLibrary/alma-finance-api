@@ -34,6 +34,10 @@ exports.checkOracleStatus = async (req, res, next) => {
       console.log('no invoices found');
     }
     else {
+      const today = new Date().toLocaleDateString('sv-SE', {
+        timeZone: 'America/Los_Angeles',
+      });
+      console.log('Today is ' + today);
     let paidInvoices = [];
     totalresults.forEach(result => {
         if (result.data.scmInvoicePaymentSearch) {
@@ -41,9 +45,9 @@ exports.checkOracleStatus = async (req, res, next) => {
         let data = result.data.scmInvoicePaymentSearch.data[0];
         let datastring = JSON.stringify(data);            
             if (data.paymentStatusCode === 'Y') {
+            changeToXML(result.invoicenumber, result.invoiceid, data);
             console.log(result.invoicenumber + ' is paid');
             updateStatus('PAID', datastring, result.invoiceid);
-            changeToXML(result.invoicenumber, result.invoiceid, data);
             paidInvoices.push(result.invoicenumber);
             }
             else if (data.paymentStatusCode === 'N') {

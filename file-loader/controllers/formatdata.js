@@ -1,5 +1,6 @@
 const {getFundData, getVendorData, getSingleInvoiceData, putSingleInvoiceData, getAlmaIndividualInvoiceXML} = require('./almaapicalls');
 const {getSubmittedInvoices, fetchFundCodeFromId, saveFund, fetchVendorDataFromId, saveVendor} = require('./dbcalls');
+const { postToSlackChannel } = require('../util/post-to-slack-channel');
 const fs = require('fs');
 
 exports.reformatAlmaInvoiceforAPI = async (data) => {
@@ -239,10 +240,9 @@ exports.changeToXML = async (invoicenumber, invoiceid, paymentdata) => {
   // first check if invoice already exists at /almadafis/aeinput/update_alma_${invoiceid}.xml
   // if it does, delete it
   // then create new file with updated payment data
-  const invoice = await getAlmaIndividualInvoiceXML(invoiceid);
+  const invoice = await getAlmaIndividualInvoiceXML(invoiceid);    
   const paymentdate = paymentdata.paymentDate.replace(/-/g, '');
   const sum = paymentdata.paymentAmount === null ? 0 : paymentdata.paymentAmount;
-
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
   <payment_confirmation_data xmlns="http://com/exlibris/repository/acq/xmlbeans">
      <invoice_list>
@@ -261,12 +261,15 @@ exports.changeToXML = async (invoicenumber, invoiceid, paymentdata) => {
         </invoice>
      </invoice_list>
   </payment_confirmation_data>`;
+
   try {
     fs.writeFileSync(`./almadafis/aeinput/update_alma_${invoiceid}.xml`, xml);
     console.log('file written');
   }
   catch (err) {
     console.log(err);
+    console.log(`Error writing file for invoice ${invoicenumber}`);
+    postToSlackChannel(`Error writing file for invoice ${invoicenumber}`);
   }
 }
 

@@ -2,7 +2,10 @@ const CronJob = require('cron').CronJob;
 
 const {checkOracleStatus, archivePaidInvoices} = require('./controllers/background-scripts');
 const { checkTransporter } = require('./util/nodemailer-transporter');
+const { postToSlackChannel } = require('./util/post-to-slack-channel');
 const transporter = checkTransporter();
+
+postToSlackChannel('File loader server has restarted.');
 
   // verify connection configuration
   transporter.verify(function (error, success) {
