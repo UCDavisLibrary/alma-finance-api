@@ -456,9 +456,10 @@ exports.getAdminViewUsers = async (req, res, next) => {
   }
 };
 
-exports.getAdminViewFunds = async (req, res, next) => {
+exports.getViewFunds = async (req, res, next) => {
   const cas_user = req.session[cas.session_name];
-  if (cas_user === admin) {
+  const userdata = await fetchUser(cas_user);
+  if (userdata) {
     try {
       const funds = await fetchAllFunds();
       // for (fund in funds) {
@@ -476,26 +477,26 @@ exports.getAdminViewFunds = async (req, res, next) => {
         res.render('fund-list', {
           title: 'View All Funds',
           funds: funds,
-          isUser: false,
-          isAdmin: true,
+          isUser: true,
+          isAdmin: false,
         });
     }
     catch (error) {
       console.log(error);
-      res.redirect('/admin');
+      res.redirect('/');
     }
   } else {
     res.redirect('/');
   }
 };
 
-exports.adminDeleteFund = async (req, res, next) => {
+exports.deleteFund = async (req, res, next) => {
   const id = req.body.id;
   try {
     const result = await deleteFund(id);
     if (result) {
       console.log('Deleted fund');
-      res.redirect('/admin/funds');
+      res.redirect('/funds');
     }
   }
   catch (error) {
@@ -503,35 +504,36 @@ exports.adminDeleteFund = async (req, res, next) => {
   }
 };
 
-exports.getAdminViewVendors = async (req, res, next) => {
+exports.getViewVendors = async (req, res, next) => {
   const cas_user = req.session[cas.session_name];
-  if (cas_user === admin) {
+  const userdata = await fetchUser(cas_user);
+  if (userdata) {
     try {
       const vendors = await fetchAllVendors();
         res.render('vendor-list', {
           title: 'View All Vendors',
           vendors: vendors,
-          isUser: false,
-          isAdmin: true,
+          isUser: true,
+          isAdmin: false,
         });
     }
     catch (error) {
       console.log(error);
-      res.redirect('/admin');
+      res.redirect('/');
     }
   } else {
     res.redirect('/');
   }
 };
 
-exports.adminDeleteVendor = async (req, res, next) => {
+exports.deleteVendor = async (req, res, next) => {
   console.log('delete vendor');
   const id = req.body.id;
   try {
     const result = await deleteVendor(id);
     if (result) {
       console.log('Deleted vendor');
-      res.redirect('/admin/vendors');
+      res.redirect('/vendors');
     }
   }
   catch (error) {

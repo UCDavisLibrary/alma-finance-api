@@ -82,13 +82,13 @@ router.post('/admin/edit-user/', controller.postAdminEditUser);
 
 router.post('/admin/delete-user/:userId', controller.adminDeleteUser);
 
-router.get('/admin/funds', cas.bounce, controller.getAdminViewFunds);
+router.get('/funds', cas.bounce, controller.getViewFunds);
 
-router.post('/admin/delete-fund/:fundId', controller.adminDeleteFund);
+router.post('/delete-fund/:fundId', controller.deleteFund);
 
-router.get('/admin/vendors', cas.bounce, controller.getAdminViewVendors);
+router.get('/vendors', cas.bounce, controller.getViewVendors);
 
-router.post('/admin/delete-vendor/:vendorId', controller.adminDeleteVendor);
+router.post('/delete-vendor/:vendorId', controller.deleteVendor);
 
 router.get('/admin/invoices', cas.bounce, controller.getAdminViewInvoices);
 
