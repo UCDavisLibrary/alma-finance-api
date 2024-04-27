@@ -1,8 +1,7 @@
-const config = require('../config');
 const Slack = require('slack-node');
 
 exports.postToSlackChannel = async (message) => {
-    const webhookurl = config.services.slack.webhookurl;
+    const webhookurl = process.env.SLACK_WEBHOOK_URL;
     const slack = new Slack();
     slack.setWebhook(webhookurl);
     slack.webhook({
