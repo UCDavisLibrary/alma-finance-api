@@ -56,10 +56,10 @@ exports.getVendorDataBatch = async (vendorarray) => {
     }
   };
   
-exports.getFundData = async (fundCode) => {
+exports.getFundData = async (fundCode,library) => {
     try {
       const data = await fetch(
-      `http://alma-proxy:5555/almaws/v1/acq/funds?limit=10&offset=0&q=fund_code~${fundCode}&view=brief&mode=POL&status=ALL&entity_type=ALL&fiscal_period=ALL&parent_id=ALL&owner=ALL`
+      `http://alma-proxy:5555/almaws/v1/acq/funds?limit=1&q=fund_code~${fundCode}&library=${library}&view=brief&mode=POL&status=ALL&entity_type=ALL&fiscal_period=ALL&parent_id=ALL&owner=ALL`
       // `http://alma-proxy:5555/almaws/v1/acq/funds/${fundCode}?view=full`
     ).then(response => response.json());
   

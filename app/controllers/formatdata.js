@@ -211,7 +211,9 @@ exports.filterOutSubmittedInvoices = async (data, library) => {
 }
 
 
-exports.changeFundIDtoCode = async (fundId) => {
+exports.changeFundIDtoCode = async (fundId, library) => {
+  console.log('fundId is ' + fundId);
+  console.log('library is ' + library);
   try {
     const fundCode = await fetchFundCodeFromId(fundId);
     if (fundCode) {
@@ -220,7 +222,7 @@ exports.changeFundIDtoCode = async (fundId) => {
     else {
       console.log('fund code not found in database. Trying Alma');
       try {
-        const fundData = await getFundData(fundId);
+        const fundData = await getFundData(fundId, library);
         if (fundData) {
           const fundString = fundData.fund[0].external_id;
           saveFund(fundId, fundString);

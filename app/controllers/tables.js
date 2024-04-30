@@ -50,7 +50,7 @@ exports.basicDataTable = async (data, version, library) => {
                 const fundAmount = data.invoice[i].invoice_lines.invoice_line[j].fund_distribution[k].amount;
                 const fundLine = data.invoice[i].invoice_lines.invoice_line[j].fund_distribution[k].fund_code.value;
                 try {
-                  const fundCode = await changeFundIDtoCode(fundLine);
+                  const fundCode = await changeFundIDtoCode(fundLine,library);
                   if (fundCode && fundAmount) {
                     if (fundCodes.includes(fundCode)) {
                       fundArray.forEach((fund) => {
@@ -373,7 +373,7 @@ exports.paidInvoicesTable = async (data) => {
               const fundAmount = data.invoice[i].invoice_lines.invoice_line[j].fund_distribution[k].amount;
               const fundLine = data.invoice[i].invoice_lines.invoice_line[j].fund_distribution[k].fund_code.value;
               try {
-                const fundCode = await changeFundIDtoCode(fundLine);
+                const fundCode = await changeFundIDtoCode(fundLine,library);
                 if (fundCode && fundAmount) {
                   if (fundCodes.includes(fundCode)) {
                     fundArray.forEach((fund) => {
