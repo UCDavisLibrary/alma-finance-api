@@ -6,6 +6,7 @@ services:
       - '5555:5555'
     env_file:
       - ./alma-cors-proxy/acp.env
+    restart: always
   almafinance-db:
     image: mysql:latest
     restart: always
