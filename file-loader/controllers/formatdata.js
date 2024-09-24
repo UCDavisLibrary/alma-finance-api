@@ -1,6 +1,7 @@
 const {getFundData, getVendorData, getSingleInvoiceData, putSingleInvoiceData, getAlmaIndividualInvoiceXML} = require('./almaapicalls');
 const {getSubmittedInvoices, fetchFundCodeFromId, saveFund, fetchVendorDataFromId, saveVendor} = require('./dbcalls');
 const { postToSlackChannel } = require('../util/post-to-slack-channel');
+const { replaceString } = require('../util/helper-functions');
 const fs = require('fs');
 
 exports.reformatAlmaInvoiceforAPI = async (data) => {
@@ -243,6 +244,10 @@ exports.changeToXML = async (invoicenumber, invoiceid, paymentdata) => {
   const invoice = await getAlmaIndividualInvoiceXML(invoiceid);    
   const paymentdate = paymentdata.paymentDate.replace(/-/g, '');
   const sum = paymentdata.paymentAmount === null ? 0 : paymentdata.paymentAmount;
+  const vendor = replaceString(invoice.vendor.value, '&', '&amp;');
+  // if vendor contains &, repace with &amp;
+
+
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
   <payment_confirmation_data xmlns="http://com/exlibris/repository/acq/xmlbeans">
      <invoice_list>
@@ -250,7 +255,7 @@ exports.changeToXML = async (invoicenumber, invoiceid, paymentdata) => {
            <invoice_number>${invoicenumber}</invoice_number>
            <unique_identifier>${invoiceid}</unique_identifier>
            <invoice_date>${paymentdata.invoiceDate}</invoice_date>
-           <vendor_code>${invoice.vendor.value}</vendor_code>
+           <vendor_code>${vendor}</vendor_code>
            <payment_status>PAID</payment_status>
            <payment_voucher_date>${paymentdate}</payment_voucher_date>
            <payment_voucher_number>${paymentdata.checkNumber}</payment_voucher_number>

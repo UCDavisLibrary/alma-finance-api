@@ -28,3 +28,12 @@ exports.checkall = (source) => {
    
    
      }
+
+     exports.replaceString = (str,replace, replacement) => {
+       if (str.includes(replace)) {
+         return str.replace(replace, replacement);
+       }
+        else {
+          return str;
+        }
+      }
