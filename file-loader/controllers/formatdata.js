@@ -238,15 +238,29 @@ exports.changeFundIDtoCode = async (fundId) => {
 }
 
 exports.changeToXML = async (invoicenumber, invoiceid, paymentdata) => {
-  // first check if invoice already exists at /almadafis/aeinput/update_alma_${invoiceid}.xml
-  // if it does, delete it
-  // then create new file with updated payment data
-  const invoice = await getAlmaIndividualInvoiceXML(invoiceid);    
+  let invoice;
+
+  try {
+    // Attempt to retrieve the invoice data
+    invoice = await getAlmaIndividualInvoiceXML(invoiceid);
+  } catch (fetchError) {
+    console.log(`Error fetching invoice data for invoice ${invoicenumber}:`, fetchError);
+
+    // Notify Slack of fetch error
+    try {
+      await postToSlackChannel(`Error fetching invoice data for invoice ${invoicenumber}`);
+    } catch (slackErr) {
+      console.error('Failed to notify Slack of fetch error:', slackErr);
+    }
+
+    // Exit function early since we can't proceed without the invoice data
+    return;
+  }
+
+  // Proceed with XML creation if invoice data is retrieved successfully
   const paymentdate = paymentdata.paymentDate.replace(/-/g, '');
   const sum = paymentdata.paymentAmount === null ? 0 : paymentdata.paymentAmount;
-  const vendor = replaceString(invoice.vendor.value, '&', '&amp;');
-  // if vendor contains &, repace with &amp;
-
+  const vendor = replaceString(invoice.vendor.value, '&', '&amp;'); // Handle vendor encoding
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
   <payment_confirmation_data xmlns="http://com/exlibris/repository/acq/xmlbeans">
@@ -269,14 +283,18 @@ exports.changeToXML = async (invoicenumber, invoiceid, paymentdata) => {
 
   try {
     fs.writeFileSync(`./almadafis/aeinput/update_alma_${invoiceid}.xml`, xml);
-    console.log('file written');
+    console.log('File written successfully');
+  } catch (writeError) {
+    console.log(`Error writing file for invoice ${invoicenumber}:`, writeError);
+
+    // Attempt to notify Slack of write error
+    try {
+      await postToSlackChannel(`Error writing file for invoice ${invoicenumber}`);
+    } catch (slackErr) {
+      console.error('Failed to notify Slack of write error:', slackErr);
+    }
   }
-  catch (err) {
-    console.log(err);
-    console.log(`Error writing file for invoice ${invoicenumber}`);
-    postToSlackChannel(`Error writing file for invoice ${invoicenumber}`);
-  }
-}
+};
 
 checkForVendorData = async (vendorId) => {
   try {
