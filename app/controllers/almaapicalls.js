@@ -1,32 +1,64 @@
-exports.getAlmaIndividualInvoiceData = async (invoiceids) => {
-    try {
-      data = {invoice: []}; // mimics structure of a bulk invoice payload in setData()
-      // data = [];
-      for (invoice of invoiceids) {
-        const invoicedata = await fetch(
-          `http://alma-proxy:5555/almaws/v1/acq/invoices/${invoice}?expand=none`
-        ).then(response => response.json());
-        data.invoice.push(invoicedata);
+exports.getAlmaIndividualInvoiceData = async (invoiceIds) => {
+  try {
+    const baseUrl = "http://alma-proxy:5555/almaws/v1/acq/invoices";
+
+    // Fetch all invoices concurrently
+    const requests = invoiceIds.map((invoiceId) =>
+      fetch(`${baseUrl}/${invoiceId}?expand=none`).then((response) => {
+        if (!response.ok) {
+          throw new Error(`Failed to fetch invoice ${invoiceId}: ${response.status}`);
         }
-  
-      return data;
-  
-    }
-    catch(error) {console.log(error)};
-  }
-  
-exports.getAlmaInvoicesWaitingToBESent = async (owner) => {
-    const data = await fetch(
-      `http://alma-proxy:5555/almaws/v1/acq/invoices/?q=all&limit=99&offset=0&expand=none&invoice_workflow_status=Waiting%20to%20be%20Sent&owner=${owner}`
-    ).then(response => response.json());
+        return response.json();
+      })
+    );
+
+    const invoices = await Promise.all(requests);
+
+    // Mimic bulk invoice structure
+    const data = { invoice: invoices };
+
     return data;
+  } catch (error) {
+    console.error("Error fetching individual invoice data:", error.message);
+    return null; // Return null to indicate failure
+  }
+};
+  
+  exports.getAlmaInvoicesWaitingToBeSent = async (owner) => {
+    try {
+      const url = `http://alma-proxy:5555/almaws/v1/acq/invoices/?q=all&limit=99&offset=0&expand=none&invoice_workflow_status=Waiting%20to%20be%20Sent&owner=${owner}`;
+      const response = await fetch(url);
+  
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+  
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error(`Failed to fetch Alma invoices: ${error.message}`);
+      return null; // Return null or an empty object to indicate failure
+    }
   };
 
-  exports.getAlmaInvoicesReadyToBePaid = async (owner, offset) => {
-    const data = await fetch(
-      `http://alma-proxy:5555/almaws/v1/acq/invoices/?q=all&limit=99&offset=${offset}&expand=none&invoice_workflow_status=Ready%20to%20be%20Paid&owner=${owner}`
-    ).then(response => response.json());
-    return data;
+  exports.getAlmaInvoicesReadyToBePaid = async (owner, offset = 0) => {
+    try {
+      const baseUrl = `http://alma-proxy:5555/almaws/v1/acq/invoices/`;
+      const queryParams = `?q=all&limit=99&offset=${offset}&expand=none&invoice_workflow_status=Ready%20to%20be%20Paid&owner=${owner}`;
+      const url = `${baseUrl}${queryParams}`;
+  
+      const response = await fetch(url);
+  
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+  
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error(`Failed to fetch invoices ready to be paid: ${error.message}`);
+      return null; // Return null to indicate failure
+    }
   };
 
 exports.getVendorDataBatch = async (vendorarray) => {

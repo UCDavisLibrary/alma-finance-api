@@ -117,43 +117,67 @@ else {
 }
 
 exports.getPreviewPage = async (req, res, next) => {
-  const cas_user = req.session[cas.session_name];
-  const userdata = await fetchUser(cas_user);
-  if (userdata) {
-    const library = userdata.library;
-    if (library) {
-      const data1 = await getAlmaInvoicesReadyToBePaid(library, 0);
-      const data2 = await getAlmaInvoicesReadyToBePaid(library, 100);
-      const totaldata = {"invoice": [...data1.invoice, ...data2.invoice]};
-      console.log('totaldata is ' + JSON.stringify(totaldata));
-      const data = await filterOutSubmittedInvoices(totaldata, library);
-      const version = 'preview';
-      if (data.invoice.length === 0) {
-        const bodystuff = `<h3>No Invoices</h3>
-        <p>No invoices are waiting to be sent.</p>
-        <p>If you feel you are reading this message in error, within Alma go to Acquisitions -> Waiting for Payment.</p>`;
-        res.render('preview', {
-          title: 'Payment Processor - Select Data',
-          body: bodystuff,
-          isUser: true,
-          isAdmin: false,
-        });
-      }
-      else {
-        const bodystuff = await basicDataTable(data, version, library);
-        res.render('preview', {
-          title: 'Payment Processor - Select Data',
-          body: bodystuff,
-          isUser: true,
-          isAdmin: false,
-        });
-      }
+  try {
+    const cas_user = req.session[cas.session_name];
+    const userdata = await fetchUser(cas_user);
+
+    if (!userdata || !userdata.library) {
+      console.error("Invalid user or missing library information.");
+      return res.redirect('/');
     }
+
+    const library = userdata.library;
+
+    // Fetch all invoices (abstracted into a helper function)
+    const totaldata = await fetchAllInvoices(library);
+
+    console.log('Total data:', JSON.stringify(totaldata));
+
+    // Filter out submitted invoices
+    const data = await filterOutSubmittedInvoices(totaldata, library);
+    const version = 'preview';
+
+    // Render page based on data
+    if (!data.invoice.length) {
+      return res.render('preview', {
+        title: 'Payment Processor - Select Data',
+        body: noInvoicesTemplate(),
+        isUser: true,
+        isAdmin: false,
+      });
+    }
+
+    const bodystuff = await basicDataTable(data, version, library);
+    res.render('preview', {
+      title: 'Payment Processor - Select Data',
+      body: bodystuff,
+      isUser: true,
+      isAdmin: false,
+    });
+  } catch (error) {
+    console.error("Error in getPreviewPage:", error.message);
+    next(error); // Pass the error to the next middleware for centralized handling
   }
-  else {
-    res.redirect('/');
+};
+
+// Helper to fetch all invoices
+const fetchAllInvoices = async (library) => {
+  try {
+    const data1 = await getAlmaInvoicesReadyToBePaid(library, 0);
+    const data2 = await getAlmaInvoicesReadyToBePaid(library, 100);
+    return { invoice: [...data1.invoice, ...data2.invoice] };
+  } catch (error) {
+    console.error("Error fetching invoices:", error.message);
+    throw error;
   }
-}
+};
+
+// Template for no invoices
+const noInvoicesTemplate = () => `
+  <h3>No Invoices</h3>
+  <p>No invoices are waiting to be sent.</p>
+  <p>If you feel you are reading this message in error, within Alma go to Acquisitions -> Waiting for Payment.</p>
+`;
 
 exports.getPreviewJSON = async (req, res, next) => {
   const cas_user = req.session[cas.session_name];
@@ -236,67 +260,82 @@ exports.getCheckStatus = async (req, res, next) => {
 }
 
 exports.getOracleStatus = async (req, res, next) => {
-  console.log('oracle status');
-  const cas_user = req.session[cas.session_name];
-  const userdata = await fetchUser(cas_user);
-  if (userdata) {
-  const library = userdata.library;
-  const getinvoicedata = await getAllUnpaidInvoices(library);
-  const thisinvoicedata = getinvoicedata[0];
-  const invoicenumbers = [];
-  const invoiceids = [];
-  for (i in thisinvoicedata) {
-    invoicenumbers[i] = thisinvoicedata[i].invoicenumber;
-    invoiceids[i] = thisinvoicedata[i].invoiceid;
-  }
-  if (invoicenumbers.length === 0) {
-    const bodystuff = 'No invoices found.';
-    res.render('review', {
-      title: 'Payment Processor - Data Sent',
-      body: bodystuff,
-      isUser: true,
-      isAdmin: false,
-    });
-  }
-  else {
-    for (i in invoicenumbers) {
-      invoicenumbers[i] =
-        { "filter":   
-      {
-        "invoiceNumber": {"contains": invoicenumbers[i]}
-      }
-    }
-    }
-    const requestresults = await checkStatusInOracle(invoicenumbers);
+  try {
+    console.log("Fetching Oracle status...");
+    const cas_user = req.session[cas.session_name];
+    const userdata = await fetchUser(cas_user);
 
-    // for (i in invoiceids) {
-    //   invoiceids[i] = invoiceids[i].invoiceid;
-    // }
-    const invoicedata = await getAlmaIndividualInvoiceData(invoiceids);
-    console.log('invoicedata is ' + JSON.stringify(invoicedata));
-    data = {invoice: []}
-    for (i in invoicedata.invoice) {
-      if (invoicedata.invoice[i].id && requestresults[i]) {
-      const invoice = invoicedata.invoice[i];
-      const request = requestresults[i];
-      const combined = {...invoice, ...request};
-      data.invoice.push(combined);
-      }
+    if (!userdata || !userdata.library) {
+      console.error("Invalid user or missing library information.");
+      return res.redirect("/");
     }
-    const version = 'review';
-    const bodystuff = await basicDataTable(data, version, library);
-    res.render('review', {
-        title: 'Sent Invoice Status',
-        body: bodystuff,
+
+    const library = userdata.library;
+
+    // Fetch unpaid invoices
+    const getinvoicedata = await getAllUnpaidInvoices(library);
+    if (!getinvoicedata || getinvoicedata.length === 0) {
+      console.error("No invoice data found.");
+      return res.render("review", {
+        title: "Payment Processor - Data Sent",
+        body: "No invoices found.",
         isUser: true,
         isAdmin: false,
       });
     }
+
+    const thisinvoicedata = getinvoicedata[0];
+    const invoicenumbers = thisinvoicedata.map((invoice) => ({
+      filter: { invoiceNumber: { contains: invoice.invoicenumber } },
+    }));
+    const invoiceids = thisinvoicedata.map((invoice) => invoice.invoiceid);
+
+    if (invoicenumbers.length === 0) {
+      return res.render("review", {
+        title: "Payment Processor - Data Sent",
+        body: "No invoices found.",
+        isUser: true,
+        isAdmin: false,
+      });
+    }
+
+    // Check status in Oracle and fetch individual invoice data concurrently
+    const [requestresults, invoicedata] = await Promise.all([
+      checkStatusInOracle(invoicenumbers),
+      getAlmaIndividualInvoiceData(invoiceids),
+    ]);
+
+    if (!invoicedata || !invoicedata.invoice || invoicedata.invoice.length === 0) {
+      console.error("No invoice data retrieved from Alma.");
+      return res.render("review", {
+        title: "Payment Processor - Data Sent",
+        body: "No valid invoices found.",
+        isUser: true,
+        isAdmin: false,
+      });
+    }
+
+    // Combine data from Oracle and Alma
+    const combinedData = invoicedata.invoice.map((invoice, index) => {
+      const request = requestresults[index];
+      return request ? { ...invoice, ...request } : null;
+    }).filter(Boolean);
+
+    // Render the combined data
+    const version = "review";
+    const bodystuff = await basicDataTable({ invoice: combinedData }, version, library);
+
+    res.render("review", {
+      title: "Sent Invoice Status",
+      body: bodystuff,
+      isUser: true,
+      isAdmin: false,
+    });
+  } catch (error) {
+    console.error("Error in getOracleStatus:", error.message);
+    next(error); // Pass the error to centralized error handling middleware
   }
-  else {
-    res.redirect('/');
-  }
-}
+};
 
 exports.viewPaidInvoices = async (req, res, next) => {
   const cas_user = req.session[cas.session_name];
