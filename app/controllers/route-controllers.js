@@ -349,7 +349,7 @@ exports.viewPaidInvoices = async (req, res, next) => {
     const ITEMS_PER_PAGE = 10;
     const theseinvoices = invoices.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
     
-    console.log('invoices is ' + JSON.stringify(invoices));
+    // console.log('invoices is ' + JSON.stringify(invoices));
       res.render('paid-invoice-list', {
         title: 'Paid Invoices',
         invoices: theseinvoices,
@@ -386,14 +386,14 @@ exports.sendSelectedInvoices = async (req, res, next) => {
         consumerTrackingIds.push(variableInputs[i].data.header.consumerTrackingId);
       }
       const requestresults = await aggieEnterprisePaymentRequest(variableInputs);
-      console.log('requestresults is ' + JSON.stringify(requestresults));
+      // console.log('requestresults is ' + JSON.stringify(requestresults));
       if (requestresults && userdata) {
         const invoicedata = await getAlmaIndividualInvoiceData(invoiceids);
         data = {invoice: []}
         for (i in invoicedata.invoice) {
           const invoice = invoicedata.invoice[i];
           const request = requestresults[i];
-          console.log('request is ' + JSON.stringify(request));
+          // console.log('request is ' + JSON.stringify(request));
           if (request.errors) {
             if (request.errors.length > 0) {
               console.log('error');
@@ -712,7 +712,7 @@ exports.getAdminViewInvoices = async (req, res, next) => {
       const ITEMS_PER_PAGE = 10;
       const theseinvoices = invoices.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
       
-      console.log('invoices is ' + JSON.stringify(invoices));
+      // console.log('invoices is ' + JSON.stringify(invoices));
         res.render('invoice-list', {
           title: 'Admin View All Invoices',
           invoices: theseinvoices,
