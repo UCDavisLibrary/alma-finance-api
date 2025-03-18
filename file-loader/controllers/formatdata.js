@@ -258,7 +258,6 @@ exports.changeToXML = async (invoicenumber, invoiceid, paymentdata) => {
   }
 
   // Proceed with XML creation if invoice data is retrieved successfully
-  const paymentdate = paymentdata.paymentDate.replace(/-/g, '');
   const sum = paymentdata.paymentAmount === null ? 0 : paymentdata.paymentAmount;
   const vendor = replaceString(invoice.vendor.value, '&', '&amp;'); // Handle vendor encoding
 
@@ -271,7 +270,7 @@ exports.changeToXML = async (invoicenumber, invoiceid, paymentdata) => {
            <invoice_date>${paymentdata.invoiceDate}</invoice_date>
            <vendor_code>${vendor}</vendor_code>
            <payment_status>PAID</payment_status>
-           <payment_voucher_date>${paymentdate}</payment_voucher_date>
+           <payment_voucher_date>${paymentdata.paymentDate}</payment_voucher_date>
            <payment_voucher_number>${paymentdata.checkNumber}</payment_voucher_number>
            <voucher_amount>
               <currency>USD</currency>
