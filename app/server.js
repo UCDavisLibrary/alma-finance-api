@@ -5,7 +5,7 @@ const PORT = process.env.PORT || 5000;
 
 const routes = require('./routes/routes');
 const { checkTransporter } = require('./util/nodemailer-transporter');
-const { logMessage } = require('./util/logger');
+// const { logMessage } = require('./util/logger');
 const transporter = checkTransporter();
 
   // verify connection configuration
@@ -43,4 +43,4 @@ app.listen(PORT, () => {
   console.log(`Listening on port ${PORT}...`);
 });
 
-logMessage('NOTICE', 'This is a test', { userId: 'abc123' });
+// logMessage('NOTICE', 'This is a test', { userId: 'abc123' });
