@@ -1,13 +1,11 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const CronJob = require('cron').CronJob;
 const cors = require('cors');
 const PORT = process.env.PORT || 5000;
 
 const routes = require('./routes/routes');
-const db = require('./util/database');
-const {checkOracleStatus, archivePaidInvoices} = require('./controllers/background-scripts');
 const { checkTransporter } = require('./util/nodemailer-transporter');
+const { logMessage } = require('./util/logger');
 const transporter = checkTransporter();
 
   // verify connection configuration
@@ -45,29 +43,4 @@ app.listen(PORT, () => {
   console.log(`Listening on port ${PORT}...`);
 });
 
-// const archiveInvoices = new CronJob(
-//   // run at 6:15pm every day
-//   '0 15 18 * * *',
-//   async function() {
-//       // once a day, archive paid invoices to the server at directory specified in docker-compose.yml
-//       archivePaidInvoices();
-//   },
-//   null,
-//   true,
-//   'America/Los_Angeles'
-// );
-
-// const exportInvoices = new CronJob(
-//     // run at 6:30pm every day
-//     '0 30 18 * * *',
-//     async function() {
-//         // once a day, export paid invoices to the server at directory specified in docker-compose.yml
-//         checkOracleStatus();        
-//     },
-//     null,
-//     true,
-//     'America/Los_Angeles'
-// );
-
-// archiveInvoices.start();
-// exportInvoices.start();
+logMessage('NOTICE', 'This is a test', { userId: 'abc123' });

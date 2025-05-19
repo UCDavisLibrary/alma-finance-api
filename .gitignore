@@ -2,6 +2,7 @@
 /app/.env
 /app/app.env
 /app/wait.html
+/app/package-lock.json
 /alma-cors-proxy/acp.env
 /app/json/
 /env/mysql.env
@@ -10,3 +11,5 @@
 /file-loader/.env
 /file-loader/app.env
 /file-loader/wait.html
+/file-loader/package-lock.json
+/alma-payments-gcloud-key.json

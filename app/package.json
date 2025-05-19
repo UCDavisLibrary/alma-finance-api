@@ -14,11 +14,13 @@
     },
     "license": "ISC",
     "dependencies": {
+        "@google-cloud/logging": "^11.2.0",
         "@ucd-lib/cork-app-utils": "^5.1.0",
         "axios": "^0.27.2",
         "body-parser": "^1.20.2",
         "buffer": "^6.0.3",
         "cors": "^2.8.5",
+        "cron": "^2.3.0",
         "dotenv": "^8.6.0",
         "ejs": "^3.1.8",
         "express": "^4.17.1",
@@ -26,7 +28,6 @@
         "keycloak-js": "^22.0.1",
         "mysql2": "^3.5.2",
         "node-cas-authentication": "^0.0.15",
-        "cron": "^2.3.0",
         "nodemailer": "^6.7.2"
     },
     "engines": {
