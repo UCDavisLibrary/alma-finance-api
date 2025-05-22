@@ -4,7 +4,7 @@ const {checkOracleStatus, archivePaidInvoices} = require('./controllers/backgrou
 const { checkTransporter } = require('./util/nodemailer-transporter');
 const { postToSlackChannel } = require('./util/post-to-slack-channel');
 const transporter = checkTransporter();
-const { logMessage } = require('../util/logger');
+const { logMessage } = require('./util/logger');
 
 logMessage('DEBUG','File loader server has restarted.');
 
