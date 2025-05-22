@@ -1,10 +1,8 @@
 const Invoice = require('../models/invoice');
-
 const { setSelectedData } = require("./almaapicalls");
-
 const {reformatAlmaInvoiceforAPI} = require("./formatdata");
-
 const {tokenGenerator} = require("./tokengenerator");
+const { logMessage } = require('../util/logger');
 
 exports.aggieEnterprisePaymentRequest = async (invoices) => {
 
@@ -57,7 +55,7 @@ exports.aggieEnterprisePaymentRequest = async (invoices) => {
       }
     }
     catch (error) {
-      console.log(error);
+      logMessage('INFO',error);
     }
   
   };
@@ -132,7 +130,7 @@ exports.aggieEnterprisePaymentRequest = async (invoices) => {
   
     }
     catch (error) {
-      console.log(error);
+      logMessage('INFO',error);
     }
   }
   
@@ -202,7 +200,7 @@ exports.aggieEnterprisePaymentRequest = async (invoices) => {
         }
       
       catch (error) {
-        console.log(error);
+        logMessage('INFO',error);
       }
     }
 
@@ -229,7 +227,7 @@ exports.aggieEnterprisePaymentRequest = async (invoices) => {
                 .then(
                   (result) => {
 
-                    console.log(JSON.stringify(result.data.erpRoles));
+                    logMessage('INFO',JSON.stringify(result.data.erpRoles));
                     // return result;
                   }
                 );
@@ -238,6 +236,6 @@ exports.aggieEnterprisePaymentRequest = async (invoices) => {
           }
         
         catch (error) {
-          console.log(error);
+          logMessage('INFO',error);
         }
       }

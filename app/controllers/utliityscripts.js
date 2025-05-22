@@ -1,4 +1,5 @@
 const fs = require('fs');
+const { logMessage } = require('../util/logger');
 
 moveToArchive = (invoicearray) => {
     invoicearray.forEach(invoice => {
@@ -7,7 +8,7 @@ moveToArchive = (invoicearray) => {
 
         fs.rename(oldPath, newPath, function (err) {
         if (err) throw err
-        console.log('Successfully moved to archive!')
+        logMessage('INFO','utilityscripts: moveToArchive(). Successfully moved to archive!')
         })
     });
 

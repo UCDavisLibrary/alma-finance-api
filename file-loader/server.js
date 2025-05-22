@@ -4,15 +4,16 @@ const {checkOracleStatus, archivePaidInvoices} = require('./controllers/backgrou
 const { checkTransporter } = require('./util/nodemailer-transporter');
 const { postToSlackChannel } = require('./util/post-to-slack-channel');
 const transporter = checkTransporter();
+const { logMessage } = require('../util/logger');
 
-postToSlackChannel('File loader server has restarted.');
+logMessage('DEBUG','File loader server has restarted.');
 
   // verify connection configuration
   transporter.verify(function (error, success) {
     if (error) {
-      console.log(error);
+      logMessage('DEBUG',error);
     } else {
-      console.log('Server is ready to take our messages');
+      logMessage('INFO','Transporter: Server is ready to take our messages');
     }
   });
 

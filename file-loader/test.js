@@ -1,4 +1,4 @@
-const {updateStatus, getAllUnpaidInvoices, fetchAllUsers} = require('./controllers/dbcalls');
+const {fetchAllUsers} = require('./controllers/dbcalls');
 
 getUserEmails = async () => {
     try {
@@ -7,11 +7,11 @@ getUserEmails = async () => {
       users.forEach(user => {
         emails.push(user.email);
       });
-      console.log(emails);
+      logMessage('INFO',`getUserEmails: ${emails}`);
       return emails;
     }
     catch (error) {
-      console.log(error);
+      logMessage('DEBUG',error);
     }
   }
 

@@ -1,4 +1,5 @@
 const Slack = require('slack-node');
+const { logMessage } = require('../util/logger');
 
 exports.postToSlackChannel = async (message) => {
     const webhookurl = process.env.SLACK_WEBHOOK_URL;
@@ -9,7 +10,8 @@ exports.postToSlackChannel = async (message) => {
         username: "webhookbot",
         text: message
     }, function(err, response) {
-        console.log(response);
+        logMessage('INFO',response);
+        logMessage('DEBUG',err);
     });
     
 }       

@@ -4,6 +4,7 @@ const {changeToXML} = require('./formatdata');
 const fs = require('fs');
 const { checkTransporter } = require('../util/nodemailer-transporter');
 const transporter = checkTransporter();
+const { logMessage } = require('../util/logger');
 
 exports.checkOracleStatus = async (req, res, next) => {
   // const invoicenumbers1 = await getAllUnpaidInvoiceNumbers();
@@ -12,7 +13,7 @@ exports.checkOracleStatus = async (req, res, next) => {
     let sentinvoicenumbers = [];
     const invoices = invoicenumbers1[0];
     if (invoices.length === 0) {
-      console.log('no invoices found');
+      logMessage('INFO','no invoices found');
     }
     else {
       for (i in invoices) {
@@ -31,13 +32,12 @@ exports.checkOracleStatus = async (req, res, next) => {
       const requestresults = await checkStatusInOracle(sentinvoicenumbers);
     let totalresults = invoiceids.map((item, i) => Object.assign({}, item, requestresults[i]));
     if (totalresults.length === 0) {
-      console.log('no invoices found');
+      logMessage('INFO','no invoices found');
     }
     else {
       const today = new Date().toLocaleDateString('sv-SE', {
         timeZone: 'America/Los_Angeles',
       });
-      console.log('Today is ' + today);
     let paidInvoices = [];
     totalresults.forEach(result => {
         if (result.data.scmInvoicePaymentSearch) {
@@ -46,24 +46,24 @@ exports.checkOracleStatus = async (req, res, next) => {
         let datastring = JSON.stringify(data);            
             if (data.paymentStatusCode === 'Y') {
             changeToXML(result.invoicenumber, result.invoiceid, data);
-            console.log(result.invoicenumber + ' is paid');
+            logMessage('INFO',result.invoicenumber + ' is paid');
             updateStatus('PAID', datastring, result.invoiceid);
             paidInvoices.push(result.invoicenumber);
             }
             else if (data.paymentStatusCode === 'N') {
-            console.log(result.invoicenumber + ' is not paid');
+            logMessage('INFO',result.invoicenumber + ' is not paid');
             updateStatus('NOT PAID', datastring, result.invoiceid);
             }
             else {
-            console.log(data.invoicenumber + ' has an unknown status');
+            logMessage('INFO',data.invoicenumber + ' has an unknown status');
             }
         }
         else {
-            console.log('no data returned');
+            logMessage('INFO','no data returned');
         }
         }
         else {
-        console.log('no data returned');
+        logMessage('INFO','no data returned');
         }
       });
       if (paidInvoices.length > 0) {
@@ -72,11 +72,11 @@ exports.checkOracleStatus = async (req, res, next) => {
           sendMail(paidInvoices, emails);
           }
         catch (error) {
-          console.log(error);
+          logMessage('DEBUG',error);
           }
         }
       else {
-        // console.log('No invoices have been paid');
+        // logMessage('INFO','No invoices have been paid');
       }
     }
 
@@ -97,10 +97,10 @@ sendMail = (invoicearray, emails) => {
     
         transporter.sendMail(mail, (err, data) => {
         if (err) {
-            console.log(err);
+            logMessage('DEBUG',err);
             // res.status(500).send('Something went wrong.');
         } else {
-            console.log(`Sent invoices mail.`);
+            logMessage('INFO',`Sent invoices mail.`);
         }
     });
 
@@ -120,11 +120,11 @@ exports.archivePaidInvoices = async () => {
         var newPath = archivefolder + '/' + file;
         fs.rename(oldPath, newPath, function (err) {
             if (err) {
-                console.log(err);
+                logMessage('DEBUG',err);
                 throw err;
             } 
             else {
-                console.log('Successfully moved to archive!');
+                logMessage('INFO','Successfully moved to archive!');
             }
             })
         }
@@ -142,6 +142,6 @@ getUserEmails = async () => {
     return emails;
   }
   catch (error) {
-    console.log(error);
+    logMessage('DEBUG',error);
   }
 }

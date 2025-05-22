@@ -1,3 +1,5 @@
+const { logMessage } = require('../util/logger');
+
 exports.tokenGenerator = async () => {
     try {
         const response = await fetch(
@@ -14,6 +16,6 @@ exports.tokenGenerator = async () => {
             return data.access_token;
         }
     } catch(error) {
-        console.log(error);
+        logMessage('DEBUG','tokengenerator',error);
         }
     }

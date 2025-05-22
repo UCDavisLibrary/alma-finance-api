@@ -1,8 +1,8 @@
-const {getVendorData, setSelectedData, getAlmaIndividualInvoiceXML} = require('./almaapicalls');
-const {reformatAlmaInvoiceforAPI, changeInvoiceStatus, changeFundIDtoCode, changeToXML} = require('./formatdata');
+const {setSelectedData} = require('./almaapicalls');
+const {reformatAlmaInvoiceforAPI, changeFundIDtoCode} = require('./formatdata');
 const {checkStatusInOracle, checkPayments} = require('./graphqlcalls');
-const {postAddInvoice, updateStatus, fetchInvoiceByInvoiceId} = require('./dbcalls');
-const {recalcFunds} = require('../util/helper-functions');
+const {fetchInvoiceByInvoiceId} = require('./dbcalls');
+const { logMessage } = require('../util/logger');
 
 exports.basicDataTable = async (data, version, library) => {
     try {
@@ -68,7 +68,7 @@ exports.basicDataTable = async (data, version, library) => {
 
                 }
                 catch(error) {
-                  console.log(error);
+                  logMessage('DEBUG','tables: basicDataTable()71',error);
                 }
               }
             }
@@ -198,143 +198,105 @@ exports.basicDataTable = async (data, version, library) => {
         return temp;
   
     }
-    catch(error) {console.log(error)};
+    catch(error) {logMessage('DEBUG','tables: basicDataTable()201',error)};
   
   };
 
 exports.almatoHTMLTablePreview = async (input, requestResponse) => {
   try {
-      const step1 = await setSelectedData([input]);
-      const data = await reformatAlmaInvoiceforAPI(step1);
-    if (data) {
-      const oracleinvoicenumber =
-          [{ "filter":   
-        {
-          "invoiceNumber": {"contains": data[i].data.header.consumerTrackingId}
-        }
-      }];
-      const aeinvoicenumber = [{consumerTrackingId : data[i].data.header.consumerTrackingId}];
+    const step1 = await setSelectedData([input]);
+    const data = await reformatAlmaInvoiceforAPI(step1);
 
-      const oracledata = await checkStatusInOracle(oracleinvoicenumber);
-      const aggieenterprisedata = await checkPayments(aeinvoicenumber);
-    var temp = '';
-    temp += '<h3>Invoice Data</h3>';
-    temp += '<p>';
-    temp += data.length;
-    temp += ' invoices found</p>';
-    for (i in data) {
-      const header = data[i].data.header;
-      const payload = data[i].data.payload;
-      const invoiceLines = data[i].data.payload.invoiceLines;
-      temp += '<div style="display: flex;">';
-      temp += '<div>';
-      temp += '<div class="invoice-header"><h4>Invoice ';
-      temp += parseInt(i) + 1;
-      temp += ' - ';
-      temp += header.consumerTrackingId;
-      temp += '</h4>';
-      if (!input) {
-      temp += '<button onClick="toggle(table';
-      temp += i;
-      temp += ')">show</button>';
-      }
-      temp += '</div><br>';
-      temp += '<table id="table';
-      temp += i;
-      temp += '"class="invoicediv">';
-      for (const [key, value] of Object.entries(header)) {
-        temp += '<tr><td>';
-        temp += key;
-        temp += '</td><td>';
-        temp += value;
-        temp += '</td></tr>';
-      }
-      for (const [key, value] of Object.entries(payload)) {
-        if (key === 'invoiceLines') {
-          temp += '<tr><td>';
-          temp += key;
-          temp += ' (';
-          temp += invoiceLines.length;
-          temp += ')</td><td>';
-          for (j in invoiceLines) {
-            temp += '<table class="invoice-lines">';
-            const invoice = invoiceLines[j];
-            for (const [key, value] of Object.entries(invoice)) {
-              const glSegments = invoice.glSegments;
-              const ppmSegments = invoice.ppmSegments;
-              if (key === 'glSegments') {
-                temp += '<tr><td>';
-                temp += key;
-                temp += '</td><td><table>';
-                for (const [key, value] of Object.entries(glSegments)) {
-                  temp += '<tr><td>';
-                  temp += key;
-                  temp += '</td><td>';
-                  temp += value;
-                  temp += '</td></tr>';
-                }
-                temp += '</table></td></tr>';
-              } else if (key === 'ppmSegments') {
-                  temp += '<tr><td>';
-                  temp += key;
-                  temp += '</td><td><table>';
-                  for (const [key, value] of Object.entries(ppmSegments)) {
-                    temp += '<tr><td>';
-                    temp += key;
-                    temp += '</td><td>';
-                    temp += value;
-                    temp += '</td></tr>';
+    if (data) {
+      let temp = '';
+      temp += '<h3>Invoice Data</h3>';
+      temp += '<p>' + data.length + ' invoices found</p>';
+
+      for (let i in data) {
+        const oracleinvoicenumber = [{
+          filter: {
+            invoiceNumber: { contains: data[i].data.header.consumerTrackingId }
+          }
+        }];
+        const aeinvoicenumber = [{
+          consumerTrackingId: data[i].data.header.consumerTrackingId
+        }];
+
+        const oracledata = await checkStatusInOracle(oracleinvoicenumber);
+        const aggieenterprisedata = await checkPayments(aeinvoicenumber);
+
+        const header = data[i].data.header;
+        const payload = data[i].data.payload;
+        const invoiceLines = data[i].data.payload.invoiceLines;
+
+        temp += '<div style="display: flex;">';
+        temp += '<div>';
+        temp += `<div class="invoice-header"><h4>Invoice ${parseInt(i) + 1} - ${header.consumerTrackingId}</h4>`;
+        if (!input) {
+          temp += `<button onClick="toggle(table${i})">show</button>`;
+        }
+        temp += '</div><br>';
+        temp += `<table id="table${i}" class="invoicediv">`;
+
+        for (const [key, value] of Object.entries(header)) {
+          temp += `<tr><td>${key}</td><td>${value}</td></tr>`;
+        }
+
+        for (const [key, value] of Object.entries(payload)) {
+          if (key === 'invoiceLines') {
+            temp += `<tr><td>${key} (${invoiceLines.length})</td><td>`;
+            for (let j in invoiceLines) {
+              const invoice = invoiceLines[j];
+              temp += '<table class="invoice-lines">';
+              for (const [key, value] of Object.entries(invoice)) {
+                if (key === 'glSegments') {
+                  temp += '<tr><td>glSegments</td><td><table>';
+                  for (const [k, v] of Object.entries(value)) {
+                    temp += `<tr><td>${k}</td><td>${v}</td></tr>`;
                   }
                   temp += '</table></td></tr>';
-              } else {
-                temp += '<tr><td>';
-                temp += key;
-                temp += '</td><td>';
-                temp += value;
-                temp += '</td></tr>';
+                } else if (key === 'ppmSegments') {
+                  temp += '<tr><td>ppmSegments</td><td><table>';
+                  for (const [k, v] of Object.entries(value)) {
+                    temp += `<tr><td>${k}</td><td>${v}</td></tr>`;
+                  }
+                  temp += '</table></td></tr>';
+                } else {
+                  temp += `<tr><td>${key}</td><td>${value}</td></tr>`;
+                }
               }
+              temp += '</table>';
             }
-            temp += '</table>';
+            temp += '</td></tr>';
+          } else {
+            temp += `<tr><td>${key}</td><td>${value}</td></tr>`;
           }
-          temp += '</td></tr>';
-        } else {
-          temp += '<tr><td>';
-          temp += key;
-          temp += '</td><td>';
-          temp += value;
-          temp += '</td></tr>';
         }
-      }
-      temp += '</table>';
-        temp += '</div>';
-          temp += '<div>';
-          if (aggieenterprisedata) {
-            temp += '<h4>Invoice Status Data</h4>';
-            if (oracledata) {
-              temp += '<h5>Oracle Status Data</h5>';
-              temp += '<pre>';
-              temp += JSON.stringify(oracledata, null, 2);
-              temp += '</pre>';
-              temp += '<br>';
-            }
-            temp += '<h5>Aggie Enterprise Status Data</h5>';
-            temp += '<pre>';
-            temp += JSON.stringify(aggieenterprisedata, null, 2);
-            temp += '</pre>';
+
+        temp += '</table>';
+        temp += '</div><div>';
+
+        if (aggieenterprisedata) {
+          temp += '<h4>Invoice Status Data</h4>';
+          if (oracledata) {
+            temp += '<h5>Oracle Status Data</h5>';
+            temp += `<pre>${JSON.stringify(oracledata, null, 2)}</pre><br>`;
           }
-          temp += '</table>';
-          temp += '</div>';
+          temp += '<h5>Aggie Enterprise Status Data</h5>';
+          temp += `<pre>${JSON.stringify(aggieenterprisedata, null, 2)}</pre>`;
+        }
+
+        temp += '</div></div>';
       }
+
+      return temp;
+    } else {
+      return '<p>No data found</p>';
     }
-  
-    return temp;
+  } catch (error) {
+    logMessage('DEBUG', 'tables:almatoHTMLTablePreview()', error);
   }
-  catch (error) {
-    console.log(error);
-  }
-
-}
-
+};
 
 exports.paidInvoicesTable = async (data) => {
   try {
@@ -354,7 +316,7 @@ exports.paidInvoicesTable = async (data) => {
       temp += '<th>Invoice Total</th>';
       temp += '<th>Time Paid</th>';
       temp += '</tr>';
-      for (i in data.invoice) {
+      for (let i in data.invoice) {
         let nozee = toString(data.invoice[i].invoice_date);
         if (nozee.includes('Z')) {
           nozee = nozee.substring(0, nozee.length - 1);
@@ -368,8 +330,8 @@ exports.paidInvoicesTable = async (data) => {
                 temp += `<td>`;
           let fundCodes = [];
           let fundArray = [];
-          for (j in data.invoice[i].invoice_lines.invoice_line) {
-            for (k in data.invoice[i].invoice_lines.invoice_line[j].fund_distribution) {
+          for (let j in data.invoice[i].invoice_lines.invoice_line) {
+            for (let k in data.invoice[i].invoice_lines.invoice_line[j].fund_distribution) {
               const fundAmount = data.invoice[i].invoice_lines.invoice_line[j].fund_distribution[k].amount;
               const fundLine = data.invoice[i].invoice_lines.invoice_line[j].fund_distribution[k].fund_code.value;
               try {
@@ -391,7 +353,7 @@ exports.paidInvoicesTable = async (data) => {
 
               }
               catch(error) {
-                console.log(error);
+                logMessage('DEBUG','tables:paidInvoicesTable():391',error);
               }
             }
           }
@@ -411,7 +373,7 @@ exports.paidInvoicesTable = async (data) => {
 
       return temp;
   }
-  catch(error) {console.log(error)};
+  catch(error) {logMessage('DEBUG','tables:paidInvoicesTable()411', error)}
 
 };
 
@@ -419,10 +381,8 @@ exports.almatoHTMLTableComplete = async (input, requestResponse) => {
   try {
       const step1 = await setSelectedData([input]);
       const data = await reformatAlmaInvoiceforAPI(step1);
-      // console.log(JSON.stringify(data));
       const dbinvoicedata = await fetchInvoiceByInvoiceId(input);
       const consumerTrackingId = dbinvoicedata.consumerTrackingId;
-      // console.log(consumerTrackingId);
     if (data) {
       const oracleinvoicenumber =
           [{ "filter":   
@@ -547,7 +507,7 @@ exports.almatoHTMLTableComplete = async (input, requestResponse) => {
     return temp;
   }
   catch (error) {
-    console.log(error);
+    logMessage('DEBUG','tables:almatoHTMLTableComplete()',error);
   }
 
 }

@@ -2,7 +2,6 @@
   const toggle = (input) => {
     let thisid = input.id;
     const mydiv = document.getElementById(thisid).classList;
-    console.log(thisid);
     mydiv.toggle('hidden');
     mydiv.toggle('visible');
   };
@@ -51,8 +50,6 @@ const totalDistribution = () => {
 
   let newarry = [];
   arr.forEach(element => {
-    console.log(element);
-    console.log(typeof element);
     newarry.push(JSON.parse(element));
   });
 

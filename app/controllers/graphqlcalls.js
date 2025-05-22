@@ -1,9 +1,4 @@
-const Invoice = require('../models/invoice');
-
-const { setSelectedData } = require("./almaapicalls");
-
-const {reformatAlmaInvoiceforAPI} = require("./formatdata");
-
+const { logMessage } = require('../util/logger');
 const {tokenGenerator} = require("./tokengenerator");
 
 exports.aggieEnterprisePaymentRequest = async (variableInputs) => {
@@ -27,7 +22,7 @@ exports.aggieEnterprisePaymentRequest = async (variableInputs) => {
   const query = paymentRequest;
 
   if (!variableInputs || variableInputs.length === 0) {
-    console.log("No input data provided.");
+    logMessage('DEBUG',"No input data provided.");
     return [];
   }
 
@@ -35,7 +30,7 @@ exports.aggieEnterprisePaymentRequest = async (variableInputs) => {
     const results = [];
 
     for (const variables of variableInputs) {
-      // console.log(JSON.stringify(variables.data.header.consumerTrackingId));
+      // logMessage('DEBUG',JSON.stringify(variables.data.header.consumerTrackingId));
 
       try {
         const response = await fetch(process.env.BOUNDARY_APP_URL, {
@@ -57,13 +52,13 @@ exports.aggieEnterprisePaymentRequest = async (variableInputs) => {
         const result = await response.json();
         results.push(result);
       } catch (error) {
-        console.error(`Error with variable input: ${JSON.stringify(variables)} - ${error.message}`);
+        logMessage('DEBUG',`graphqlcalls: aggieEnterprisePaymentRequest(). Error with variable input: ${JSON.stringify(variables)} - ${error.message}`);
       }
     }
 
     return results;
   } catch (error) {
-    console.error(`Unexpected error: ${error.message}`);
+    logMessage('DEBUG',`graphqlcalls: aggieEnterprisePaymentRequest(). Unexpected error: ${error.message}`);
     return [];
   }
 };
@@ -138,7 +133,7 @@ exports.aggieEnterprisePaymentRequest = async (variableInputs) => {
   
     }
     catch (error) {
-      console.log(error);
+      logMessage('DEBUG','graphqlcalls: checkPayments()',error);
     }
   }
   
@@ -208,7 +203,7 @@ exports.aggieEnterprisePaymentRequest = async (variableInputs) => {
         }
       
       catch (error) {
-        console.log(error);
+          logMessage('DEBUG','graphqlcalls: checkStatusInOracle()',error);
       }
     }
 
@@ -235,7 +230,7 @@ exports.aggieEnterprisePaymentRequest = async (variableInputs) => {
                 .then(
                   (result) => {
 
-                    console.log(JSON.stringify(result.data.erpRoles));
+                    logMessage('INFO','graphqlcalls: checkErpRolesOracle()',JSON.stringify(result.data.erpRoles));
                     // return result;
                   }
                 );
@@ -244,6 +239,6 @@ exports.aggieEnterprisePaymentRequest = async (variableInputs) => {
           }
         
         catch (error) {
-          console.log(error);
+          logMessage('DEBUG','graphqlcalls: checkErpRolesOracle()',error);
         }
       }

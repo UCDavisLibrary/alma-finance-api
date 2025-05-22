@@ -11,9 +11,10 @@ const transporter = checkTransporter();
   // verify connection configuration
   transporter.verify(function (error, success) {
     if (error) {
-      console.log(error);
+      logMessage('ERROR',error);
     } else {
       console.log('Server is ready to take our messages');
+      logMessage('INFO','Server is ready to take our messages');
     }
   });
 
@@ -41,6 +42,5 @@ app.use(routes);
 // Express server listening...
 app.listen(PORT, () => {
   console.log(`Listening on port ${PORT}...`);
+  logMessage('INFO',`Listening on port ${PORT}...`);
 });
-
-logMessage('NOTICE', 'This is a test', { userId: 'abc123' });

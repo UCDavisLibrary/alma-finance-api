@@ -3,6 +3,7 @@ const {getSubmittedInvoices, fetchFundCodeFromId, saveFund, fetchVendorDataFromI
 const { postToSlackChannel } = require('../util/post-to-slack-channel');
 const { replaceString } = require('../util/helper-functions');
 const fs = require('fs');
+const { logMessage } = require('../util/logger');
 
 exports.reformatAlmaInvoiceforAPI = async (data) => {
     let apipayload = [];
@@ -56,7 +57,7 @@ exports.reformatAlmaInvoiceforAPI = async (data) => {
       }
 
       catch (error) {
-        console.log(error);
+        logMessage('DEBUG',error);
       }
 
       for (j in data.invoice[i].invoice_lines.invoice_line) {
@@ -126,7 +127,7 @@ exports.reformatAlmaInvoiceforAPI = async (data) => {
               }
             }
             catch (err) {
-              console.log(err);
+              logMessage('DEBUG',err);
             }
           }
         }
@@ -174,11 +175,11 @@ exports.filterOutSubmittedInvoices = async (data, library) => {
         }
       }
       catch (error) {
-        console.log(error);
+        logMessage('DEBUG',error);
       }
     }
     else {
-      console.log('invoice not found or not in correct status');
+      logMessage('INFO','invoice not found or not in correct status');
       return false;
     }
 
@@ -212,7 +213,7 @@ exports.changeFundIDtoCode = async (fundId) => {
       return fundCode;
     }
     else {
-      console.log('fund code not found in database. Trying Alma');
+      logMessage('INFO','fund code not found in database. Trying Alma');
       try {
         const fundData = await getFundData(fundId);
         if (fundData) {
@@ -225,13 +226,13 @@ exports.changeFundIDtoCode = async (fundId) => {
         }
       }
       catch (err) {
-        console.log(err);
+        logMessage('DEBUG',err);
       }
     }
   }
   catch (err) {
-    console.log('this is the error im looking 4')
-    console.log(err);
+    logMessage('INFO','this is the error im looking 4')
+    logMessage('DEBUG',err);
   }
 
 
@@ -244,13 +245,13 @@ exports.changeToXML = async (invoicenumber, invoiceid, paymentdata) => {
     // Attempt to retrieve the invoice data
     invoice = await getAlmaIndividualInvoiceXML(invoiceid);
   } catch (fetchError) {
-    console.log(`Error fetching invoice data for invoice ${invoicenumber}:`, fetchError);
+    logMessage('INFO',`Error fetching invoice data for invoice ${invoicenumber}:`, fetchError);
 
     // Notify Slack of fetch error
     try {
-      await postToSlackChannel(`Error fetching invoice data for invoice ${invoicenumber}`);
+      await logMessage('DEBUG',`Error fetching invoice data for invoice ${invoicenumber}`);
     } catch (slackErr) {
-      console.error('Failed to notify Slack of fetch error:', slackErr);
+      logMessage('DEBUG','Failed to notify Slack of fetch error:', slackErr);
     }
 
     // Exit function early since we can't proceed without the invoice data
@@ -282,15 +283,15 @@ exports.changeToXML = async (invoicenumber, invoiceid, paymentdata) => {
 
   try {
     fs.writeFileSync(`./almadafis/aeinput/update_alma_${invoiceid}.xml`, xml);
-    console.log('File written successfully');
+    logMessage('INFO','File written successfully');
   } catch (writeError) {
-    console.log(`Error writing file for invoice ${invoicenumber}:`, writeError);
+    logMessage('INFO',`Error writing file for invoice ${invoicenumber}:`, writeError);
 
     // Attempt to notify Slack of write error
     try {
-      await postToSlackChannel(`Error writing file for invoice ${invoicenumber}`);
+      await logMessage('DEBUG',`Error writing file for invoice ${invoicenumber}`);
     } catch (slackErr) {
-      console.error('Failed to notify Slack of write error:', slackErr);
+      logMessage('DEBUG','Failed to notify Slack of write error:', slackErr);
     }
   }
 };
@@ -299,7 +300,7 @@ checkForVendorData = async (vendorId) => {
   try {
     const vendordatastring = await fetchVendorDataFromId(vendorId);
     if (vendordatastring === undefined) {
-      console.log('vendor not found in database. Trying Alma');
+      logMessage('INFO','vendor not found in database. Trying Alma');
       try {
         const vendorData = await getVendorData(vendorId);
         if (vendorData) {
@@ -308,7 +309,7 @@ checkForVendorData = async (vendorId) => {
         }
       }
       catch (err) {
-        console.log(err);
+        logMessage('DEBUG',err);
       }
     }
     else if (vendordatastring) {
@@ -317,6 +318,6 @@ checkForVendorData = async (vendorId) => {
     }
   }
   catch (error) {
-    console.log(error);
+    logMessage('DEBUG',error);
   }
 };

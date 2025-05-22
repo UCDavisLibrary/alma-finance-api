@@ -2,6 +2,7 @@ const {getFundData, getVendorData, getSingleInvoiceData, putSingleInvoiceData, g
 const {getSubmittedInvoices, fetchFundCodeFromId, saveFund, fetchVendorDataFromId, saveVendor} = require('../controllers/dbcalls');
 const { generateRandomNumber } = require('../util/helper-functions');
 const fs = require('fs');
+const { logMessage } = require('../util/logger');
 
 exports.reformatAlmaInvoiceforAPI = async (data) => {
     let apipayload = [];
@@ -17,7 +18,6 @@ exports.reformatAlmaInvoiceforAPI = async (data) => {
       } else {
         nozee = data.invoice[i].invoice_date;
       }
-      console.log('consumerTrackingId is' + data.invoice[i].number + '-' + generateRandomNumber(0, 99));
       const vendor = data.invoice[i].vendor.value;
       try {
         const vendordata = await checkForVendorData(vendor);
@@ -27,7 +27,6 @@ exports.reformatAlmaInvoiceforAPI = async (data) => {
             data: {
               header: {
                 boundaryApplicationName: 'Library Check Processing',
-                // consumerId: data.invoice[i].owner.value === 'LAW' ? 'UCD LawLibrary' : 'UCD GeneralLibrary',
                 consumerId: 'UCD GeneralLibrary',
                 consumerReferenceId: data.invoice[i].id,
                 consumerTrackingId: data.invoice[i].number + '-' + generateRandomNumber(0, 99),
@@ -40,7 +39,6 @@ exports.reformatAlmaInvoiceforAPI = async (data) => {
                 invoiceDate: nozee,
                 invoiceNumber: data.invoice[i].number,
                 invoiceSourceCode: 'UCD GeneralLibrary',
-                // invoiceSourceCode: data.invoice[i].owner.value === 'LAW' ? 'UCD LawLibrary' : 'UCD GeneralLibrary',
                 invoiceType: data.invoice[i].total_amount < 0 ? 'CREDIT' : 'STANDARD',
                 paymentMethodCode: 'ACCOUNTINGDEPARTMENT',
                 paymentTerms: 'IMMEDIATE',
@@ -56,7 +54,7 @@ exports.reformatAlmaInvoiceforAPI = async (data) => {
       }
 
       catch (error) {
-        console.log(error);
+        logMessage('DEBUG','formatdata: reformatAlmaInvoiceforAPI()',error);
       }
 
       for (j in data.invoice[i].invoice_lines.invoice_line) {
@@ -126,7 +124,7 @@ exports.reformatAlmaInvoiceforAPI = async (data) => {
               }
             }
             catch (err) {
-              console.log(err);
+              logMessage('DEBUG','formatdata: reformatAlmaInvoiceforAPI()',error);
             }
           }
         }
@@ -154,10 +152,10 @@ exports.filterOutSubmittedInvoices = async (data, library) => {
           break;
         }
         if (invoiceids.includes(myarray[i].number)) {
-          console.log(myarray[i].number + ' already sent')
+          logMessage('INFO','formatdata: filterOutSubmittedInvoices()' + myarray[i].number + ' already sent')
         }
         else {
-          console.log(myarray[i].number + ' not sent');
+          logMessage('INFO','formatdata: filterOutSubmittedInvoices()' + myarray[i].number + ' not sent')
           filteredinvoices.push(myarray[i]);
           counter++;
         }
@@ -180,11 +178,11 @@ exports.filterOutSubmittedInvoices = async (data, library) => {
         }
       }
       catch (error) {
-        console.log(error);
+        logMessage('DEBUG', 'formatdata: changeInvoiceStatus()' ,error);
       }
     }
     else {
-      console.log('invoice not found or not in correct status');
+      logMessage('DEBUG', 'formatdata: changeInvoiceStatus()', 'invoice not found or not in correct status');
       return false;
     }
 
@@ -212,15 +210,13 @@ exports.filterOutSubmittedInvoices = async (data, library) => {
 
 
 exports.changeFundIDtoCode = async (fundId, library) => {
-  console.log('fundId is ' + fundId);
-  console.log('library is ' + library);
   try {
     const fundCode = await fetchFundCodeFromId(fundId);
     if (fundCode) {
       return fundCode;
     }
     else {
-      console.log('fund code not found in database. Trying Alma');
+      logMessage('DEBUG',`formatdata: changeFundIDtoCode(). fund code ${fundId} for ${library} not found in database. Trying Alma`);
       try {
         const fundData = await getFundData(fundId, library);
         if (fundData) {
@@ -233,12 +229,12 @@ exports.changeFundIDtoCode = async (fundId, library) => {
         }
       }
       catch (err) {
-        console.log(err);
+        logMessage('DEBUG','formatdata: changeFundIDtoCode()', err);
       }
     }
   }
   catch (err) {
-    console.log(err);
+    logMessage('DEBUG','formatdata: changeFundIDtoCode()',err);
   }
 
 
@@ -272,10 +268,10 @@ exports.changeToXML = async (invoicenumber, invoiceid, paymentdata) => {
   </payment_confirmation_data>`;
   try {
     fs.writeFileSync(`./almadafis/aeinput/update_alma_${invoiceid}.xml`, xml);
-    console.log('file written');
+    logMessage('INFO',`formatdata: changeToXML(). ${invoiceid} file written`);
   }
   catch (err) {
-    console.log(err);
+    logMessage('DEBUG',`formatdata: changeToXML(). ${invoiceid}`,err);
   }
 }
 
@@ -283,7 +279,7 @@ checkForVendorData = async (vendorId) => {
   try {
     const vendordatastring = await fetchVendorDataFromId(vendorId);
     if (vendordatastring === undefined) {
-      console.log('vendor not found in database. Trying Alma');
+      logMessage('DEBUG','vendor not found in database. Trying Alma');
       try {
         const vendorData = await getVendorData(vendorId);
         if (vendorData) {
@@ -292,7 +288,7 @@ checkForVendorData = async (vendorId) => {
         }
       }
       catch (err) {
-        console.log(err);
+        logMessage('DEBUG',`formatdata: checkForVendorData() ${vendorId}`,err);
       }
     }
     else if (vendordatastring) {
@@ -301,6 +297,6 @@ checkForVendorData = async (vendorId) => {
     }
   }
   catch (error) {
-    console.log(error);
+        logMessage('DEBUG',`formatdata: checkForVendorData() ${vendorId}`,err);
   }
 };

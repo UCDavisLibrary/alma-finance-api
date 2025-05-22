@@ -3,14 +3,15 @@ const Token = require('../models/token');
 const User = require('../models/user');
 const Fund = require('../models/fund');
 const Vendor = require('../models/vendor');
+const { logMessage } = require('../util/logger');
 
 exports.postAddInvoice = (number, id, library, requestbody) => {
     const invoice = new Invoice(number, id, library, requestbody);
     invoice.save()
       .then(() => {
-        console.log('Saved Invoice');
+        logMessage('INFO','Saved Invoice');
         })
-      .catch(err => console.log(err));
+      .catch(err => logMessage('DEBUG',err));
   };
 
   exports.getSubmittedInvoices = (library) => {
@@ -49,9 +50,9 @@ exports.postSaveTodaysToken = (token) => {
   const tokenObj = new Token(token);
   tokenObj.save()
     .then(() => {
-      console.log('Saved Token');
+      logMessage('INFO','Saved Token');
       })
-    .catch(err => console.log(err));
+    .catch(err => logMessage('DEBUG',err));
 }
 
 exports.fetchTodaysToken = async () => {
@@ -64,7 +65,7 @@ exports.fetchTodaysToken = async () => {
     }
   }
   catch (error) {
-    console.log(error);
+    logMessage('DEBUG',error);
   }
 }
 
@@ -74,12 +75,12 @@ exports.postAddUser = async (firstname, lastname, email, kerberos, library) => {
   try {
       const usersaved = await user.save();
       if (usersaved) {
-          console.log('User saved');
+          logMessage('INFO','User saved');
           return true;
       };
   }
   catch (error) {
-      console.log(error);
+      logMessage('DEBUG',error);
   }
 };
 
@@ -88,12 +89,12 @@ exports.postEditUser = async (firstname, lastname, email, kerberos, library, id)
   try {
       const userupdated = await User.update(firstname, lastname, email, kerberos, library, id);
       if (userupdated) {
-          console.log('User updated');
+          logMessage('INFO','User updated');
           return true;
       };
   }
   catch (error) {
-      console.log(error);
+      logMessage('DEBUG',error);
   }
 };
 
@@ -106,7 +107,7 @@ exports.fetchAllUsers = async () => {
       }
     }
     catch (error) {
-      console.log(error);
+      logMessage('DEBUG',error);
     }
   }
 
@@ -119,7 +120,7 @@ exports.fetchAllFunds = async () => {
     }
   }
   catch (error) {
-    console.log(error);
+    logMessage('DEBUG',error);
   }
 }
 
@@ -131,7 +132,7 @@ exports.deleteFund = async (id) => {
     }
   }
   catch (error) {
-    console.log(error);
+    logMessage('DEBUG',error);
   }
 }
 
@@ -143,7 +144,7 @@ exports.deleteFundByFundId = async (id) => {
     }
   }
   catch (error) {
-    console.log(error);
+    logMessage('DEBUG',error);
   }
 }
 
@@ -156,7 +157,7 @@ exports.fetchAllVendors = async () => {
     }
   }
   catch (error) {
-    console.log(error);
+    logMessage('DEBUG',error);
   }
 }
 
@@ -168,7 +169,7 @@ exports.deleteVendor = async (id) => {
     }
   }
   catch (error) {
-    console.log(error);
+    logMessage('DEBUG',error);
   }
 }
 
@@ -182,7 +183,7 @@ exports.checkLibrary = async (kerberos) => {
         }
       }
       catch (error) {
-        console.log(error);
+        logMessage('DEBUG',error);
       }
     }
 
@@ -196,7 +197,7 @@ exports.fetchUser = async (id) => {
           }
         }
         catch (error) {
-          console.log(error);
+          logMessage('DEBUG',error);
         }
       }
 
@@ -209,7 +210,7 @@ exports.checkIfUserExists = async (kerberos) => {
       }
     }
     catch (error) {
-      console.log(error);
+      logMessage('DEBUG',error);
     }
   }      
   
@@ -221,7 +222,7 @@ exports.updateStatus = async (status, responsebody, invoiceid) => {
     }
   }
   catch (error) {
-    console.log(error);
+    logMessage('DEBUG',error);
   }
 }
 
@@ -234,7 +235,7 @@ exports.fetchFundCodeFromId = async (id) => {
     }
   }
   catch (error) {
-    console.log(error);
+    logMessage('DEBUG',error);
   }
 }
 
@@ -244,12 +245,12 @@ exports.saveFund = async (fundId, fundCode) => {
   try {
       const fundsaved = await fund.save();
       if (fundsaved) {
-          console.log('Fund saved');
+          logMessage('INFO','Fund saved');
           return true;
       };
   }
   catch (error) {
-      console.log(error);
+      logMessage('DEBUG',error);
   }
 };
 
@@ -262,7 +263,7 @@ exports.fetchVendorDataFromId = async (vendorId) => {
     }
   }
   catch (error) {
-    console.log(error);
+    logMessage('DEBUG',error);
   }
 }
 
@@ -271,11 +272,11 @@ exports.saveVendor = async (vendorId, vendorData) => {
   try {
       const vendorsaved = await vendor.save();
       if (vendorsaved) {
-          console.log('Vendor saved');
+          logMessage('INFO','Vendor saved');
           return true;
       };
   }
   catch (error) {
-      console.log(error);
+      logMessage('DEBUG',error);
   }
 };

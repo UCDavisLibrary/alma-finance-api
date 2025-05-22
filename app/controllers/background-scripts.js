@@ -4,6 +4,7 @@ const {changeToXML} = require('./formatdata');
 const fs = require('fs');
 const { checkTransporter } = require('../util/nodemailer-transporter');
 const transporter = checkTransporter();
+const { logMessage } = require('../util/logger');
 
 exports.checkOracleStatus = async (req, res, next) => {
   // const invoicenumbers1 = await getAllUnpaidInvoiceNumbers();
@@ -12,7 +13,7 @@ exports.checkOracleStatus = async (req, res, next) => {
     let sentinvoicenumbers = [];
     const invoices = invoicenumbers1[0];
     if (invoices.length === 0) {
-      console.log('no invoices found');
+      logMessage('INFO','no invoices found');
     }
     else {
       for (i in invoices) {
@@ -31,7 +32,7 @@ exports.checkOracleStatus = async (req, res, next) => {
       const requestresults = await checkStatusInOracle(sentinvoicenumbers);
     let totalresults = invoiceids.map((item, i) => Object.assign({}, item, requestresults[i]));
     if (totalresults.length === 0) {
-      console.log('no invoices found');
+      logMessage('INFO','no invoices found');
     }
     else {
     let paidInvoices = [];
@@ -41,32 +42,32 @@ exports.checkOracleStatus = async (req, res, next) => {
         let data = result.data.scmInvoicePaymentSearch.data[0];
         let datastring = JSON.stringify(data);            
             if (data.paymentStatusCode === 'Y') {
-            console.log(result.invoicenumber + ' is paid');
+            logMessage('INFO',result.invoicenumber + ' is paid');
             updateStatus('PAID', datastring, result.invoiceid);
             changeToXML(result.invoicenumber, result.invoiceid, data);
             paidInvoices.push(result.invoicenumber);
             }
             else if (data.paymentStatusCode === 'N') {
-            console.log(result.invoicenumber + ' is not paid');
+            logMessage('INFO',result.invoicenumber + ' is not paid');
             updateStatus('NOT PAID', datastring, result.invoiceid);
             }
             else {
-            console.log(data.invoicenumber + ' has an unknown status');
+            logMessage('DEBUG',data.invoicenumber + ' has an unknown status');
             }
         }
         else {
-            console.log('no data returned');
+            logMessage('INFO','no data returned');
         }
         }
         else {
-        console.log('no data returned');
+        logMessage('INFO','no data returned');
         }
       });
       if (paidInvoices.length > 0) {
         sendMail(paidInvoices);
       }
       else {
-        // console.log('No invoices have been paid');
+        logMessage('INFO','No invoices have been paid');
       }
     }
 
@@ -87,10 +88,10 @@ sendMail = (invoicearray) => {
     
         transporter.sendMail(mail, (err, data) => {
         if (err) {
-            console.log(err);
+            logMessage('DEBUG',"dbcalls: sendMail()", err.message);
             // res.status(500).send('Something went wrong.');
         } else {
-            console.log(`Sent invoices mail.`);
+            logMessage('INFO',`Sent invoices mail.`);
         }
     });
 
@@ -110,11 +111,11 @@ exports.archivePaidInvoices = async () => {
         var newPath = archivefolder + '/' + file;
         fs.rename(oldPath, newPath, function (err) {
             if (err) {
-                console.log(err);
+                logMessage('DEBUG',"dbcalls: archivePaidInvoices()", err.message);
                 throw err;
             } 
             else {
-                console.log('Successfully moved to archive!');
+                logMessage('INFO','Successfully moved to archive!');
             }
             })
         }

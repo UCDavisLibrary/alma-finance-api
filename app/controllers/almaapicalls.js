@@ -1,3 +1,5 @@
+const { logMessage } = require('../util/logger');
+
 exports.getAlmaIndividualInvoiceData = async (invoiceIds) => {
   try {
     const baseUrl = "http://alma-proxy:5555/almaws/v1/acq/invoices";
@@ -19,7 +21,7 @@ exports.getAlmaIndividualInvoiceData = async (invoiceIds) => {
 
     return data;
   } catch (error) {
-    console.error("Error fetching individual invoice data:", error.message);
+    logMessage('DEBUG',"almaapicalls: getAlmaIndividualInvoiceData()", error.message);
     return null; // Return null to indicate failure
   }
 };
@@ -36,7 +38,7 @@ exports.getAlmaIndividualInvoiceData = async (invoiceIds) => {
       const data = await response.json();
       return data;
     } catch (error) {
-      console.error(`Failed to fetch Alma invoices: ${error.message}`);
+    logMessage('DEBUG',"almaapicalls: getAlmaInvoicesWaitingToBeSent()", error.message);
       return null; // Return null or an empty object to indicate failure
     }
   };
@@ -56,7 +58,7 @@ exports.getAlmaIndividualInvoiceData = async (invoiceIds) => {
       const data = await response.json();
       return data;
     } catch (error) {
-      console.error(`Failed to fetch invoices ready to be paid: ${error.message}`);
+    logMessage('DEBUG',"almaapicalls: getAlmaInvoicesReadyToBePaid()", error.message);
       return null; // Return null to indicate failure
     }
   };
@@ -84,7 +86,7 @@ exports.getVendorDataBatch = async (vendorarray) => {
       } 
     }
     catch (error) {
-      console.error(error);
+    logMessage('DEBUG',"almaapicalls: getVendorDataBatch()", error.message);
     }
   };
   
@@ -99,7 +101,7 @@ exports.getFundData = async (fundCode,library) => {
       return data;
     } 
   } catch(error) {
-      console.log(error);
+    logMessage('DEBUG',"almaapicalls: getFundData()", error.message);
     }
   };
   
@@ -117,9 +119,10 @@ exports.setSelectedData = async (invoiceids) => {
       return data;
   
     }
-    catch(error) {console.log(error)};
-  
-  };
+    catch(error) {
+    logMessage('DEBUG',"almaapicalls: setSelectedData()", error.message);
+    }
+  }
 
 exports.getVendorData = async (vendorcode) => {
     try {
@@ -131,7 +134,7 @@ exports.getVendorData = async (vendorcode) => {
       return data;
     } 
   } catch(error) {
-      console.log(error);
+    logMessage('DEBUG',"almaapicalls: getVendorData()", error.message);
     }
   };
 
@@ -145,7 +148,7 @@ exports.getVendorData = async (vendorcode) => {
       return data;
     } 
   } catch(error) {
-      console.log(error);
+    logMessage('DEBUG',"almaapicalls: getFundDataByID()", error.message);
     }
   };
 
@@ -159,7 +162,7 @@ exports.getVendorData = async (vendorcode) => {
       return data;
     } 
   } catch(error) {
-      console.log(error);
+    logMessage('DEBUG',"almaapicalls: getSingleInvoiceData()", error.message);
     }
   }
 
@@ -180,7 +183,7 @@ exports.getVendorData = async (vendorcode) => {
       return data;
     } 
   } catch(error) {
-      console.log(error);
+    logMessage('DEBUG',"almaapicalls: putSingleInvoiceData()", error.message);
     }
   }
 
@@ -191,5 +194,7 @@ exports.getVendorData = async (vendorcode) => {
         ).then(response => response.json())
       return data;
     }
-    catch(error) {console.log(error)};
+    catch(error) {
+    logMessage('DEBUG',"almaapicalls: getAlmaIndividualInvoiceXML()", error.message);
+    }
   }

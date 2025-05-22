@@ -1,3 +1,5 @@
+const { logMessage } = require('../util/logger');
+
 exports.getAlmaIndividualInvoiceData = async (invoiceids) => {
     try {
       data = {invoice: []}; // mimics structure of a bulk invoice payload in setData()
@@ -12,7 +14,7 @@ exports.getAlmaIndividualInvoiceData = async (invoiceids) => {
       return data;
   
     }
-    catch(error) {console.log(error)};
+    catch(error) {logMessage('DEBUG',error)};
   }
   
 exports.getAlmaInvoicesWaitingToBESent = async (owner) => {
@@ -52,7 +54,7 @@ exports.getVendorDataBatch = async (vendorarray) => {
       } 
     }
     catch (error) {
-      console.error(error);
+      logMessage('DEBUG',error);
     }
   };
   
@@ -67,7 +69,7 @@ exports.getFundData = async (fundCode) => {
       return data;
     } 
   } catch(error) {
-      console.log(error);
+      logMessage('DEBUG',error);
     }
   };
   
@@ -85,7 +87,7 @@ exports.setSelectedData = async (invoiceids) => {
       return data;
   
     }
-    catch(error) {console.log(error)};
+    catch(error) {logMessage('DEBUG',error)};
   
   };
 
@@ -99,7 +101,7 @@ exports.getVendorData = async (vendorcode) => {
       return data;
     } 
   } catch(error) {
-      console.log(error);
+      logMessage('DEBUG',error);
     }
   };
 
@@ -113,7 +115,7 @@ exports.getVendorData = async (vendorcode) => {
       return data;
     } 
   } catch(error) {
-      console.log(error);
+      logMessage('DEBUG',error);
     }
   };
 
@@ -127,7 +129,7 @@ exports.getVendorData = async (vendorcode) => {
       return data;
     } 
   } catch(error) {
-      console.log(error);
+      logMessage('DEBUG',error);
     }
   }
 
@@ -148,7 +150,7 @@ exports.getVendorData = async (vendorcode) => {
       return data;
     } 
   } catch(error) {
-      console.log(error);
+      logMessage('DEBUG',error);
     }
   }
 
@@ -159,5 +161,5 @@ exports.getVendorData = async (vendorcode) => {
         ).then(response => response.json())
       return data;
     }
-    catch(error) {console.log(error)};
+    catch(error) {logMessage('DEBUG',error)};
   }

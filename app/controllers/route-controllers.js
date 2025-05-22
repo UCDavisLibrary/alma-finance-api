@@ -1,11 +1,10 @@
-const {almatoHTMLTableComplete, basicDataTable, paidInvoicesTable, almatoHTMLTablePreview} = require('../controllers/tables');
+const {almatoHTMLTableComplete, basicDataTable, almatoHTMLTablePreview} = require('../controllers/tables');
 const {aggieEnterprisePaymentRequest, checkPayments, checkStatusInOracle, checkErpRolesOracle} = require('../controllers/graphqlcalls');
 const { getAlmaIndividualInvoiceData, getAlmaInvoicesReadyToBePaid, setSelectedData} = require('../controllers/almaapicalls');
 const {reformatAlmaInvoiceforAPI, filterOutSubmittedInvoices } = require('../controllers/formatdata');
-const { getInvoiceIDs, getInvoiceNumbers, postSaveTodaysToken, postAddUser, fetchAllUsers, fetchUser, postEditUser, deleteUser, postAddInvoice, getPaidInvoices, getUnpaidInvoiceNumbers, fetchAllFunds, fetchAllVendors, deleteFund, deleteVendor, getAllUnpaidInvoices, getAllInvoicesAdmin, getInvoiceBySearchTerm, deleteInvoice, fetchInvoiceByInvoiceId, postEditInvoice, getInvoiceById, postUpdateInvoiceStatus} = require('../controllers/dbcalls');
+const { getInvoiceIDs, getInvoiceNumbers, postSaveTodaysToken, postAddUser, fetchAllUsers, fetchUser, postEditUser, deleteUser, postAddInvoice, getPaidInvoices, fetchAllFunds, fetchAllVendors, deleteFund, deleteVendor, getAllUnpaidInvoices, getAllInvoicesAdmin, getInvoiceBySearchTerm, deleteInvoice, fetchInvoiceByInvoiceId, postEditInvoice, getInvoiceById, postUpdateInvoiceStatus} = require('../controllers/dbcalls');
 const {tokenGenerator} = require('../controllers/tokengenerator');
 const {checkOracleStatus, archiveInvoices} = require('../controllers/background-scripts');
-const { generateRandomNumber } = require('../util/helper-functions');
 const express = require('express');
 const router = express.Router();
 const session = require('express-session');
@@ -13,6 +12,7 @@ const CASAuthentication = require('node-cas-authentication');
 const User = require('../models/user');
 const { get } = require('../routes/routes');
 const admin = process.env.ADMIN;
+const { logMessage } = require('../util/logger');
 
 // Set up an Express session, which is required for CASAuthentication.
 router.use(
@@ -40,6 +40,7 @@ var cas = new CASAuthentication({
 
 exports.getHomepage = async (req, res, next) => {
   const cas_user = req.session[cas.session_name];
+  logMessage('INFO',`${cas_user} is using payments app.`);
   const userdata = await fetchUser(cas_user);
   if (userdata) {
     res.render('index', {
@@ -122,7 +123,7 @@ exports.getPreviewPage = async (req, res, next) => {
     const userdata = await fetchUser(cas_user);
 
     if (!userdata || !userdata.library) {
-      console.error("Invalid user or missing library information.");
+      logMessage('DEBUG',"route-controller: getPreviewPage(). Invalid user or missing library information.");
       return res.redirect('/');
     }
 
@@ -130,8 +131,6 @@ exports.getPreviewPage = async (req, res, next) => {
 
     // Fetch all invoices (abstracted into a helper function)
     const totaldata = await fetchAllInvoices(library);
-
-    console.log('Total data:', JSON.stringify(totaldata));
 
     // Filter out submitted invoices
     const data = await filterOutSubmittedInvoices(totaldata, library);
@@ -155,7 +154,7 @@ exports.getPreviewPage = async (req, res, next) => {
       isAdmin: false,
     });
   } catch (error) {
-    console.error("Error in getPreviewPage:", error.message);
+    logMessage('DEBUG',"route-controllers: getPreviewPage()", error.message);
     next(error); // Pass the error to the next middleware for centralized handling
   }
 };
@@ -167,7 +166,7 @@ const fetchAllInvoices = async (library) => {
     const data2 = await getAlmaInvoicesReadyToBePaid(library, 100);
     return { invoice: [...data1.invoice, ...data2.invoice] };
   } catch (error) {
-    console.error("Error fetching invoices:", error.message);
+    logMessage('DEBUG',"route-controllers: fetchAllInvoices()", error.message);
     throw error;
   }
 };
@@ -261,12 +260,11 @@ exports.getCheckStatus = async (req, res, next) => {
 
 exports.getOracleStatus = async (req, res, next) => {
   try {
-    console.log("Fetching Oracle status...");
     const cas_user = req.session[cas.session_name];
     const userdata = await fetchUser(cas_user);
 
     if (!userdata || !userdata.library) {
-      console.error("Invalid user or missing library information.");
+      logMessage('DEBUG',"route-controllers: getOracleStatus(). Invalid user or missing library information.");
       return res.redirect("/");
     }
 
@@ -275,7 +273,7 @@ exports.getOracleStatus = async (req, res, next) => {
     // Fetch unpaid invoices
     const getinvoicedata = await getAllUnpaidInvoices(library);
     if (!getinvoicedata || getinvoicedata.length === 0) {
-      console.error("No invoice data found.");
+      logMessage('DEBUG',"No invoice data found.");
       return res.render("review", {
         title: "Payment Processor - Data Sent",
         body: "No invoices found.",
@@ -306,7 +304,7 @@ exports.getOracleStatus = async (req, res, next) => {
     ]);
 
     if (!invoicedata || !invoicedata.invoice || invoicedata.invoice.length === 0) {
-      console.error("No invoice data retrieved from Alma.");
+      logMessage('DEBUG',"No invoice data retrieved from Alma.");
       return res.render("review", {
         title: "Payment Processor - Data Sent",
         body: "No valid invoices found.",
@@ -332,7 +330,7 @@ exports.getOracleStatus = async (req, res, next) => {
       isAdmin: false,
     });
   } catch (error) {
-    console.error("Error in getOracleStatus:", error.message);
+    logMessage('DEBUG',"route-controllers: getOracleStatus:", error.message);
     next(error); // Pass the error to centralized error handling middleware
   }
 };
@@ -348,8 +346,6 @@ exports.viewPaidInvoices = async (req, res, next) => {
     const page = +req.query.page || 1;
     const ITEMS_PER_PAGE = 10;
     const theseinvoices = invoices.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
-    
-    // console.log('invoices is ' + JSON.stringify(invoices));
       res.render('paid-invoice-list', {
         title: 'Paid Invoices',
         invoices: theseinvoices,
@@ -386,17 +382,15 @@ exports.sendSelectedInvoices = async (req, res, next) => {
         consumerTrackingIds.push(variableInputs[i].data.header.consumerTrackingId);
       }
       const requestresults = await aggieEnterprisePaymentRequest(variableInputs);
-      // console.log('requestresults is ' + JSON.stringify(requestresults));
       if (requestresults && userdata) {
         const invoicedata = await getAlmaIndividualInvoiceData(invoiceids);
         data = {invoice: []}
         for (i in invoicedata.invoice) {
           const invoice = invoicedata.invoice[i];
           const request = requestresults[i];
-          // console.log('request is ' + JSON.stringify(request));
           if (request.errors) {
             if (request.errors.length > 0) {
-              console.log('error');
+              logMessage('DEBUG','route-controllers: sendSelectedInvoices()',request.errors);
               res.redirect('/invoice/' + invoiceids[i]);
             }
           }
@@ -421,7 +415,7 @@ exports.sendSelectedInvoices = async (req, res, next) => {
         }
       }
     catch (error) {
-      console.log(error);
+      logMessage('DEBUG','route-controllers: sendSelectedInvoices()',error);
     }
 
   }
@@ -487,7 +481,7 @@ exports.getAdminViewUsers = async (req, res, next) => {
         });
     }
     catch (error) {
-      console.log(error);
+      logMessage('DEBUG',error);
       res.redirect('/admin');
     }
   } else {
@@ -521,7 +515,7 @@ exports.getViewFunds = async (req, res, next) => {
         });
     }
     catch (error) {
-      console.log(error);
+      logMessage('DEBUG','route-controllers: getViewFunds()',error);
       res.redirect('/');
     }
   } else {
@@ -534,12 +528,12 @@ exports.deleteFund = async (req, res, next) => {
   try {
     const result = await deleteFund(id);
     if (result) {
-      console.log('Deleted fund');
+      logMessage('INFO',`route-controllers: getViewFunds(). Deleted fund ${id}`);
       res.redirect('/funds');
     }
   }
   catch (error) {
-    console.log(error);
+    logMessage('DEBUG','route-controllers: getViewFunds()',error);
   }
 };
 
@@ -557,7 +551,7 @@ exports.getViewVendors = async (req, res, next) => {
         });
     }
     catch (error) {
-      console.log(error);
+      logMessage('DEBUG','route-controllers: getViewVendors()',error);
       res.redirect('/');
     }
   } else {
@@ -566,17 +560,16 @@ exports.getViewVendors = async (req, res, next) => {
 };
 
 exports.deleteVendor = async (req, res, next) => {
-  console.log('delete vendor');
   const id = req.body.id;
   try {
     const result = await deleteVendor(id);
     if (result) {
-      console.log('Deleted vendor');
+      logMessage('INFO',`route-controllers: deleteVendor(). Deleted vendor ${id}`);
       res.redirect('/vendors');
     }
   }
   catch (error) {
-    console.log(error);
+    logMessage('DEBUG',error);
   }
 };
 
@@ -618,7 +611,7 @@ exports.postAdminAddUser = async (req, res, next) => {
     }
   }
   catch (error) {
-    console.log(error);
+    logMessage('DEBUG',error);
     res.status(500).render('useradded', {
       body: body,
       title: 'Error Adding User',
@@ -643,7 +636,6 @@ exports.getAdminEditUser = (req, res, next) => {
   if (cas_user === admin) {
     User.findByID(userId)
       .then((user) => {
-        console.log(user);
         if (!user) {
           return res.redirect('/admin/user');
         }
@@ -657,7 +649,7 @@ exports.getAdminEditUser = (req, res, next) => {
           editMode: true,
         });
       })
-      .catch((err) => console.log(err));
+      .catch((err) => logMessage('DEBUG',err));
   } else {
     res.redirect('/');
   }
@@ -675,12 +667,12 @@ exports.postAdminEditUser = async (req, res, next) => {
 try {
   const result = await postEditUser(updatedFirstName, updatedLastName, updatedEmail, updatedKerberos, updatedLibrary, userid);
   if (result) {
-    console.log('Updated user');
+    logMessage('INFO','Updated user');
     res.redirect('/admin/users');
   }
 }
 catch (error) {
-  console.log(error);
+  logMessage('DEBUG',error);
 }
 
 };
@@ -690,12 +682,12 @@ exports.adminDeleteUser = async (req, res, next) => {
   try {
     const result = await deleteUser(userId);
     if (result) {
-      console.log('Deleted user');
+      logMessage('INFO','Deleted user');
       res.redirect('/admin/users');
     }
   }
   catch (error) {
-    console.log(error);
+    logMessage('DEBUG',error);
   }
 };
 
@@ -711,8 +703,6 @@ exports.getAdminViewInvoices = async (req, res, next) => {
       const page = +req.query.page || 1;
       const ITEMS_PER_PAGE = 10;
       const theseinvoices = invoices.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
-      
-      // console.log('invoices is ' + JSON.stringify(invoices));
         res.render('invoice-list', {
           title: 'Admin View All Invoices',
           invoices: theseinvoices,
@@ -727,7 +717,7 @@ exports.getAdminViewInvoices = async (req, res, next) => {
         });
     }
     catch (error) {
-      console.log(error);
+      logMessage('DEBUG',error);
       res.redirect('/admin');
     }
   } else {
@@ -741,7 +731,6 @@ exports.getAdminEditInvoice = (req, res, next) => {
   if (cas_user === admin) {
     getInvoiceById(id)
       .then((invoice) => {
-        console.log(invoice);
         if (!invoice) {
           return res.redirect('/admin/');
         }
@@ -754,7 +743,7 @@ exports.getAdminEditInvoice = (req, res, next) => {
           editMode: true,
         });
       })
-      .catch((err) => console.log(err));
+      .catch((err) => logMessage('DEBUG',err));
   } else {
     res.redirect('/');
   }
@@ -773,12 +762,12 @@ exports.postAdminEditInvoice = async (req, res, next) => {
 try {
   const result = await postEditInvoice(updatedInvoiceNumber, updatedInvoiceId, updatedConsumerTrackingId, updatedLibrary, updatedStatus, updatedResponseBody, updatedDatetime, thisid);
   if (result) {
-    console.log('Updated Invoice');
+    logMessage('INFO','Updated Invoice');
     res.redirect('/admin/');
   }
 }
 catch (error) {
-  console.log(error);
+  logMessage('DEBUG',error);
 }
 
 };
@@ -789,12 +778,12 @@ exports.postAdminUpdateInvoiceStatus = async (req, res, next) => {
   try {
     const result = await postUpdateInvoiceStatus(status, id);
     if (result) {
-      console.log('Updated invoice status');
+      logMessage('INFO','Updated invoice status');
       res.redirect('/admin/invoices');
     }
   }
   catch (error) {
-    console.log(error);
+    logMessage('DEBUG',error);
   }
 }
 
@@ -805,12 +794,12 @@ exports.adminDeleteInvoice = async (req, res, next) => {
   try {
     const result = await deleteInvoice(id);
     if (result) {
-      console.log('Deleted invoice');
+      logMessage('INFO','Deleted invoice');
       res.redirect('/admin/invoices');
     }
   }
   catch (error) {
-    console.log(error);
+    logMessage('DEBUG',error);
   }
 };
 
