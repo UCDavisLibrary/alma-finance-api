@@ -11,7 +11,7 @@ const transporter = checkTransporter();
   // verify connection configuration
   transporter.verify(function (error, success) {
     if (error) {
-      logMessage('ERROR',error);
+      logMessage('WARNING',error);
     } else {
       console.log('Server is ready to take our messages');
       logMessage('INFO','Server is ready to take our messages');

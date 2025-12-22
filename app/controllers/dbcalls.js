@@ -6,12 +6,17 @@ const Vendor = require('../models/vendor');
 const { logMessage } = require('../util/logger');
 
 exports.postAddInvoice = (number, id, trackingid, library, requestbody) => {
+    console.log('Adding invoice ' + number + ' to db.');
     const invoice = new Invoice(number, id, trackingid, library, requestbody);
     invoice.save()
       .then(() => {
         logMessage('INFO',`dbcalls: postAddInvoice(). Invoice ${id} added`);
+        console.log('Success - invoice ' + number + ' posted to db.');
         })
-      .catch(err => logMessage('DEBUG',"dbcalls: postAddInvoice()", err.message));
+      .catch(err => 
+        console.log('Error - invoice ' + number + ' not posted to db. err.message: ' + err.message),
+        logMessage('DEBUG',"dbcalls: postAddInvoice()", err.message)
+      );
   };
 
   exports.getSubmittedInvoices = (library) => {
@@ -303,17 +308,28 @@ exports.updateStatus = async (status, responsebody, invoiceid) => {
 }
 
 exports.fetchFundCodeFromId = async (id) => {
+  console.log('FETCHING FUND CODE FOR ID:', id);
   try {
     const response = await Fund.findCodeById(id);
-    if (response) {
-      const fund = response[0][0].fundCode;
-      return fund;
+
+    if (!response || !response[0] || response[0].length === 0) {
+      console.log('NO FUND MAPPING FOUND FOR ID:', id);
+      return null;
     }
+
+    const fund = response[0][0].fundCode;
+    console.log('FETCHED FUND CODE:', fund);
+    return fund;
+
+  } catch (error) {
+    logMessage(
+      'DEBUG',
+      'dbcalls: fetchFundCodeFromId()',
+      error.message
+    );
+    return null;
   }
-  catch (error) {
-    logMessage('DEBUG',"dbcalls: fetchFundCodeFromId()", error.message);
-  }
-}
+};
 
 exports.saveFund = async (fundId, fundCode) => {
   const fund = new Fund(fundId, fundCode);

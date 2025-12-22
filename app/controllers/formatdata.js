@@ -5,6 +5,172 @@ const fs = require('fs');
 const { logMessage } = require('../util/logger');
 
 exports.reformatAlmaInvoiceforAPI = async (data) => {
+  let apipayload = [];
+  const fundCache = {};
+  const today = new Date().toLocaleDateString('sv-SE', {
+    timeZone: 'America/Los_Angeles',
+  });
+
+  for (let i = 0; i < data.invoice.length; i++) {
+
+    let nozee = data.invoice[i].invoice_date;
+    if (typeof nozee === 'string' && nozee.endsWith('Z')) {
+      nozee = nozee.slice(0, -1);
+    }
+
+    const vendor = data.invoice[i].vendor.value;
+
+    let payload = null;
+
+    try {
+      const vendordata = await checkForVendorData(vendor);
+
+      if (vendordata) {
+        payload = {
+          data: {
+            header: {
+              boundaryApplicationName: 'Library Check Processing',
+              consumerId: 'UCD GeneralLibrary',
+              consumerReferenceId: data.invoice[i].id,
+              consumerTrackingId:
+                data.invoice[i].number + '-' + generateRandomNumber(0, 99),
+            },
+            payload: {
+              businessUnit: 'UCD Business Unit',
+              invoiceDescription: data.invoice[i].vendor.desc,
+              invoiceAmount: data.invoice[i].total_amount,
+              invoiceDate: nozee,
+              invoiceNumber: data.invoice[i].number,
+              invoiceSourceCode: 'UCD GeneralLibrary',
+              invoiceType:
+                data.invoice[i].total_amount < 0 ? 'CREDIT' : 'STANDARD',
+              paymentMethodCode: 'ACCOUNTINGDEPARTMENT',
+              paymentTerms: 'IMMEDIATE',
+              purchaseOrderNumber: '',
+              supplierNumber: vendordata.financial_sys_code,
+              supplierSiteCode: vendordata.additional_code,
+              invoiceLines: [],
+            },
+          },
+        };
+
+        apipayload.push(payload);
+      }
+    } catch (error) {
+      logMessage(
+        'DEBUG',
+        'formatdata: reformatAlmaInvoiceforAPI()',
+        error
+      );
+      continue;
+    }
+
+    // If we failed to create a payload, skip line processing
+    if (!payload) {
+      continue;
+    }
+
+    for (
+      let j = 0;
+      j < data.invoice[i].invoice_lines.invoice_line.length;
+      j++
+    ) {
+      let line = data.invoice[i].invoice_lines.invoice_line[j];
+
+      let quantity =
+        line.quantity && line.quantity > 0 ? line.quantity : 1;
+
+      let object1 = {
+        itemName: '',
+        itemDescription: line.id,
+        lineAmount: line.price,
+        lineType: 'ITEM',
+        purchaseOrderLineNumber: line.number,
+        purchasingCategory: '',
+        quantity: quantity,
+        unitOfMeasure: 'Each',
+        unitPrice: line.price,
+      };
+
+      for (
+        let k = 0;
+        k < line.fund_distribution.length;
+        k++
+      ) {
+        const fundCode =
+          typeof line.fund_distribution[k].fund_code.value === 'string'
+            ? line.fund_distribution[k].fund_code.value.trim()
+            : line.fund_distribution[k].fund_code.value;
+        if (!fundCode) {
+          continue;
+        }
+
+        console.log(
+          'FUND CODE RAW:',
+          JSON.stringify(fundCode),
+          'TYPE:',
+          typeof fundCode,
+          'LENGTH:',
+          fundCode?.length
+        );
+
+        try {
+          if (!(fundCode in fundCache)) {
+            fundCache[fundCode] = await fetchFundCodeFromId(fundCode);
+          }
+          const fundString =
+            typeof fundCache[fundCode] === 'string'
+              ? fundCache[fundCode].trim()
+              : fundCache[fundCode];
+          console.log('CACHED 2 FUND STRING RAW:', JSON.stringify(fundString));
+          let merged;
+
+          if (fundString && fundString.includes('.')) {
+            const parts = fundString.split('.');
+            let object2 = {
+              glSegments: {
+                entity: parts[0],
+                fund: parts[1],
+                department: parts[2],
+                account: parts[3],
+                purpose: parts[4],
+              },
+            };
+            merged = { ...object1, ...object2 };
+          } else if (fundString && fundString.includes('|')) {
+            const parts = fundString.split('|');
+            let object2 = {
+              ppmSegments: {
+                project: parts[0],
+                organization: parts[1],
+                expenditureType: parts[2],
+                task: parts[3],
+              },
+            };
+            merged = { ...object1, ...object2 };
+          } else {
+            merged = {
+              ...object1,
+              fundData: 'ERROR: unable to retrieve fund data',
+            };
+          }
+
+          payload.data.payload.invoiceLines.push(merged);
+        } catch (err) {
+          logMessage(
+            'DEBUG',
+            'formatdata: reformatAlmaInvoiceforAPI()',
+            err
+          );
+        }
+      }
+    }
+  }
+
+  return apipayload;
+};
+
+exports.reformatAlmaInvoiceforAPIOLD = async (data) => {
     let apipayload = [];
     const today = new Date().toLocaleDateString('sv-SE', {
       timeZone: 'America/Los_Angeles',
