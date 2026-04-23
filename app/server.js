@@ -1,46 +1,32 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const cors = require('cors');
-const PORT = process.env.PORT || 5000;
+import express from 'express';
+import cors from 'cors';
+import config from './util/config.js';
+import routes from './routes/index.js';
+import staticMiddleware from './lib/static.js';
+import { checkTransporter } from './util/nodemailer-transporter.js';
+import { logMessage } from './util/logger.js';
 
-const routes = require('./routes/routes');
-const { checkTransporter } = require('./util/nodemailer-transporter');
-const { logMessage } = require('./util/logger');
 const transporter = checkTransporter();
+transporter.verify((error) => {
+  if (error) {
+    logMessage('WARNING', error);
+  } else {
+    logMessage('INFO', 'Server is ready to take our messages');
+  }
+});
 
-  // verify connection configuration
-  transporter.verify(function (error, success) {
-    if (error) {
-      logMessage('WARNING',error);
-    } else {
-      console.log('Server is ready to take our messages');
-      logMessage('INFO','Server is ready to take our messages');
-    }
-  });
-
-// instantiate an express app
 const app = express();
 
-// cors
 app.use(cors({ origin: '*' }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 
-// here you set that all templates are located in `/views` directory
-app.set('views', __dirname + '/views');
-
-// here you set that you're using `ejs` template engine, and the
-// default extension is `ejs`
-app.set('view engine', 'ejs');
-
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
-
-app.use('/views', express.static(process.cwd() + '/views')); //make public static
-
+// API and auth routes
 app.use(routes);
 
-/*************************************************/
-// Express server listening...
-app.listen(PORT, () => {
-  console.log(`Listening on port ${PORT}...`);
-  logMessage('INFO',`Listening on port ${PORT}...`);
+// SPA static file serving (must come after API routes)
+staticMiddleware(app);
+
+app.listen(config.app.port, () => {
+  logMessage('INFO', `Listening on port ${config.app.port}...`);
 });

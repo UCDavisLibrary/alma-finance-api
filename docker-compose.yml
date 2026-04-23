@@ -25,7 +25,7 @@ services:
   alma-finance:
     build: ./app
     ports:
-      - '5000:5000'
+      - '5001:5000'
     env_file:
       - ./app/app.env
     volumes:
@@ -35,25 +35,33 @@ services:
     depends_on:
       almafinance-db:
         condition: service_healthy
-  finance-file-loader:
-    build: ./file-loader
-    env_file:
-      - ./file-loader/app.env
+  alma-finance-client:
+    build: ./app
+    command: npm run client-watch
     volumes:
-      - ./file-loader:/file-loader
-      - /file-loader/node_modules
-      # - /Users/markwarren/Documents/almadafis:/file-loader/almadafis
-      - /home/almadafis:/file-loader/almadafis
-    restart: always
+      - ./app:/app
+      - /app/node_modules
     depends_on:
-      almafinance-db:
-        condition: service_healthy
-  # adminer:
-  #   image: adminer
+      - alma-finance
+  # finance-file-loader:
+  #   build: ./file-loader
+  #   env_file:
+  #     - ./file-loader/app.env
+  #   volumes:
+  #     - ./file-loader:/file-loader
+  #     - /file-loader/node_modules
+  #     - /Users/mjwarren/Documents/almadafis:/file-loader/almadafis
+  #     # - /home/almadafis:/file-loader/almadafis
   #   restart: always
-  #   ports:
-  #     - 8008:8080 
   #   depends_on:
-  #     - almafinance-db
+  #     almafinance-db:
+  #       condition: service_healthy
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8008:8080 
+    depends_on:
+      - almafinance-db
 volumes:
   almafinance-db:

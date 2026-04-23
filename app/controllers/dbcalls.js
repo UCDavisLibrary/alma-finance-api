@@ -1,388 +1,295 @@
-const Invoice = require('../models/invoice');
-const Token = require('../models/token');
-const User = require('../models/user');
-const Fund = require('../models/fund');
-const Vendor = require('../models/vendor');
-const { logMessage } = require('../util/logger');
+import Invoice from '../models/invoice.js';
+import Token from '../models/token.js';
+import User from '../models/user.js';
+import Fund from '../models/fund.js';
+import Vendor from '../models/vendor.js';
+import { logMessage } from '../util/logger.js';
 
-exports.postAddInvoice = (number, id, trackingid, library, requestbody) => {
-    console.log('Adding invoice ' + number + ' to db.');
-    const invoice = new Invoice(number, id, trackingid, library, requestbody);
-    invoice.save()
-      .then(() => {
-        logMessage('INFO',`dbcalls: postAddInvoice(). Invoice ${id} added`);
-        console.log('Success - invoice ' + number + ' posted to db.');
-        })
-      .catch(err => 
-        console.log('Error - invoice ' + number + ' not posted to db. err.message: ' + err.message),
-        logMessage('DEBUG',"dbcalls: postAddInvoice()", err.message)
-      );
-  };
-
-  exports.getSubmittedInvoices = (library) => {
-    return Invoice.fetchAll(library);
-  }
-
-  exports.getInvoiceIDs = (library) => {
-    return Invoice.fetchInvoiceIDs(library);
-  }
-
-  exports.getInvoiceNumbers = (library) => {
-    return Invoice.fetchInvoiceNumbers(library);
-  }
-
-  exports.getUnpaidInvoiceNumbers = (library) => {
-    return Invoice.fetchUnpaidInvoiceNumbers(library);
-  }
-
-  exports.getAllUnpaidInvoices = (library) => {
-    return Invoice.fetchAllUnpaidInvoices(library);
-  }
-
-  exports.getAllInvoiceNumbers = () => {
-    return Invoice.fetchAllInvoiceNumbers();
-  }
-
-  exports.getAllUnpaidInvoiceNumbers = () => {
-    return Invoice.fetchAllUnpaidInvoices();
-  }
-
-  exports.getPaidInvoices = (library) => {
-    return Invoice.fetchPaidInvoices(library);
-  }
-
-  exports.getAllInvoicesAdmin = () => {
-    return Invoice.fetchAllAdmin();
-  }
-
-  exports.getInvoiceBySearchTerm = (searchterm) => {
-    return Invoice.fetchBySearchTerm(searchterm);
-  }
-
-exports.getInvoiceById = (id) => {
-   try {
-    const response = Invoice.findById(id);
-    if (response) {
-      return response; 
-    }
-    }
-    catch (error) {
-      logMessage('DEBUG',"dbcalls: getInvoiceById()", error.message);
-    }
-  }
-
-exports.postSaveTodaysToken = (token) => {
-  const tokenObj = new Token(token);
-  tokenObj.save()
-    .then(() => {
-      logMessage('INFO','Saved Token');
-      })
-    .catch(err => logMessage('DEBUG',"dbcalls: postSaveTodaysToken()", err.message));
+export function postAddInvoice(number, id, trackingid, library, requestbody) {
+  const invoice = new Invoice(number, id, trackingid, library, requestbody);
+  invoice.save()
+    .then(() => logMessage('INFO', `dbcalls: postAddInvoice(). Invoice ${id} added`))
+    .catch((err) => logMessage('DEBUG', 'dbcalls: postAddInvoice()', err.message));
 }
 
-exports.fetchTodaysToken = async () => {
+export function getSubmittedInvoices(library) {
+  return Invoice.fetchAll(library);
+}
 
+export function getInvoiceIDs(library) {
+  return Invoice.fetchInvoiceIDs(library);
+}
+
+export function getInvoiceNumbers(library) {
+  return Invoice.fetchInvoiceNumbers(library);
+}
+
+export function getUnpaidInvoiceNumbers(library) {
+  return Invoice.fetchUnpaidInvoiceNumbers(library);
+}
+
+export function getAllUnpaidInvoices(library) {
+  return Invoice.fetchAllUnpaidInvoices(library);
+}
+
+export function getAllInvoiceNumbers() {
+  return Invoice.fetchAllInvoiceNumbers();
+}
+
+export function getAllUnpaidInvoiceNumbers() {
+  return Invoice.fetchAllUnpaidInvoices();
+}
+
+export function getPaidInvoices(library) {
+  return Invoice.fetchPaidInvoices(library);
+}
+
+export function getAllInvoicesAdmin() {
+  return Invoice.fetchAllAdmin();
+}
+
+export function getInvoiceBySearchTerm(searchterm) {
+  return Invoice.fetchBySearchTerm(searchterm);
+}
+
+export function getInvoiceById(id) {
+  try {
+    return Invoice.findById(id);
+  } catch (error) {
+    logMessage('DEBUG', 'dbcalls: getInvoiceById()', error.message);
+  }
+}
+
+export function postSaveTodaysToken(token) {
+  const tokenObj = new Token(token);
+  tokenObj.save()
+    .then(() => logMessage('INFO', 'Saved Token'))
+    .catch((err) => logMessage('DEBUG', 'dbcalls: postSaveTodaysToken()', err.message));
+}
+
+export async function fetchTodaysToken() {
   try {
     const response = await Token.fetchOne();
     if (response) {
-      const token = response[0][0].token;
-      logMessage('INFO',`token generated`);
-      return token;
+      return response[0][0].token;
     }
-  }
-  catch (error) {
-    logMessage('DEBUG',"dbcalls: fetchTodaysToken()", error.message);
+  } catch (error) {
+    logMessage('DEBUG', 'dbcalls: fetchTodaysToken()', error.message);
   }
 }
 
-exports.postAddUser = async (firstname, lastname, email, kerberos, library) => {
-  const user = new User(firstname, lastname, email, kerberos, library);
-
+export async function postAddUser(firstname, lastname, email, kerberos, library) {
   try {
-      const usersaved = await user.save();
-      if (usersaved) {
-        logMessage('INFO',`dbcalls: postAddUser(). User ${kerberos} added`);
-        return true;
-      };
+    const user = new User(firstname, lastname, email, kerberos, library);
+    const usersaved = await user.save();
+    if (usersaved) {
+      logMessage('INFO', `dbcalls: postAddUser(). User ${kerberos} added`);
+      return true;
+    }
+  } catch (error) {
+    logMessage('DEBUG', 'dbcalls: postAddUser()', error.message);
   }
-  catch (error) {
-      logMessage('DEBUG',"dbcalls: postAddUser()", error.message);
-  }
-};
+}
 
-exports.postEditUser = async (firstname, lastname, email, kerberos, library, id) => {
-
+export async function postEditUser(firstname, lastname, email, kerberos, library, id) {
   try {
-      const userupdated = await User.update(firstname, lastname, email, kerberos, library, id);
-      if (userupdated) {
-      logMessage('INFO',`dbcalls: postEditUser(). User ${id} updated`);
-          return true;
-      };
+    const userupdated = await User.update(firstname, lastname, email, kerberos, library, id);
+    if (userupdated) {
+      logMessage('INFO', `dbcalls: postEditUser(). User ${id} updated`);
+      return true;
+    }
+  } catch (error) {
+    logMessage('DEBUG', 'dbcalls: postEditUser()', error.message);
   }
-  catch (error) {
-      logMessage('DEBUG',"dbcalls: postEditUser()", error.message);
-  }
-};
+}
 
-exports.deleteUser = async (id) => {
+export async function deleteUser(id) {
   try {
     const response = await User.deleteById(id);
     if (response) {
-      logMessage('INFO',`dbcalls: deleteUser(). User ${id} deleted`);
+      logMessage('INFO', `dbcalls: deleteUser(). User ${id} deleted`);
       return true;
     }
-  }
-  catch (error) {
-    logMessage('DEBUG',"dbcalls: deleteUser()", error.message);
+  } catch (error) {
+    logMessage('DEBUG', 'dbcalls: deleteUser()', error.message);
   }
 }
 
-exports.fetchAllUsers = async () => {
-    try {
-      const response = await User.fetchAll();
-      if (response) {
-        const users = response[0];
-        return users;
-      }
-    }
-    catch (error) {
-      logMessage('DEBUG',"dbcalls: fetchAllUsers()", error.message);
-    }
+export async function fetchAllUsers() {
+  try {
+    const response = await User.fetchAll();
+    if (response) return response[0];
+  } catch (error) {
+    logMessage('DEBUG', 'dbcalls: fetchAllUsers()', error.message);
   }
+}
 
-exports.fetchAllFunds = async () => {
+export async function fetchAllFunds() {
   try {
     const response = await Fund.fetchAll();
-    if (response) {
-      const users = response[0];
-      return users;
-    }
-  }
-  catch (error) {
-    logMessage('DEBUG',"dbcalls: fetchAllFunds()", error.message);
+    if (response) return response[0];
+  } catch (error) {
+    logMessage('DEBUG', 'dbcalls: fetchAllFunds()', error.message);
   }
 }
 
-exports.deleteFund = async (id) => {
+export async function deleteFund(id) {
   try {
     const response = await Fund.deleteById(id);
     if (response) {
-      logMessage('INFO',`dbcalls: deleteFund(). Fund ${id} deleted`);
+      logMessage('INFO', `dbcalls: deleteFund(). Fund ${id} deleted`);
       return true;
     }
-  }
-  catch (error) {
-    logMessage('DEBUG',"dbcalls: deleteFund()", error.message);
+  } catch (error) {
+    logMessage('DEBUG', 'dbcalls: deleteFund()', error.message);
   }
 }
 
-exports.deleteFundByFundId = async (id) => {
+export async function deleteFundByFundId(id) {
   try {
     const response = await Fund.deleteByFundId(id);
     if (response) {
-      logMessage('INFO',`dbcalls: deleteFundByFundId(). Fund ${id} deleted`);
+      logMessage('INFO', `dbcalls: deleteFundByFundId(). Fund ${id} deleted`);
       return true;
     }
-  }
-  catch (error) {
-    logMessage('DEBUG',"dbcalls: deleteFundByFundId()", error.message);
+  } catch (error) {
+    logMessage('DEBUG', 'dbcalls: deleteFundByFundId()', error.message);
   }
 }
 
-exports.fetchAllVendors = async () => {
+export async function fetchAllVendors() {
   try {
     const response = await Vendor.fetchAll();
-    if (response) {
-      const users = response[0];
-      return users;
-    }
-  }
-  catch (error) {
-    logMessage('DEBUG',"dbcalls: fetchAllVendors()", error.message);
+    if (response) return response[0];
+  } catch (error) {
+    logMessage('DEBUG', 'dbcalls: fetchAllVendors()', error.message);
   }
 }
 
-exports.deleteVendor = async (id) => {
+export async function deleteVendor(id) {
   try {
     const response = await Vendor.deleteById(id);
     if (response) {
-      logMessage('INFO',`dbcalls: deleteVendor(). Vendor ${id} deleted`);
+      logMessage('INFO', `dbcalls: deleteVendor(). Vendor ${id} deleted`);
       return true;
     }
-  }
-  catch (error) {
-    logMessage('DEBUG',"dbcalls: deleteVendor()", error.message);
+  } catch (error) {
+    logMessage('DEBUG', 'dbcalls: deleteVendor()', error.message);
   }
 }
 
-exports.deleteInvoice = async (id) => {
+export async function deleteInvoice(id) {
   try {
     const response = await Invoice.deleteById(id);
     if (response) {
-      logMessage('INFO',`dbcalls: deleteInvoice(). Invoice ${id} deleted`);
+      logMessage('INFO', `dbcalls: deleteInvoice(). Invoice ${id} deleted`);
       return true;
     }
-  }
-  catch (error) {
-    logMessage('DEBUG',"dbcalls: deleteInvoice()", error.message);
+  } catch (error) {
+    logMessage('DEBUG', 'dbcalls: deleteInvoice()', error.message);
   }
 }
 
-exports.postEditInvoice = async (invoicenumber, invoiceid, consumerTrackingId, library, status, responsebody, datetime, id) => {
-  const responsebodyjson = JSON.parse(responsebody);
+export async function postEditInvoice(invoicenumber, invoiceid, consumerTrackingId, library, status, responsebody, datetime, id) {
   try {
-      const invoiceupdated = await Invoice.update(invoicenumber, invoiceid, consumerTrackingId, library, status, responsebodyjson, datetime, id);
-      if (invoiceupdated) {
-          logMessage('INFO',`dbcalls: postEditInvoice(). Invoice ${invoicenumber} updated`);
-          return true;
-      };
+    const responsebodyjson = JSON.parse(responsebody);
+    const invoiceupdated = await Invoice.update(invoicenumber, invoiceid, consumerTrackingId, library, status, responsebodyjson, datetime, id);
+    if (invoiceupdated) {
+      logMessage('INFO', `dbcalls: postEditInvoice(). Invoice ${invoicenumber} updated`);
+      return true;
+    }
+  } catch (error) {
+    logMessage('DEBUG', 'dbcalls: postEditInvoice()', error.message);
   }
-  catch (error) {
-      logMessage('DEBUG',"dbcalls: postEditInvoice()", error.message);
-  }
-};
+}
 
-exports.postUpdateInvoiceStatus = async (status, id) => {
+export async function postUpdateInvoiceStatus(status, id) {
   try {
     const response = await Invoice.updateInvoiceStatus(status, id);
-    if (response) {
-      return true;
-    }
-  }
-  catch (error) {
-    logMessage('DEBUG',"dbcalls: postUpdateInvoiceStatus()", error.message);
+    if (response) return true;
+  } catch (error) {
+    logMessage('DEBUG', 'dbcalls: postUpdateInvoiceStatus()', error.message);
   }
 }
 
-exports.checkLibrary = async (kerberos) => {
-    
-      try {
-        const response = await User.checkLibrary(kerberos);
-        if (response) {
-          const library = response[0][0].library;
-          return library;
-        }
-      }
-      catch (error) {
-        logMessage('DEBUG',"dbcalls: checkLibrary()", error.message);
-      }
-    }
+export async function checkLibrary(kerberos) {
+  try {
+    const response = await User.checkLibrary(kerberos);
+    if (response) return response[0][0].library;
+  } catch (error) {
+    logMessage('DEBUG', 'dbcalls: checkLibrary()', error.message);
+  }
+}
 
-exports.fetchUser = async (id) => {
-    
-        try {
-          const response = await User.findByKerberos(id);
-          if (response) {
-            const user = response[0][0];
-            return user;
-          }
-        }
-        catch (error) {
-          logMessage('DEBUG',"dbcalls: fetchUser()", error.message);
-        }
-      }
+export async function fetchUser(id) {
+  try {
+    const response = await User.findByKerberos(id);
+    if (response) return response[0][0];
+  } catch (error) {
+    logMessage('DEBUG', 'dbcalls: fetchUser()', error.message);
+  }
+}
 
-exports.checkIfUserExists = async (kerberos) => {
-                                                      
-    try {
-      const response = await User.findByID(kerberos);
-      if (response && response[0][0] === kerberos) {
-        return true;
-      }
-    }
-    catch (error) {
-      logMessage('DEBUG',"dbcalls: checkIfUserExists()", error.message);
-    }
-  }      
-  
-exports.updateStatus = async (status, responsebody, invoiceid) => {
+export async function updateStatus(status, responsebody, invoiceid) {
   try {
     const response = await Invoice.updateStatus(status, responsebody, invoiceid);
-    if (response) {
-      return true;
-    }
-  }
-  catch (error) {
-    logMessage('DEBUG',"dbcalls: updateStatus()", error.message);
+    if (response) return true;
+  } catch (error) {
+    logMessage('DEBUG', 'dbcalls: updateStatus()', error.message);
   }
 }
 
-exports.fetchFundCodeFromId = async (id) => {
-  console.log('FETCHING FUND CODE FOR ID:', id);
+export async function fetchFundCodeFromId(id) {
   try {
     const response = await Fund.findCodeById(id);
-
-    if (!response || !response[0] || response[0].length === 0) {
-      console.log('NO FUND MAPPING FOUND FOR ID:', id);
-      return null;
-    }
-
-    const fund = response[0][0].fundCode;
-    console.log('FETCHED FUND CODE:', fund);
-    return fund;
-
+    if (!response || !response[0] || response[0].length === 0) return null;
+    return response[0][0].fundCode;
   } catch (error) {
-    logMessage(
-      'DEBUG',
-      'dbcalls: fetchFundCodeFromId()',
-      error.message
-    );
+    logMessage('DEBUG', 'dbcalls: fetchFundCodeFromId()', error.message);
     return null;
-  }
-};
-
-exports.saveFund = async (fundId, fundCode) => {
-  const fund = new Fund(fundId, fundCode);
-
-  try {
-      const fundsaved = await fund.save();
-      if (fundsaved) {
-          logMessage('INFO',`dbcalls: saveFund(). Fund ${fundId} saved`);
-          return true;
-      };
-  }
-  catch (error) {
-      logMessage('DEBUG',"dbcalls: saveFund()", error.message);
-  }
-};
-
-exports.fetchVendorDataFromId = async (vendorId) => {
-  try {
-    const response = await Vendor.fetchVendorDataFromId(vendorId);
-    if (response) {
-      const vendor = response[0][0].vendorData;
-      return vendor;
-    }
-  }
-  catch (error) {
-    logMessage('DEBUG',"dbcalls: fetchVendorDataFromId()", error.message);
   }
 }
 
-exports.saveVendor = async (vendorId, vendorData) => {
-  const vendor = new Vendor(vendorId, vendorData);
+export async function saveFund(fundId, fundCode) {
   try {
-      const vendorsaved = await vendor.save();
-      if (vendorsaved) {
-          logMessage('INFO',`dbcalls: saveVendor(). Vendor ${vendorId} saved`);
-          return true;
-      };
+    const fund = new Fund(fundId, fundCode);
+    const fundsaved = await fund.save();
+    if (fundsaved) {
+      logMessage('INFO', `dbcalls: saveFund(). Fund ${fundId} saved`);
+      return true;
+    }
+  } catch (error) {
+    logMessage('DEBUG', 'dbcalls: saveFund()', error.message);
   }
-  catch (error) {
-      logMessage('DEBUG',"dbcalls: saveVendor()", error.message);
+}
+
+export async function fetchVendorDataFromId(vendorId) {
+  try {
+    const response = await Vendor.fetchVendorDataFromId(vendorId);
+    if (response) return response[0][0].vendorData;
+  } catch (error) {
+    logMessage('DEBUG', 'dbcalls: fetchVendorDataFromId()', error.message);
   }
-};
+}
 
+export async function saveVendor(vendorId, vendorData) {
+  try {
+    const vendor = new Vendor(vendorId, vendorData);
+    const vendorsaved = await vendor.save();
+    if (vendorsaved) {
+      logMessage('INFO', `dbcalls: saveVendor(). Vendor ${vendorId} saved`);
+      return true;
+    }
+  } catch (error) {
+    logMessage('DEBUG', 'dbcalls: saveVendor()', error.message);
+  }
+}
 
-exports.fetchInvoiceByInvoiceId = async (invoiceId) => {
+export async function fetchInvoiceByInvoiceId(invoiceId) {
   try {
     const response = await Invoice.findByInvoiceId(invoiceId);
-    if (response) {
-      const invoice = response[0][0];
-      return invoice;
-    }
-  }
-  catch (error) {
-    logMessage('DEBUG',"dbcalls: fetchInvoiceByInvoiceId()", error.message);
+    if (response) return response[0][0];
+  } catch (error) {
+    logMessage('DEBUG', 'dbcalls: fetchInvoiceByInvoiceId()', error.message);
   }
 }

@@ -1,0 +1,60 @@
+@use '@ucd-lib/theme-sass/style-ucdlib.scss' as style;
+@use '@fortawesome/fontawesome-free/scss/fontawesome' with ($fa-font-path: '/fonts/fontawesome');
+@use '@fortawesome/fontawesome-free/scss/solid' with ($fa-font-path: '/fonts/fontawesome');
+@use '@fortawesome/fontawesome-free/scss/regular' with ($fa-font-path: '/fonts/fontawesome');
+
+// theme-sass references "Font Awesome 5 Free"; alias v6 files under the v5 name
+@font-face {
+  font-family: "Font Awesome 5 Free";
+  font-style: normal;
+  font-weight: 900;
+  font-display: block;
+  src: url('/fonts/fontawesome/fa-solid-900.woff2') format('woff2'),
+       url('/fonts/fontawesome/fa-solid-900.ttf') format('truetype');
+}
+@font-face {
+  font-family: "Font Awesome 5 Free";
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url('/fonts/fontawesome/fa-regular-400.woff2') format('woff2'),
+       url('/fonts/fontawesome/fa-regular-400.ttf') format('truetype');
+}
+
+// Site footer
+.site-footer {
+  background-color: #022851;
+  color: #ffffff;
+  padding: 1.5rem 0;
+  margin-top: auto;
+
+  &__inner {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+  }
+
+  &__figure img,
+  &__figure svg {
+    width: 160px;
+    filter: brightness(0) invert(1);
+  }
+
+  &__copy p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.8);
+  }
+}
+
+// Ensure the app fills the viewport so footer stays at bottom
+alma-finance-app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+ucdlib-pages {
+  flex: 1;
+}

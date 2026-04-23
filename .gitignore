@@ -13,3 +13,10 @@
 /file-loader/wait.html
 /file-loader/package-lock.json
 /alma-payments-gcloud-key.json
+almafinance-db-*.sql
+*.log
+
+# Compiled client assets (built inside Docker)
+/app/client/public/js/
+/app/client/public/css/dev/
+/app/client/public/css/dist/
