@@ -12,7 +12,7 @@ export function render() {
           <li><a href="/preview">Pending Invoices</a></li>
           <li><a href="/paid">Paid Invoices</a></li>
           <li><a href="/search">Search</a></li>
-          <li><a href="/oracle-status">Oracle Status</a></li>
+          <li><a href="/unpaid">Unpaid Invoices</a></li>
         </ul>
         <a href="/funds">Funds</a>
         <a href="/vendors">Vendors</a>
@@ -42,7 +42,7 @@ export function render() {
       <alma-finance-page-invoice page-id="invoice"></alma-finance-page-invoice>
       <alma-finance-page-paid page-id="paid"></alma-finance-page-paid>
       <alma-finance-page-search page-id="search"></alma-finance-page-search>
-      <alma-finance-page-oracle-status page-id="oracle-status"></alma-finance-page-oracle-status>
+      <alma-finance-page-oracle-status page-id="unpaid"></alma-finance-page-oracle-status>
       <alma-finance-page-admin page-id="admin"></alma-finance-page-admin>
       <alma-finance-page-admin-invoices page-id="admin-invoices"></alma-finance-page-admin-invoices>
       <alma-finance-page-admin-invoice page-id="admin-invoice"></alma-finance-page-admin-invoice>

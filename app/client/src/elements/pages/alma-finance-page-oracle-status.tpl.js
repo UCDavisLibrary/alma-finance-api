@@ -6,7 +6,7 @@ export function render() {
   return html`
     <div class="l-container u-space-my">
       <div style="display:flex;justify-content:space-between;align-items:center;">
-        <h1 class="heading--highlight">Oracle Status</h1>
+        <h1 class="heading--highlight">Unpaid Invoices</h1>
         <button class="btn btn--primary btn--sm" @click=${this._triggerUpdate} ?disabled=${this.updating}>
           ${this.updating ? 'Updating...' : 'Refresh Status'}
         </button>

@@ -17,7 +17,7 @@ export function render() {
               <li><a href="/preview">Pending Invoices</a></li>
               <li><a href="/paid">Paid Invoices</a></li>
               <li><a href="/search">Search Invoices</a></li>
-              <li><a href="/oracle-status">Oracle Status</a></li>
+              <li><a href="/unpaid">Unpaid Invoices</a></li>
             </ul>
           </div>
         </div>

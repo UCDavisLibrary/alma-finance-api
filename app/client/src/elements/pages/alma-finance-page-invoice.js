@@ -63,9 +63,30 @@ export default class AlmaFinancePageInvoice extends Mixin(LitElement).with(LitCo
         fetch(`/api/invoices/${id}/oracle-status`),
       ]);
 
+      const readBody = async (res) => {
+        try {
+          return await res.clone().json();
+        } catch (e) {
+          try {
+            return await res.text();
+          } catch (err) {
+            return null;
+          }
+        }
+      };
+
+      console.log('Invoice detail endpoint statuses:', {
+        db: `${dbRes.status} ${dbRes.statusText}`,
+        alma: `${almaRes.status} ${almaRes.statusText}`,
+        payment: `${paymentRes.status} ${paymentRes.statusText}`,
+        oracle: `${oracleRes.status} ${oracleRes.statusText}`,
+      });
+
       if (dbRes.ok) {
         const data = await dbRes.json();
         this.dbInvoice = data.invoice || null;
+      } else {
+        console.log('DB invoice endpoint response:', await readBody(dbRes));
       }
 
       if (almaRes.ok) {
@@ -74,16 +95,25 @@ export default class AlmaFinancePageInvoice extends Mixin(LitElement).with(LitCo
         this.vendor = data.vendor || null;
       } else if (almaRes.status === 404) {
         this.error = 'Invoice not found in Alma.';
+        console.log('Alma invoice endpoint response:', await readBody(almaRes));
+      } else {
+        console.log('Alma invoice endpoint response:', await readBody(almaRes));
       }
 
       if (paymentRes.ok) {
         const data = await paymentRes.json();
+        console.log('Payment status endpoint response:', data);
         this.paymentStatus = data.data || null;
+      } else {
+        console.log('Payment status endpoint response:', await readBody(paymentRes));
       }
 
       if (oracleRes.ok) {
         const data = await oracleRes.json();
+        console.log('Oracle status endpoint response:', data);
         this.oracleStatus = data.data || null;
+      } else {
+        console.log('Oracle status endpoint response:', await readBody(oracleRes));
       }
 
       if (!this.dbInvoice && !this.almaInvoice) {

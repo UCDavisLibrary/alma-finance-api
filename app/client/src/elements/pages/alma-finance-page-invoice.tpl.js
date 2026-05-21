@@ -11,6 +11,17 @@ function formatCurrency(val) {
   return `$${Number(val).toFixed(2)}`;
 }
 
+function formatQuantity(val) {
+  return val && Number(val) > 0 ? val : 1;
+}
+
+function formatRawData(data) {
+  if (data == null) return "can't find data";
+  if (Array.isArray(data) && !data.length) return "can't find data";
+  if (typeof data === 'object' && !Object.keys(data).length) return "can't find data";
+  return JSON.stringify(data, null, 2);
+}
+
 export function render() {
   if (this.loading) return html`<div class="l-container u-space-my"><p>Loading invoice...</p></div>`;
   if (this.error && !this.almaInvoice && !this.dbInvoice) {
@@ -22,6 +33,9 @@ export function render() {
   const vendor = this.vendor;
 
   const invoiceNumber = alma?.number || db?.invoicenumber || db?.number || this.invoiceId;
+
+  console.log('Aggie Enterprise payment status:', this.paymentStatus);
+  console.log('Oracle payment record:', this.oracleStatus);
 
   return html`
     <div class="l-container u-space-my">
@@ -76,7 +90,7 @@ export function render() {
                 <tr>
                   <td>${line.number || '—'}</td>
                   <td>${line.description || line.id || '—'}</td>
-                  <td>${line.quantity || '—'}</td>
+                  <td>${formatQuantity(line.quantity)}</td>
                   <td>${formatCurrency(line.price)}</td>
                   <td>${line.fund_distribution?.map(d => d.fund_code?.value).filter(Boolean).join(', ') || '—'}</td>
                 </tr>
@@ -87,45 +101,16 @@ export function render() {
       ` : ''}
 
       <!-- Aggie Enterprise + Oracle Status -->
-      ${db ? html`
-        <div class="l-2col u-space-mt">
-          <div class="l-first">
-            <h2>Aggie Enterprise Payment Status</h2>
-            <dl>
-              <dt>Submitted</dt><dd>${formatDate(db.datetime)}</dd>
-              <dt>Consumer Tracking ID</dt><dd>${db.consumertrackingid || '—'}</dd>
-              <dt>DB Status</dt><dd>${db.status || '—'}</dd>
-            </dl>
-            ${this.paymentStatus ? html`
-              <dl class="u-space-mt">
-                <dt>Request Status</dt><dd>${this.paymentStatus.scmInvoicePaymentRequestStatusByConsumerTracking?.requestStatus?.requestStatus || '—'}</dd>
-                <dt>Request ID</dt><dd>${this.paymentStatus.scmInvoicePaymentRequestStatusByConsumerTracking?.requestStatus?.requestId || '—'}</dd>
-                <dt>Last Status</dt><dd>${formatDate(this.paymentStatus.scmInvoicePaymentRequestStatusByConsumerTracking?.requestStatus?.lastStatusDateTime)}</dd>
-                <dt>Processed</dt><dd>${formatDate(this.paymentStatus.scmInvoicePaymentRequestStatusByConsumerTracking?.requestStatus?.processedDateTime)}</dd>
-                <dt>Job Status</dt><dd>${this.paymentStatus.scmInvoicePaymentRequestStatusByConsumerTracking?.processingResult?.jobs?.[0]?.jobStatus || '—'}</dd>
-                <dt>Error Messages</dt><dd>${this.paymentStatus.scmInvoicePaymentRequestStatusByConsumerTracking?.requestStatus?.errorMessages?.join(', ') || 'None'}</dd>
-              </dl>
-            ` : html`<p class="u-space-mt">No payment status data available.</p>`}
-          </div>
-          <div class="l-second">
-            <h2>Oracle Payment Record</h2>
-            ${this.oracleStatus?.data?.length ? html`
-              <dl>
-                <dt>Invoice Number</dt><dd>${this.oracleStatus.data[0].invoiceNumber || '—'}</dd>
-                <dt>Payment Status</dt><dd>${this.oracleStatus.data[0].paymentStatusCode || '—'}</dd>
-                <dt>Check Status</dt><dd>${this.oracleStatus.data[0].checkStatusCode || '—'}</dd>
-                <dt>Check Number</dt><dd>${this.oracleStatus.data[0].checkNumber || '—'}</dd>
-                <dt>Payment Amount</dt><dd>${formatCurrency(this.oracleStatus.data[0].paymentAmount)}</dd>
-                <dt>Payment Date</dt><dd>${formatDate(this.oracleStatus.data[0].paymentDate)}</dd>
-                <dt>Invoice Date</dt><dd>${formatDate(this.oracleStatus.data[0].invoiceDate)}</dd>
-                <dt>Supplier</dt><dd>${this.oracleStatus.data[0].supplierName || '—'}</dd>
-                <dt>Payment Method</dt><dd>${this.oracleStatus.data[0].paymentMethodCode || '—'}</dd>
-                <dt>Batch</dt><dd>${this.oracleStatus.data[0].batchName || '—'}</dd>
-              </dl>
-            ` : html`<p>No Oracle payment record found.</p>`}
-          </div>
+      <div class="l-2col u-space-mt">
+        <div class="l-first">
+          <h2>Aggie Enterprise Payment Status</h2>
+          <pre>${formatRawData(this.paymentStatus)}</pre>
         </div>
-      ` : ''}
+        <div class="l-second">
+          <h2>Oracle Payment Record</h2>
+          <pre>${formatRawData(this.oracleStatus)}</pre>
+        </div>
+      </div>
     </div>
   `;
 }

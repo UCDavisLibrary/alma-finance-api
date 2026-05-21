@@ -188,8 +188,9 @@ router.get('/invoices/:invoiceId/alma', async (req, res) => {
 router.get('/invoices/:invoiceId/payment-status', async (req, res) => {
   try {
     const dbdata = await fetchInvoiceByInvoiceId(req.params.invoiceId);
-    if (!dbdata?.consumertrackingid) return res.status(404).json({ error: 'No tracking ID found for this invoice' });
-    const results = await checkPayments([{ consumerTrackingId: dbdata.consumertrackingid }]);
+    const consumerTrackingId = dbdata?.consumerTrackingId || dbdata?.consumertrackingid;
+    if (!consumerTrackingId) return res.status(404).json({ error: 'No tracking ID found for this invoice' });
+    const results = await checkPayments([{ consumerTrackingId }]);
     res.json({ data: results?.[0] || null });
   } catch (error) {
     logMessage('DEBUG', 'api/invoices GET /:invoiceId/payment-status', error.message);

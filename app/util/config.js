@@ -19,7 +19,7 @@ class Config {
         'invoice',
         'paid',
         'search',
-        'oracle-status',
+        'unpaid',
         'admin',
         'funds',
         'vendors',
