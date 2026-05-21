@@ -38,6 +38,7 @@ export default class AlmaFinancePageVendors extends Mixin(LitElement).with(LitCo
       const res = await fetch('/api/vendors');
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
+      console.log('Vendors endpoint response:', data);
       this.vendors = data.vendors || [];
     } catch (e) {
       this.error = e.message;

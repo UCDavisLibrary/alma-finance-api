@@ -38,6 +38,7 @@ export default class AlmaFinancePageFunds extends Mixin(LitElement).with(LitCork
       const res = await fetch('/api/funds');
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
+      console.log('Funds endpoint response:', data);
       this.funds = data.funds || [];
     } catch (e) {
       this.error = e.message;

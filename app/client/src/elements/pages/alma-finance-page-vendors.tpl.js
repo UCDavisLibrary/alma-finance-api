@@ -1,5 +1,15 @@
 import { html } from 'lit';
 
+function vendorData(vendor) {
+  if (!vendor?.vendorData) return {};
+  if (typeof vendor.vendorData === 'object') return vendor.vendorData;
+  try {
+    return JSON.parse(vendor.vendorData);
+  } catch (e) {
+    return {};
+  }
+}
+
 export function render() {
   if (this.loading) return html`<div class="l-container u-space-my"><p>Loading vendors...</p></div>`;
 
@@ -13,21 +23,30 @@ export function render() {
         <table class="table--striped u-space-mt">
           <thead>
             <tr>
-              <th>Vendor Code</th>
+              <th>ID</th>
+              <th>Vendor ID</th>
               <th>Name</th>
+              <th>Financial System Code</th>
+              <th>Supplier Site Code</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            ${this.vendors.map(vendor => html`
-              <tr>
-                <td>${vendor.vendorcode || vendor.vendor_code || '—'}</td>
-                <td>${vendor.name || '—'}</td>
-                <td>
-                  <button class="btn btn--alt btn--sm" @click=${() => this._deleteVendor(vendor.id)}>Delete</button>
-                </td>
-              </tr>
-            `)}
+            ${this.vendors.map(vendor => {
+              const data = vendorData(vendor);
+              return html`
+                <tr>
+                  <td>${vendor.id || '—'}</td>
+                  <td>${vendor.vendorId || '—'}</td>
+                  <td>${data.name || '—'}</td>
+                  <td>${data.financial_sys_code || '—'}</td>
+                  <td>${data.additional_code || '—'}</td>
+                  <td>
+                    <button class="btn btn--alt btn--sm" @click=${() => this._deleteVendor(vendor.id)}>Delete</button>
+                  </td>
+                </tr>
+              `;
+            })}
           </tbody>
         </table>
       `}
