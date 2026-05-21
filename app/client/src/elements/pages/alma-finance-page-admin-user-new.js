@@ -17,7 +17,7 @@ export default class AlmaFinancePageAdminUserNew extends Mixin(LitElement).with(
   constructor() {
     super();
     this.render = render.bind(this);
-    this.form = { firstname: '', lastname: '', email: '', kerberos: '', library: '' };
+    this.form = { firstname: '', lastname: '', email: '', kerberos: '', library: 'SHLDS' };
     this.saving = false;
     this.error = '';
     this.success = false;
@@ -29,7 +29,7 @@ export default class AlmaFinancePageAdminUserNew extends Mixin(LitElement).with(
 
   _onAppStateUpdate(e) {
     if (!this.ctl.appComponent.isOnActivePage) return;
-    this.form = { firstname: '', lastname: '', email: '', kerberos: '', library: '' };
+    this.form = { firstname: '', lastname: '', email: '', kerberos: '', library: 'SHLDS' };
     this.success = false;
     this.error = '';
     this.ctl.appComponent.showPage();
@@ -50,7 +50,7 @@ export default class AlmaFinancePageAdminUserNew extends Mixin(LitElement).with(
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       this.success = true;
-      this.form = { firstname: '', lastname: '', email: '', kerberos: '', library: '' };
+      this.form = { firstname: '', lastname: '', email: '', kerberos: '', library: 'SHLDS' };
     } catch (e) {
       this.error = e.message;
     } finally {

@@ -27,7 +27,8 @@ export function render() {
         </div>
         <div class="field-container">
           <label>Email *</label>
-          <input class="form-input" type="email" required .value=${this.form.email}
+          <input class="form-input" type="email" required pattern="^[^@]+@ucdavis\\.edu$"
+            title="Email must end in @ucdavis.edu" .value=${this.form.email}
             @input=${e => this._updateField('email', e.target.value)}>
         </div>
         <div class="field-container">
@@ -37,8 +38,11 @@ export function render() {
         </div>
         <div class="field-container">
           <label>Library *</label>
-          <input class="form-input" type="text" required .value=${this.form.library}
-            @input=${e => this._updateField('library', e.target.value)}>
+          <select class="form-input" required .value=${this.form.library}
+            @change=${e => this._updateField('library', e.target.value)}>
+            <option value="SHLDS">SHLDS</option>
+            <option value="LAW">LAW</option>
+          </select>
         </div>
         <div class="u-space-mt">
           <button type="submit" class="btn btn--primary" ?disabled=${this.saving}>
