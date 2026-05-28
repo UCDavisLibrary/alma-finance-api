@@ -6,7 +6,7 @@ export function render() {
       <h1 class="heading--highlight">Payment Processor</h1>
       ${this.user ? html`
         <p>Welcome, <strong>${this.user.firstname} ${this.user.lastname}</strong>.</p>
-        <p>Library: <strong>${this.user.library}</strong></p>
+        <p>Library: <strong>${this.user.library === 'LAW' ? 'Mabie Law Library' : 'Shields Library'}</strong></p>
       ` : html`<p>Loading user information...</p>`}
 
       <div class="l-3col u-space-mt">

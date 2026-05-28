@@ -10,6 +10,12 @@ if (!config.app.isLocal) {
 
 export async function logMessage(severity = 'DEFAULT', message, context = {}) {
   if (config.app.isLocal) {
+    const prefix = `[${severity}]`;
+    if (severity === 'ERROR' || severity === 'DEBUG') {
+      console.error(prefix, message, context);
+    } else {
+      console.log(prefix, message, context);
+    }
     return;
   }
 

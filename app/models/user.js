@@ -11,7 +11,7 @@ export default class User {
 
   save() {
     return db.execute(
-      'INSERT INTO users (firstname, lastname, email, kerberos, library) VALUES (?, ?, ?, ?, ?)',
+      'INSERT INTO users (firstname, lastname, email, kerberos, `library`) VALUES (?, ?, ?, ?, ?)',
       [this.firstname, this.lastname, this.email, this.kerberos, this.library]
     );
   }
@@ -25,7 +25,7 @@ export default class User {
   }
 
   static update(firstname, lastname, email, kerberos, library, id) {
-    return db.execute('UPDATE users SET firstname = ?, lastname = ?, email = ?, kerberos = ?, library = ? WHERE id = ?', [firstname, lastname, email, kerberos, library, id]);
+    return db.execute('UPDATE users SET firstname = ?, lastname = ?, email = ?, kerberos = ?, `library` = ? WHERE id = ?', [firstname, lastname, email, kerberos, library, id]);
   }
 
   static findByID(id) {
@@ -33,7 +33,7 @@ export default class User {
   }
 
   static checkLibrary(kerberos) {
-    return db.execute('SELECT library FROM users WHERE users.kerberos = ?', [kerberos]);
+    return db.execute('SELECT `library` FROM users WHERE users.kerberos = ?', [kerberos]);
   }
 
   static deleteById(id) {
