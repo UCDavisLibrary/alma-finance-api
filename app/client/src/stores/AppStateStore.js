@@ -7,7 +7,7 @@ class AppStateStoreImpl extends AppStateStore {
 
     this.breadcrumbs = {
       home: { text: 'Home', link: '/' },
-      preview: { text: 'Pending Invoices', link: '/preview' },
+      preview: { text: 'Invoices Waiting to be Sent', link: '/preview' },
       paid: { text: 'Paid Invoices', link: '/paid' },
       search: { text: 'Search', link: '/search' },
       unpaid: { text: 'Unpaid Invoices', link: '/unpaid' },
@@ -20,7 +20,7 @@ class AppStateStoreImpl extends AppStateStore {
 
     this.pageTitles = {
       home: 'Payment Processor',
-      preview: 'Pending Invoices',
+      preview: 'Invoices Waiting to be Sent',
       invoice: 'Invoice Detail',
       paid: 'Paid Invoices',
       search: 'Search Invoices',

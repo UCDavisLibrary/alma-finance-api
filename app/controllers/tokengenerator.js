@@ -10,6 +10,9 @@ export async function tokenGenerator() {
         'Authorization': `Basic ${config.aggie.tokenAuth}`,
       },
     });
+    if (!response.ok) {
+      throw new Error(`Token fetch failed: HTTP ${response.status}`);
+    }
     const data = await response.json();
     if (data) {
       return data.access_token;

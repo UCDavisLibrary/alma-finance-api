@@ -151,18 +151,15 @@ export async function filterOutSubmittedInvoices(data, library) {
   const myarray = data.invoice;
   const data2 = await getSubmittedInvoices(library);
   const alreadysentinvoices = data2[0];
-  const invoiceids = alreadysentinvoices.map((inv) => inv.invoicenumber);
+  const sentNumbers = new Set(alreadysentinvoices.map((inv) => inv.invoicenumber));
   const filteredinvoices = [];
-  let counter = 0;
 
   for (const invoice of myarray) {
-    if (counter === 10) break;
-    if (invoiceids.includes(invoice.number)) {
+    if (sentNumbers.has(invoice.number)) {
       logMessage('INFO', 'formatdata: filterOutSubmittedInvoices() ' + invoice.number + ' already sent');
     } else {
       logMessage('INFO', 'formatdata: filterOutSubmittedInvoices() ' + invoice.number + ' not sent');
       filteredinvoices.push(invoice);
-      counter++;
     }
   }
 

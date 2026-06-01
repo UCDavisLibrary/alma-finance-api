@@ -14,7 +14,7 @@ export function render() {
           <div class="category-brand--double-decker u-space-mb">
             <h2 class="heading--highlight">Invoices</h2>
             <ul class="list--arrow">
-              <li><a href="/preview">Pending Invoices</a></li>
+              <li><a href="/preview">Invoices Waiting to be Sent</a></li>
               <li><a href="/paid">Paid Invoices</a></li>
               <li><a href="/search">Search Invoices</a></li>
               <li><a href="/unpaid">Unpaid Invoices</a></li>

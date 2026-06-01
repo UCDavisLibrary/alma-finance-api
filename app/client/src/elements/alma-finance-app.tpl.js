@@ -9,7 +9,7 @@ export function render() {
       <ucd-theme-primary-nav>
         <a href="/">Home</a>
         <ul link-text="Invoices" href="/preview">
-          <li><a href="/preview">Pending Invoices</a></li>
+          <li><a href="/preview">Invoices Waiting to be Sent</a></li>
           <li><a href="/paid">Paid Invoices</a></li>
           <li><a href="/search">Search</a></li>
           <li><a href="/unpaid">Unpaid Invoices</a></li>

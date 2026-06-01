@@ -53,7 +53,7 @@ export function render() {
           </tbody>
         </table>
         <div class="u-space-mt">
-          <button class="btn btn--primary" @click=${() => { this.sendState = 'idle'; this._loadInvoices(); }}>Back to Pending Invoices</button>
+          <button class="btn btn--primary" @click=${() => { this.sendState = 'idle'; this._loadInvoices(); }}>Back to Invoices Waiting to be Sent</button>
         </div>
       </div>
     `;
@@ -61,7 +61,9 @@ export function render() {
 
   return html`
     <div class="l-container u-space-my">
-      <h1 class="heading--highlight">Pending Invoices</h1>
+      <div style="display:flex;align-items:center;gap:1rem">
+        <h1 class="heading--highlight" style="margin:0">Invoices Waiting to be Sent</h1>
+      </div>
 
       ${!this.invoices.length ? html`
         <div class="brand-textbox u-space-my">
@@ -73,6 +75,7 @@ export function render() {
         <div class="u-space-mb">
           <button class="btn btn--alt2 btn--sm" @click=${this._selectAll}>Select All</button>
           <button class="btn btn--alt2 btn--sm u-space-ml" @click=${this._clearAll}>Clear</button>
+          <button class="btn btn--alt2 btn--sm u-space-ml" @click=${() => this._loadInvoices()}>Reload Invoices</button>
         </div>
         <table class="table--striped">
           <thead>
