@@ -46,7 +46,7 @@ export function render() {
               <tr>
                 <td>${r.invoice?.number || '—'}</td>
                 <td>${r.invoice?.vendor?.desc || '—'}</td>
-                <td>${r.invoice?.total_amount || '—'}</td>
+                <td>${r.invoice?.total_amount != null ? `$${Number(r.invoice.total_amount).toFixed(2)}` : '—'}</td>
                 <td>${r.error ? html`<span class="color-secondary">Error</span>` : html`<span class="color-gold">Submitted</span>`}</td>
               </tr>
             `)}

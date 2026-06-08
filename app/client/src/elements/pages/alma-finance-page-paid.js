@@ -3,6 +3,20 @@ import { render } from './alma-finance-page-paid.tpl.js';
 import { LitCorkUtils, Mixin } from '@ucd-lib/cork-app-utils';
 import AppComponentController from '../../controllers/AppComponentController.js';
 
+function paidInvoiceSortValue(invoice) {
+  const timestamp = Date.parse(invoice.datetime);
+  return Number.isFinite(timestamp) ? timestamp : 0;
+}
+
+function sortPaidInvoices(invoices) {
+  return [...invoices].sort((a, b) => {
+    const dateDiff = paidInvoiceSortValue(b) - paidInvoiceSortValue(a);
+    if (dateDiff) return dateDiff;
+
+    return Number(b.id || 0) - Number(a.id || 0);
+  });
+}
+
 export default class AlmaFinancePagePaid extends Mixin(LitElement).with(LitCorkUtils) {
 
   static get properties() {
@@ -43,7 +57,7 @@ export default class AlmaFinancePagePaid extends Mixin(LitElement).with(LitCorkU
       const res = await fetch('/api/invoices/paid');
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
-      this.invoices = data.invoices || [];
+      this.invoices = sortPaidInvoices(data.invoices || []);
     } catch (e) {
       this.error = e.message;
     } finally {
