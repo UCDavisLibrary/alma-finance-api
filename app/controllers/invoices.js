@@ -5,7 +5,6 @@ import { reformatAlmaInvoiceforAPI, filterOutSubmittedInvoices } from './formatd
 import { postAddInvoice, getPaidInvoices, getAllUnpaidInvoices, getInvoiceBySearchTerm, fetchInvoiceByInvoiceId } from './dbcalls.js';
 import { checkOracleStatus, archivePaidInvoices } from './background-scripts.js';
 import { logMessage } from '../util/logger.js';
-import cas from '../util/cas.js';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -24,9 +23,8 @@ const noInvoicesTemplate = () => `
 `;
 
 export async function getHomepage(req, res) {
-  const cas_user = req.session[cas.session_name];
-  logMessage('INFO', `${cas_user} is using payments app.`);
   const { userdata } = res.locals;
+  logMessage('INFO', `${userdata?.id || 'unknown user'} is using payments app.`);
   res.render('index', {
     title: 'Payment Processor - Home',
     isUser: !!userdata,
@@ -37,7 +35,6 @@ export async function getHomepage(req, res) {
 
 export async function getPreviewPage(req, res, next) {
   try {
-    const cas_user = req.session[cas.session_name];
     const { userdata } = res.locals;
 
     if (!userdata?.library) {
@@ -221,7 +218,6 @@ export async function getSearchPage(req, res) {
 }
 
 export async function postSearchForInvoice(req, res) {
-  const cas_user = req.session[cas.session_name];
   const { userdata } = res.locals;
   if (!userdata) return res.render('index', { title: 'Payment Processor - Home', isUser: false, isAdmin: false });
 

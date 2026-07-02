@@ -1,22 +1,24 @@
 import express from 'express';
-import cas from '../util/cas.js';
+import { requireAdmin, requireAuth } from '../util/keycloak-auth.js';
 import * as controller from '../controllers/admin.js';
 
 const router = express.Router();
+const requirePageAuth = requireAuth();
 
-router.get('/admin', cas.bounce, controller.getAdminView);
-router.get('/admin/users', cas.bounce, controller.getAdminViewUsers);
-router.get('/admin/add-user', cas.bounce, controller.getAdminAddUser);
-router.post('/admin/add-user', cas.bounce, controller.postAdminAddUser);
-router.get('/admin/edit-user/:userId', cas.bounce, controller.getAdminEditUser);
-router.post('/admin/edit-user/', cas.bounce, controller.postAdminEditUser);
-router.post('/admin/delete-user/:userId', cas.bounce, controller.adminDeleteUser);
-router.get('/admin/invoices', cas.bounce, controller.getAdminViewInvoices);
-router.get('/admin/edit-invoice/:id', cas.bounce, controller.getAdminEditInvoice);
-router.post('/admin/edit-invoice', cas.bounce, controller.postAdminEditInvoice);
-router.post('/admin/update-invoice-status', cas.bounce, controller.postAdminUpdateInvoiceStatus);
-router.post('/admin/delete-invoice/:id', cas.bounce, controller.adminDeleteInvoice);
-router.get('/token', cas.bounce, controller.getAdminCheckToken);
-router.get('/roles', cas.bounce, controller.getAdmincheckERPRoles);
+router.use('/admin', requirePageAuth, requireAdmin);
+router.get('/admin', controller.getAdminView);
+router.get('/admin/users', controller.getAdminViewUsers);
+router.get('/admin/add-user', controller.getAdminAddUser);
+router.post('/admin/add-user', controller.postAdminAddUser);
+router.get('/admin/edit-user/:userId', controller.getAdminEditUser);
+router.post('/admin/edit-user/', controller.postAdminEditUser);
+router.post('/admin/delete-user/:userId', controller.adminDeleteUser);
+router.get('/admin/invoices', controller.getAdminViewInvoices);
+router.get('/admin/edit-invoice/:id', controller.getAdminEditInvoice);
+router.post('/admin/edit-invoice', controller.postAdminEditInvoice);
+router.post('/admin/update-invoice-status', controller.postAdminUpdateInvoiceStatus);
+router.post('/admin/delete-invoice/:id', controller.adminDeleteInvoice);
+router.get('/token', requirePageAuth, requireAdmin, controller.getAdminCheckToken);
+router.get('/roles', requirePageAuth, requireAdmin, controller.getAdmincheckERPRoles);
 
 export default router;

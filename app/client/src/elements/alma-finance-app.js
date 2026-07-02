@@ -37,6 +37,8 @@ export default class AlmaFinanceApp extends Mixin(LitElement).with(LitCorkUtils)
       showPageTitle: { type: Boolean },
       status: { type: String },
       errorMessage: { type: String },
+      user: { type: Object },
+      librarySwitching: { type: Boolean },
     };
   }
 
@@ -48,6 +50,8 @@ export default class AlmaFinanceApp extends Mixin(LitElement).with(LitCorkUtils)
     this.pageTitle = '';
     this.showPageTitle = false;
     this.status = 'loading';
+    this.user = null;
+    this.librarySwitching = false;
 
     this._injectModel('AppStateModel');
     this.AppStateModel.refresh();
@@ -62,6 +66,7 @@ export default class AlmaFinanceApp extends Mixin(LitElement).with(LitCorkUtils)
     this.style.display = 'block';
     const loader = document.querySelector('#whole-screen-load');
     if (loader) loader.style.display = 'none';
+    this._loadUser();
   }
 
   _onAppStateUpdate(e) {
@@ -84,6 +89,38 @@ export default class AlmaFinanceApp extends Mixin(LitElement).with(LitCorkUtils)
     }
     if (Object.prototype.hasOwnProperty.call(status, 'errorMessage')) {
       this.errorMessage = status.errorMessage;
+    }
+  }
+
+  async _loadUser() {
+    try {
+      const res = await fetch('/api/me');
+      if (!res.ok) return;
+      const data = await res.json();
+      this.user = data.user;
+    } catch (e) {
+      console.error('Failed to load user', e);
+    }
+  }
+
+  async _setLibrary(library) {
+    if (!library || library === this.user?.library || this.librarySwitching) return;
+
+    this.librarySwitching = true;
+    try {
+      const res = await fetch('/api/me/library', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ library }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      this.user = data.user;
+      this.AppStateModel.refresh();
+    } catch (e) {
+      this.AppStateModel.showError(`Failed to switch library: ${e.message}`);
+    } finally {
+      this.librarySwitching = false;
     }
   }
 }

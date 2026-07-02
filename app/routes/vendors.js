@@ -1,10 +1,11 @@
 import express from 'express';
-import cas from '../util/cas.js';
+import { requireAuth } from '../util/keycloak-auth.js';
 import * as controller from '../controllers/vendors.js';
 
 const router = express.Router();
+const requirePageAuth = requireAuth();
 
-router.get('/vendors', cas.bounce, controller.getViewVendors);
-router.post('/delete-vendor/:vendorId', cas.bounce, controller.deleteVendorHandler);
+router.get('/vendors', requirePageAuth, controller.getViewVendors);
+router.post('/delete-vendor/:vendorId', requirePageAuth, controller.deleteVendorHandler);
 
 export default router;

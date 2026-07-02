@@ -5,6 +5,7 @@ import { aggieEnterprisePaymentRequest, checkStatusInOracle, checkPayments } fro
 import { postAddInvoice, getPaidInvoices, getAllUnpaidInvoices, getInvoiceBySearchTerm, fetchInvoiceByInvoiceId } from '../../controllers/dbcalls.js';
 import { archivePaidInvoices, checkOracleStatus } from '../../controllers/background-scripts.js';
 import { logMessage } from '../../util/logger.js';
+import { setActiveLibrary } from '../../util/keycloak-auth.js';
 
 const router = express.Router();
 
@@ -21,6 +22,13 @@ router.get('/me', (req, res) => {
   const { userdata } = res.locals;
   if (!userdata) return res.status(401).json({ error: 'Unauthorized' });
   res.json({ user: userdata });
+});
+
+// POST /api/me/library — admin-only active library switch
+router.post('/me/library', (req, res) => {
+  const result = setActiveLibrary(req, req.body?.library);
+  if (result.error) return res.status(result.status).json({ error: result.error });
+  res.json({ user: result.user });
 });
 
 // GET /api/invoices/pending — invoices ready to be paid from Alma (filtered)

@@ -3,7 +3,7 @@ import express from 'express';
 import spaMiddleware from '@ucd-lib/spa-router-middleware';
 import { fileURLToPath } from 'url';
 import config from '../util/config.js';
-import cas from '../util/cas.js';
+import { requireAuth } from '../util/keycloak-auth.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -18,10 +18,13 @@ export default (app) => {
   const faWebfonts = path.join(__dirname, '../node_modules/@fortawesome/fontawesome-free/webfonts');
   app.use('/fonts/fontawesome', express.static(faWebfonts));
 
-  // Require CAS auth for all SPA routes (but not static assets like js/css)
+  const requireSpaAuth = requireAuth();
+
+  // Require Keycloak auth for all SPA routes (but not static assets like js/css)
   app.use((req, res, next) => {
     if (/^\/(js|css|img|fonts)\//.test(req.path)) return next();
-    cas.bounce(req, res, next);
+    if (req.path.startsWith('/auth/')) return next();
+    requireSpaAuth(req, res, next);
   });
 
   spaMiddleware({

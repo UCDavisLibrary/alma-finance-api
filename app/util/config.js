@@ -2,6 +2,11 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const getEnv = (key, defaultValue) => process.env[key] ?? defaultValue;
+const trimTrailingSlash = (value) => value?.replace(/\/+$/, '');
+const getListEnv = (key, defaultValue) => getEnv(key, defaultValue)
+  .split(',')
+  .map((item) => item.trim())
+  .filter(Boolean);
 
 class Config {
   constructor() {
@@ -26,8 +31,19 @@ class Config {
       ],
     };
 
-    this.cas = {
-      url: getEnv('CAS_URL'),
+    this.keycloak = {
+      issuerUrl: trimTrailingSlash(getEnv('KEYCLOAK_ISSUER_URL')),
+      clientId: getEnv('KEYCLOAK_CLIENT_ID'),
+      clientSecret: getEnv('KEYCLOAK_CLIENT_SECRET'),
+      redirectUri: getEnv('KEYCLOAK_REDIRECT_URI', this.app.url ? `${trimTrailingSlash(this.app.url)}/auth/callback` : undefined),
+      logoutRedirectUri: getEnv('KEYCLOAK_LOGOUT_REDIRECT_URI', this.app.url),
+      requiredRole: getEnv('KEYCLOAK_REQUIRED_ROLE', ''),
+      adminRole: getEnv('KEYCLOAK_ADMIN_ROLE', 'alma-finance-admin'),
+      libraryClaim: getEnv('KEYCLOAK_LIBRARY_CLAIM', 'library'),
+      libraryRolePrefix: getEnv('KEYCLOAK_LIBRARY_ROLE_PREFIX', 'alma-finance-library-'),
+      libraryGroupPrefix: getEnv('KEYCLOAK_LIBRARY_GROUP_PREFIX', '/alma-finance/libraries/'),
+      defaultLibrary: getEnv('KEYCLOAK_DEFAULT_LIBRARY', ''),
+      libraryOptions: getListEnv('KEYCLOAK_LIBRARY_OPTIONS', 'SHLDS,LAW'),
     };
 
     this.db = {

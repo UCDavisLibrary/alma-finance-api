@@ -1,17 +1,18 @@
 import express from 'express';
-import cas from '../util/cas.js';
+import { requireAuth } from '../util/keycloak-auth.js';
 import * as controller from '../controllers/invoices.js';
 
 const router = express.Router();
+const requirePageAuth = requireAuth();
 
-router.get('/', cas.bounce, controller.getHomepage);
-router.get('/preview', cas.bounce, controller.getPreviewPage);
-router.post('/preview', cas.bounce, controller.sendSelectedInvoices);
-router.get('/invoice/:invoiceId', cas.bounce, controller.getPreviewSingleInvoicePage);
-router.get('/oraclestatus', cas.bounce, controller.getOracleStatus);
-router.get('/paidinvoices', cas.bounce, controller.viewPaidInvoices);
-router.get('/review', cas.bounce, controller.getReviewPage);
-router.get('/search', cas.bounce, controller.getSearchPage);
-router.post('/search', cas.bounce, controller.postSearchForInvoice);
+router.get('/', requirePageAuth, controller.getHomepage);
+router.get('/preview', requirePageAuth, controller.getPreviewPage);
+router.post('/preview', requirePageAuth, controller.sendSelectedInvoices);
+router.get('/invoice/:invoiceId', requirePageAuth, controller.getPreviewSingleInvoicePage);
+router.get('/oraclestatus', requirePageAuth, controller.getOracleStatus);
+router.get('/paidinvoices', requirePageAuth, controller.viewPaidInvoices);
+router.get('/review', requirePageAuth, controller.getReviewPage);
+router.get('/search', requirePageAuth, controller.getSearchPage);
+router.post('/search', requirePageAuth, controller.postSearchForInvoice);
 router.get('/background', controller.checkOracleStatusBackground);
 export default router;

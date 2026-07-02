@@ -12,8 +12,11 @@ import {
 } from '../../controllers/dbcalls.js';
 import User from '../../models/user.js';
 import { logMessage } from '../../util/logger.js';
+import { requireAdmin } from '../../util/keycloak-auth.js';
 
 const router = express.Router();
+
+router.use(requireAdmin);
 
 // GET /api/admin/users — all users
 router.get('/admin/users', async (req, res) => {

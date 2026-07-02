@@ -1,7 +1,13 @@
 import { html } from 'lit';
 import logo from '@ucd-lib/theme-elements/ucdlib/ucdlib-branding-bar/logo.js';
 
+function libraryLabel(library) {
+  return library === 'LAW' ? 'Law' : 'Shields';
+}
+
 export function render() {
+  const showLibrarySwitch = this.user?.isAdmin && this.user.availableLibraries?.length > 1;
+
   return html`
     <ucd-theme-header>
       <ucdlib-branding-bar slogan="Payment Processor">
@@ -23,6 +29,21 @@ export function render() {
         </ul>
       </ucd-theme-primary-nav>
     </ucd-theme-header>
+
+    ${showLibrarySwitch ? html`
+      <section class="l-container" aria-label="Library context">
+        <div style="display:flex;align-items:center;justify-content:flex-end;gap:.5rem;padding-top:.75rem">
+          <span>Library</span>
+          ${this.user.availableLibraries.map(library => html`
+            <button class="btn ${this.user.library === library ? 'btn--primary' : 'btn--alt2'} btn--sm"
+              ?disabled=${this.librarySwitching || this.user.library === library}
+              @click=${() => this._setLibrary(library)}>
+              ${libraryLabel(library)}
+            </button>
+          `)}
+        </div>
+      </section>
+    ` : ''}
 
     <section ?hidden=${!this.showPageTitle}>
       <div class="l-container">

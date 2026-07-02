@@ -1,10 +1,11 @@
 import express from 'express';
-import cas from '../util/cas.js';
+import { requireAuth } from '../util/keycloak-auth.js';
 import * as controller from '../controllers/funds.js';
 
 const router = express.Router();
+const requirePageAuth = requireAuth();
 
-router.get('/funds', cas.bounce, controller.getViewFunds);
-router.post('/delete-fund/:fundId', cas.bounce, controller.deleteFundHandler);
+router.get('/funds', requirePageAuth, controller.getViewFunds);
+router.post('/delete-fund/:fundId', requirePageAuth, controller.deleteFundHandler);
 
 export default router;
