@@ -6,6 +6,7 @@ function libraryLabel(library) {
 }
 
 export function render() {
+  const isAdmin = !!this.user?.isAdmin;
   const showLibrarySwitch = this.user?.isAdmin && this.user.availableLibraries?.length > 1;
 
   return html`
@@ -14,18 +15,17 @@ export function render() {
       </ucdlib-branding-bar>
       <ucd-theme-primary-nav>
         <a href="/">Home</a>
-        <ul link-text="Invoices" href="/preview">
-          <li><a href="/preview">Invoices Waiting to be Sent</a></li>
-          <li><a href="/paid">Paid Invoices</a></li>
-          <li><a href="/search">Search</a></li>
-          <li><a href="/unpaid">Unpaid Invoices</a></li>
-        </ul>
-        <a href="/funds">Funds</a>
-        <a href="/vendors">Vendors</a>
-        <ul link-text="Admin" href="/admin">
-          <li><a href="/admin">Admin Home</a></li>
-          <li><a href="/admin/invoices">All Invoices</a></li>
-        </ul>
+        <a href="/preview">Send Invoices</a>
+        <a href="/search">Search Invoices</a>
+        <a href="/paid">Paid Invoices</a>
+        <a href="/unpaid">Unpaid Invoices</a><
+        ${isAdmin ? html`
+          <ul link-text="Admin" href="/admin/invoices">
+            <li><a href="/admin/invoices">All Invoices</a></li>
+            <li><a href="/funds">Funds</a></li>
+            <li><a href="/vendors">Vendors</a></li>
+          </ul>
+        ` : ''}
       </ucd-theme-primary-nav>
     </ucd-theme-header>
 
@@ -63,7 +63,6 @@ export function render() {
       <alma-finance-page-paid page-id="paid"></alma-finance-page-paid>
       <alma-finance-page-search page-id="search"></alma-finance-page-search>
       <alma-finance-page-oracle-status page-id="unpaid"></alma-finance-page-oracle-status>
-      <alma-finance-page-admin page-id="admin"></alma-finance-page-admin>
       <alma-finance-page-admin-invoices page-id="admin-invoices"></alma-finance-page-admin-invoices>
       <alma-finance-page-admin-invoice page-id="admin-invoice"></alma-finance-page-admin-invoice>
       <alma-finance-page-funds page-id="funds"></alma-finance-page-funds>

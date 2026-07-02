@@ -23,10 +23,6 @@ export async function getAdmincheckERPRoles(req, res) {
   res.sendStatus(200);
 }
 
-export function getAdminView(req, res) {
-  res.render('admin', { title: 'Payment Processor - Admin', isUser: false, isAdmin: true });
-}
-
 export async function getAdminViewInvoices(req, res) {
   try {
     const step1 = await getAllInvoicesAdmin();

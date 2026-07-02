@@ -6,7 +6,7 @@ const router = express.Router();
 const requirePageAuth = requireAuth();
 
 router.use('/admin', requirePageAuth, requireAdmin);
-router.get('/admin', controller.getAdminView);
+router.get('/admin', (req, res) => res.redirect('/admin/invoices'));
 router.get('/admin/invoices', controller.getAdminViewInvoices);
 router.get('/admin/edit-invoice/:id', controller.getAdminEditInvoice);
 router.post('/admin/edit-invoice', controller.postAdminEditInvoice);

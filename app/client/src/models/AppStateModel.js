@@ -42,11 +42,11 @@ class AppStateModelImpl extends AppStateModel {
       p = 'unpaid';
     } else if (p0 === 'admin') {
       if (!p1) {
-        p = 'admin';
+        p = 'admin-invoices';
       } else if (p1 === 'invoices') {
         p = p2 ? 'admin-invoice' : 'admin-invoices';
       } else {
-        p = 'admin';
+        p = 'admin-invoices';
       }
     } else if (p0 === 'funds') {
       p = 'funds';

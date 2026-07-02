@@ -13,7 +13,6 @@ class AppStateStoreImpl extends AppStateStore {
       unpaid: { text: 'Unpaid Invoices', link: '/unpaid' },
       funds: { text: 'Funds', link: '/funds' },
       vendors: { text: 'Vendors', link: '/vendors' },
-      admin: { text: 'Admin', link: '/admin' },
       adminInvoices: { text: 'All Invoices', link: '/admin/invoices' },
     };
 
@@ -24,7 +23,6 @@ class AppStateStoreImpl extends AppStateStore {
       paid: 'Paid Invoices',
       search: 'Search Invoices',
       unpaid: 'Unpaid Invoices',
-      admin: 'Admin',
       'admin-invoices': 'All Invoices',
       'admin-invoice': 'Edit Invoice',
       funds: 'Funds',
