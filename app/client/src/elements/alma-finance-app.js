@@ -22,9 +22,6 @@ import './pages/alma-finance-page-oracle-status.js';
 import './pages/alma-finance-page-admin.js';
 import './pages/alma-finance-page-admin-invoices.js';
 import './pages/alma-finance-page-admin-invoice.js';
-import './pages/alma-finance-page-admin-users.js';
-import './pages/alma-finance-page-admin-user-new.js';
-import './pages/alma-finance-page-admin-user.js';
 import './pages/alma-finance-page-funds.js';
 import './pages/alma-finance-page-vendors.js';
 

@@ -37,6 +37,10 @@ function oracleStatus(invoice) {
   return paymentStatusCode || 'Unknown';
 }
 
+function invoiceId(invoice) {
+  return invoice.id || invoice.invoiceid;
+}
+
 export function render() {
   if (this.loading) return html`<div class="l-container u-space-my"><p>Loading Oracle status...</p></div>`;
 
@@ -61,6 +65,7 @@ export function render() {
               <th>Vendor</th>
               <th>Amount</th>
               <th>Oracle Status</th>
+              <th>Detail</th>
             </tr>
           </thead>
           <tbody>
@@ -70,6 +75,7 @@ export function render() {
                 <td>${vendorName(inv)}</td>
                 <td>${invoiceAmount(inv)}</td>
                 <td>${oracleStatus(inv)}</td>
+                <td>${invoiceId(inv) ? html`<a href="/invoice/${invoiceId(inv)}">View</a>` : '—'}</td>
               </tr>
             `)}
           </tbody>

@@ -36,7 +36,6 @@ export function render() {
             <ul class="list--arrow">
               <li><a href="/admin">Admin Home</a></li>
               <li><a href="/admin/invoices">All Invoices</a></li>
-              <li><a href="/admin/users">Manage Users</a></li>
             </ul>
           </div>
         </div>

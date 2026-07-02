@@ -39,7 +39,6 @@ export function render() {
 
   return html`
     <div class="l-container u-space-my">
-      <a href="/preview" style="display:inline-block;" class="u-space-mb">← Back to Invoices Waiting to be Sent</a>
       <h1 class="heading--highlight">Invoice ${invoiceNumber}</h1>
 
       <!-- Invoice + Vendor Details -->

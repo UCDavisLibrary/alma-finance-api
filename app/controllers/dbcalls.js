@@ -1,6 +1,5 @@
 import Invoice from '../models/invoice.js';
 import Token from '../models/token.js';
-import User from '../models/user.js';
 import Fund from '../models/fund.js';
 import Vendor from '../models/vendor.js';
 import { logMessage } from '../util/logger.js';
@@ -75,52 +74,6 @@ export async function fetchTodaysToken() {
     }
   } catch (error) {
     logMessage('DEBUG', 'dbcalls: fetchTodaysToken()', error.message);
-  }
-}
-
-export async function postAddUser(firstname, lastname, email, kerberos, library) {
-  try {
-    const user = new User(firstname, lastname, email, kerberos, library);
-    const usersaved = await user.save();
-    if (usersaved) {
-      logMessage('INFO', `dbcalls: postAddUser(). User ${kerberos} added`);
-      return true;
-    }
-  } catch (error) {
-    logMessage('DEBUG', 'dbcalls: postAddUser()', error.message);
-  }
-}
-
-export async function postEditUser(firstname, lastname, email, kerberos, library, id) {
-  try {
-    const userupdated = await User.update(firstname, lastname, email, kerberos, library, id);
-    if (userupdated) {
-      logMessage('INFO', `dbcalls: postEditUser(). User ${id} updated`);
-      return true;
-    }
-  } catch (error) {
-    logMessage('DEBUG', 'dbcalls: postEditUser()', error.message);
-  }
-}
-
-export async function deleteUser(id) {
-  try {
-    const response = await User.deleteById(id);
-    if (response) {
-      logMessage('INFO', `dbcalls: deleteUser(). User ${id} deleted`);
-      return true;
-    }
-  } catch (error) {
-    logMessage('DEBUG', 'dbcalls: deleteUser()', error.message);
-  }
-}
-
-export async function fetchAllUsers() {
-  try {
-    const response = await User.fetchAll();
-    if (response) return response[0];
-  } catch (error) {
-    logMessage('DEBUG', 'dbcalls: fetchAllUsers()', error.message);
   }
 }
 
@@ -209,24 +162,6 @@ export async function postUpdateInvoiceStatus(status, id) {
     if (response) return true;
   } catch (error) {
     logMessage('DEBUG', 'dbcalls: postUpdateInvoiceStatus()', error.message);
-  }
-}
-
-export async function checkLibrary(kerberos) {
-  try {
-    const response = await User.checkLibrary(kerberos);
-    if (response) return response[0][0].library;
-  } catch (error) {
-    logMessage('DEBUG', 'dbcalls: checkLibrary()', error.message);
-  }
-}
-
-export async function fetchUser(id) {
-  try {
-    const response = await User.findByKerberos(id);
-    if (response) return response[0][0];
-  } catch (error) {
-    logMessage('DEBUG', 'dbcalls: fetchUser()', error.message);
   }
 }
 

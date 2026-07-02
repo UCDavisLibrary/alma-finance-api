@@ -45,14 +45,6 @@ class AppStateModelImpl extends AppStateModel {
         p = 'admin';
       } else if (p1 === 'invoices') {
         p = p2 ? 'admin-invoice' : 'admin-invoices';
-      } else if (p1 === 'users') {
-        if (p2 === 'new') {
-          p = 'admin-user-new';
-        } else if (p2) {
-          p = 'admin-user';
-        } else {
-          p = 'admin-users';
-        }
       } else {
         p = 'admin';
       }

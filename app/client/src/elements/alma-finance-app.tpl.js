@@ -25,7 +25,6 @@ export function render() {
         <ul link-text="Admin" href="/admin">
           <li><a href="/admin">Admin Home</a></li>
           <li><a href="/admin/invoices">All Invoices</a></li>
-          <li><a href="/admin/users">Users</a></li>
         </ul>
       </ucd-theme-primary-nav>
     </ucd-theme-header>
@@ -67,9 +66,6 @@ export function render() {
       <alma-finance-page-admin page-id="admin"></alma-finance-page-admin>
       <alma-finance-page-admin-invoices page-id="admin-invoices"></alma-finance-page-admin-invoices>
       <alma-finance-page-admin-invoice page-id="admin-invoice"></alma-finance-page-admin-invoice>
-      <alma-finance-page-admin-users page-id="admin-users"></alma-finance-page-admin-users>
-      <alma-finance-page-admin-user-new page-id="admin-user-new"></alma-finance-page-admin-user-new>
-      <alma-finance-page-admin-user page-id="admin-user"></alma-finance-page-admin-user>
       <alma-finance-page-funds page-id="funds"></alma-finance-page-funds>
       <alma-finance-page-vendors page-id="vendors"></alma-finance-page-vendors>
     </ucdlib-pages>

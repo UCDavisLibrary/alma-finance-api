@@ -15,7 +15,6 @@ class AppStateStoreImpl extends AppStateStore {
       vendors: { text: 'Vendors', link: '/vendors' },
       admin: { text: 'Admin', link: '/admin' },
       adminInvoices: { text: 'All Invoices', link: '/admin/invoices' },
-      adminUsers: { text: 'Users', link: '/admin/users' },
     };
 
     this.pageTitles = {
@@ -28,9 +27,6 @@ class AppStateStoreImpl extends AppStateStore {
       admin: 'Admin',
       'admin-invoices': 'All Invoices',
       'admin-invoice': 'Edit Invoice',
-      'admin-users': 'Users',
-      'admin-user-new': 'Add User',
-      'admin-user': 'Edit User',
       funds: 'Funds',
       vendors: 'Vendors',
     };
