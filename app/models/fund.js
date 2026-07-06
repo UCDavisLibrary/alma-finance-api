@@ -1,6 +1,6 @@
-const db = require('../util/database');
+import db from '../util/database.js';
 
-module.exports = class Fund {
+export default class Fund {
   constructor(fundId, fundCode) {
     this.fundId = fundId;
     this.fundCode = fundCode;
@@ -28,5 +28,4 @@ module.exports = class Fund {
   static findCodeById(id) {
     return db.execute('SELECT fundCode FROM funds WHERE funds.fundId = ?', [id]);
   }
-
-};
+}

@@ -1,8 +1,9 @@
-const { logMessage } = require('../util/logger');
-const {tokenGenerator} = require("./tokengenerator");
+import { logMessage } from '../util/logger.js';
+import { tokenGenerator } from './tokengenerator.js';
+import config from '../util/config.js';
 
-exports.aggieEnterprisePaymentRequest = async (variableInputs) => {
-  const paymentRequest = `mutation scmInvoicePaymentRequest($data: ScmInvoicePaymentRequestInput!) {
+export async function aggieEnterprisePaymentRequest(variableInputs) {
+  const query = `mutation scmInvoicePaymentRequest($data: ScmInvoicePaymentRequestInput!) {
     scmInvoicePaymentCreate(data: $data) {
       requestStatus {
         requestId
@@ -18,53 +19,40 @@ exports.aggieEnterprisePaymentRequest = async (variableInputs) => {
     }
   }`;
 
-  const token = await tokenGenerator(); // Ensure token is valid
-  const query = paymentRequest;
-
   if (!variableInputs || variableInputs.length === 0) {
-    logMessage('DEBUG',"No input data provided.");
+    logMessage('DEBUG', 'No input data provided.');
     return [];
   }
 
   try {
+    const token = await tokenGenerator();
     const results = [];
 
     for (const variables of variableInputs) {
-      // logMessage('DEBUG',JSON.stringify(variables.data.header.consumerTrackingId));
-
       try {
-        const response = await fetch(process.env.BOUNDARY_APP_URL, {
+        const response = await fetch(config.aggie.boundaryAppUrl, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({
-            query,
-            variables,
-          }),
+          body: JSON.stringify({ query, variables }),
         });
-
-        if (!response.ok) {
-          throw new Error(`HTTP Error: ${response.status}`);
-        }
-
-        const result = await response.json();
-        results.push(result);
+        if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
+        results.push(await response.json());
       } catch (error) {
-        logMessage('DEBUG',`graphqlcalls: aggieEnterprisePaymentRequest(). Error with variable input: ${JSON.stringify(variables)} - ${error.message}`);
+        logMessage('DEBUG', `graphqlcalls: aggieEnterprisePaymentRequest(). Error: ${error.message}`);
       }
     }
 
     return results;
   } catch (error) {
-    logMessage('DEBUG',`graphqlcalls: aggieEnterprisePaymentRequest(). Unexpected error: ${error.message}`);
+    logMessage('DEBUG', `graphqlcalls: aggieEnterprisePaymentRequest(). Unexpected error: ${error.message}`);
     return [];
   }
-};
-  
-  exports.checkPayments = async (variableInputs) => {
-  
+}
+
+export async function checkPayments(variableInputs) {
   const query = `query scmInvoicePaymentRequestStatusByConsumerTracking($consumerTrackingId: String!) {
     scmInvoicePaymentRequestStatusByConsumerTracking(consumerTrackingId: $consumerTrackingId) {
       requestStatus {
@@ -101,144 +89,102 @@ exports.aggieEnterprisePaymentRequest = async (variableInputs) => {
       }
     }
   }`;
-  
-  
-    try {
-      const token = await tokenGenerator();
-      const inputstoreturn = [];
-        for (input of variableInputs) {
-          variables = input;
-          await fetch(process.env.BOUNDARY_APP_URL, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({
-              query,
-              variables,
-            }),
-          })
-            .then((res) => res.json())
-            .then(
-              (result) => {
-                const body = {...input, ...result};
-                inputstoreturn.push(body);
-              }
-            );
-        }
-  
-      
-      return inputstoreturn;
-  
+
+  try {
+    const token = await tokenGenerator();
+    const inputstoreturn = [];
+    for (const variables of variableInputs) {
+      const result = await fetch(config.aggie.boundaryAppUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ query, variables }),
+      }).then((res) => res.json());
+      inputstoreturn.push({ ...variables, ...result });
     }
-    catch (error) {
-      logMessage('DEBUG','graphqlcalls: checkPayments()',error);
-    }
+    return inputstoreturn;
+  } catch (error) {
+    logMessage('DEBUG', 'graphqlcalls: checkPayments()', error);
   }
-  
-  exports.checkStatusInOracle = async (variableInputs) => {
-  
-    const query = `query scmInvoicePaymentSearch($filter: ScmInvoicePaymentFilterInput!) {
-      scmInvoicePaymentSearch(filter: $filter) {
-        metadata {
-          sort
-          limit
-          returnedResultCount
-          startIndex
-          nextStartIndex
-          totalResultCount
-        }
-        data {
-          invoiceId
-          vendorId
-          vendorSiteId
-          orgId
-          poHeaderId
-          supplierNumber
-          supplierSiteCode
-          supplierName
-          supplierInvoiceNumber
-          invoiceNumber
-          poNumber
-          checkNumber
-          paymentAmount
-          invoiceDate
-          paymentDate
-          paymentStatusCode
-          paymentSourceName
-          checkStatusCode
-          paymentMethodCode
-          batchName
-          lastUpdateDateTime
-          lastUpdateUserId
-        }
+}
+
+export async function checkStatusInOracle(variableInputs) {
+  const query = `query scmInvoicePaymentSearch($filter: ScmInvoicePaymentFilterInput!) {
+    scmInvoicePaymentSearch(filter: $filter) {
+      metadata {
+        sort
+        limit
+        returnedResultCount
+        startIndex
+        nextStartIndex
+        totalResultCount
       }
-    }`;
-
-      try {
-        const token = await tokenGenerator();
-        inputstoreturn = [];
-        for (let variables of variableInputs) {
-            await fetch(process.env.BOUNDARY_APP_URL, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}`,
-              },
-              body: JSON.stringify({
-                query,
-                variables,
-              }),
-            })
-              .then((res) => res.json())
-              .then(
-                (result) => {
-                  inputstoreturn.push(result);
-                }
-              );
-          }
-          return inputstoreturn;
-
-        }
-      
-      catch (error) {
-          logMessage('DEBUG','graphqlcalls: checkStatusInOracle()',error);
+      data {
+        invoiceId
+        vendorId
+        vendorSiteId
+        orgId
+        poHeaderId
+        supplierNumber
+        supplierSiteCode
+        supplierName
+        supplierInvoiceNumber
+        invoiceNumber
+        poNumber
+        checkNumber
+        paymentAmount
+        invoiceDate
+        paymentDate
+        paymentStatusCode
+        paymentSourceName
+        checkStatusCode
+        paymentMethodCode
+        batchName
+        lastUpdateDateTime
+        lastUpdateUserId
       }
     }
+  }`;
 
-    exports.checkErpRolesOracle = async () => {
-  
-      const query = `query erpRoles {
-        erpRoles
-      }`;
-  
-        try {
-          const token = await tokenGenerator();
+  try {
+    const token = await tokenGenerator();
+    const inputstoreturn = [];
+    for (const variables of variableInputs) {
+      const result = await fetch(config.aggie.boundaryAppUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ query, variables }),
+      }).then((res) => res.json());
+      inputstoreturn.push(result);
+    }
+    return inputstoreturn;
+  } catch (error) {
+    logMessage('DEBUG', 'graphqlcalls: checkStatusInOracle()', error);
+  }
+}
 
-              await fetch(process.env.BOUNDARY_APP_URL, {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                  Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify({
-                  query,
-                }),
-              })
-                .then((res) => res.json())
-                .then(
-                  (result) => {
+export async function checkErpRolesOracle() {
+  const query = `query erpRoles {
+    erpRoles
+  }`;
 
-                    logMessage('INFO','graphqlcalls: checkErpRolesOracle()',JSON.stringify(result.data.erpRoles));
-                    // return result;
-                  }
-                );
-            
-  
-          }
-        
-        catch (error) {
-          logMessage('DEBUG','graphqlcalls: checkErpRolesOracle()',error);
-        }
-      }
+  try {
+    const token = await tokenGenerator();
+    const result = await fetch(config.aggie.boundaryAppUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ query }),
+    }).then((res) => res.json());
+    logMessage('INFO', 'graphqlcalls: checkErpRolesOracle()', JSON.stringify(result.data.erpRoles));
+  } catch (error) {
+    logMessage('DEBUG', 'graphqlcalls: checkErpRolesOracle()', error);
+  }
+}

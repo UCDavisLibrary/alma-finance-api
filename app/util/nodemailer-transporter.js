@@ -1,26 +1,23 @@
-const nodemailer = require('nodemailer');
+import nodemailer from 'nodemailer';
+import config from './config.js';
 
-exports.checkTransporter = () => {
-  if (process.env.IS_LOCAL === 'true') {
-    const transporterlocal = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-          user: process.env.TRANSPORTERUSER,
-          pass: process.env.TRANSPORTERPASS,
-        },
-      });
-    return transporterlocal;
+export function checkTransporter() {
+  if (config.app.isLocal) {
+    return nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: config.email.user,
+        pass: config.email.pass,
+      },
+    });
   }
-  else {
-    const transporterremote = nodemailer.createTransport({
-        host: 'smtp.lib.ucdavis.edu',
-        port: 25,
-        secure: false,
-        tls: {
-          // do not fail on invalid certs
-          rejectUnauthorized: false,
-        },
-      });
-    return transporterremote;
-  }
+
+  return nodemailer.createTransport({
+    host: 'smtp.lib.ucdavis.edu',
+    port: 25,
+    secure: false,
+    tls: {
+      rejectUnauthorized: false,
+    },
+  });
 }
