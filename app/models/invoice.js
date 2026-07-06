@@ -1,9 +1,6 @@
-const db = require('../util/database');
+import db from '../util/database.js';
 
-// optional; can be stored in database
-const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
-
-module.exports = class Invoice {
+export default class Invoice {
   constructor(number, id, trackingid, library, responsebody) {
     this.number = number;
     this.id = id;
@@ -13,8 +10,9 @@ module.exports = class Invoice {
   }
 
   save() {
+    const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
     return db.execute(
-      'INSERT INTO invoices (invoicenumber, invoiceid, consumerTrackingId, library, status, responsebody, datetime) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      'INSERT INTO invoices (invoicenumber, invoiceid, consumerTrackingId, `library`, `status`, responsebody, `datetime`) VALUES (?, ?, ?, ?, ?, ?, ?)',
       [this.number, this.id, this.trackingid, this.library, 'SENT', this.responsebody, now]
     );
   }
@@ -48,11 +46,11 @@ module.exports = class Invoice {
   }
 
   static fetchAllUnpaidInvoices(library) {
-    return db.execute('SELECT * FROM invoices WHERE invoices.status != ? AND invoices.library = ?', ['PAID',library]);
+    return db.execute('SELECT * FROM invoices WHERE invoices.status != ? AND invoices.library = ?', ['PAID', library]);
   }
 
   static fetchPaidInvoices(library) {
-    return db.execute('SELECT * FROM invoices WHERE invoices.status = ? AND invoices.library = ? ORDER BY invoices.id DESC LIMIT 100', ['PAID', library]);
+    return db.execute('SELECT * FROM invoices WHERE invoices.status = ? AND invoices.library = ? ORDER BY invoices.datetime DESC, invoices.id DESC LIMIT 100', ['PAID', library]);
   }
 
   static findById(id) {
@@ -75,12 +73,11 @@ module.exports = class Invoice {
     return db.execute('SELECT * FROM invoices WHERE invoices.invoicenumber LIKE ? OR invoices.invoiceid LIKE ?', ['%' + searchterm + '%', '%' + searchterm + '%']);
   }
 
-  static update = (number, invoiceid, trackingid, library, status, responsebody, datetime, id) => {
-    return db.execute('UPDATE invoices SET invoicenumber = ?, invoiceid = ?, consumerTrackingId = ?, library = ?, status = ?, responsebody = ?, datetime = ? WHERE id = ?', [number, invoiceid, trackingid, library, status, responsebody, datetime, id]);
+  static update(number, invoiceid, trackingid, library, status, responsebody, datetime, id) {
+    return db.execute('UPDATE invoices SET invoicenumber = ?, invoiceid = ?, consumerTrackingId = ?, `library` = ?, `status` = ?, responsebody = ?, `datetime` = ? WHERE id = ?', [number, invoiceid, trackingid, library, status, responsebody, datetime, id]);
   }
 
-  static updateInvoiceStatus = (status, id) => {
+  static updateInvoiceStatus(status, id) {
     return db.execute('UPDATE invoices SET status = ? WHERE id = ?', [status, id]);
   }
-
-};
+}

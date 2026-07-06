@@ -1,40 +1,37 @@
 // logger.js
 require('dotenv').config();
-const { Logging } = require('@google-cloud/logging');
 
-/*
-Here are the valid severity levels in Google Cloud Logging, in increasing order of urgency:
-	1.	DEFAULT – The log entry has no assigned severity level.
-	2.	DEBUG – Debug or trace information.
-	3.	INFO – Routine information, such as ongoing status or performance.
-	4.	NOTICE – Normal but significant events, such as start-up, shut-down, or configuration changes.
-	5.	WARNING – Warning events might cause problems.
-	6.	ERROR – Error events are likely to cause problems.
-	7.	CRITICAL – Critical events cause more severe problems or outages.
-	8.	ALERT – Action must be taken immediately.
-	9.	EMERGENCY – A panic condition, system is unusable.
-*/
+const IS_LOCAL = process.env.IS_LOCAL !== 'false'; // prod sets false; everything else = local/dev
 
-const logging = new Logging({ projectId: process.env.GCLOUD_PROJECT });
-const log = logging.log('alma-payments'); // Custom log name
+let log, resource;
+if (!IS_LOCAL) {
+  const { Logging } = require('@google-cloud/logging');
+  const logging = new Logging({ projectId: process.env.GCLOUD_PROJECT });
+  log = logging.log('alma-payments'); // Custom log name
+  resource = { type: 'global' };
+}
 
-const resource = { type: 'global' };
-
+/**
+ * Log to Google Cloud in prod, console elsewhere.
+ * @param {'DEFAULT'|'DEBUG'|'INFO'|'NOTICE'|'WARNING'|'ERROR'|'CRITICAL'|'ALERT'|'EMERGENCY'} severity
+ * @param {string} message
+ * @param {object} context
+ */
 async function logMessage(severity = 'DEFAULT', message, context = {}) {
-  const labels = {
-    itisScript: 'alma-payments',
-  };
-
-  if (severity === 'ERROR') {
-    labels.itisScriptAlertOnError = 'true'; // must be a string
+  if (IS_LOCAL) {
+    // Local/dev: mirror severity to console and exit
+    const level = String(severity || 'DEFAULT').toUpperCase();
+    const isErr = ['ERROR', 'CRITICAL', 'ALERT', 'EMERGENCY'].includes(level);
+    const out = isErr ? console.error : console.log;
+    out(`[local][${level}] ${message}`, context);
+    return;
   }
 
-  const metadata = {
-    resource,
-    severity,
-    labels,
-  };
+  // Production: write to Cloud Logging
+  const labels = { itisScript: 'alma-payments' };
+  if (severity === 'ERROR') labels.itisScriptAlertOnError = 'true'; // must be string
 
+  const metadata = { resource, severity, labels };
   const entry = log.entry(metadata, {
     message,
     context,

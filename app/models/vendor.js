@@ -1,6 +1,6 @@
-const db = require('../util/database');
+import db from '../util/database.js';
 
-module.exports = class Vendor {
+export default class Vendor {
   constructor(vendorId, vendorData) {
     this.vendorId = vendorId;
     this.vendorData = vendorData;
@@ -28,5 +28,4 @@ module.exports = class Vendor {
   static deleteByVendorId(id) {
     return db.execute('DELETE FROM vendors WHERE vendors.vendorId = ?', [id]);
   }
-
-};
+}

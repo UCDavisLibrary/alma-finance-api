@@ -1,0 +1,40 @@
+<!doctype html>
+<html>
+  <head>
+    <title>{{title}}</title>
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=no">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="icon" href="https://cdn.library.ucdavis.edu/brand/2/img/logos/logo-library-blue.svg" type="image/svg+xml">
+    {{config}}
+    {{bundle}}
+  </head>
+
+  <body>
+    <alma-finance-app style="display:none;"></alma-finance-app>
+    <style>
+      #whole-screen-load {
+        display: flex;
+        min-height: 100vh;
+        align-content: center;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+      #loading-text {
+        text-align: center;
+        font-size: 5vw;
+        margin-top: 5px;
+        font-weight: 700;
+      }
+      @media (min-width: 700px) {
+        #loading-text {
+          font-size: 30px;
+        }
+      }
+    </style>
+    <div id="whole-screen-load">
+      <div>
+        <div id="loading-text">Loading...</div>
+      </div>
+    </div>
+  </body>
+</html>
