@@ -35,6 +35,14 @@ services:
     depends_on:
       almafinance-db:
         condition: service_healthy
+  alma-finance-client:
+    build: ./app
+    command: npm run client-watch
+    volumes:
+      - ./app:/app
+      - /app/node_modules
+    depends_on:
+      - alma-finance
   finance-file-loader:
     build: ./file-loader
     env_file:
@@ -42,11 +50,12 @@ services:
     volumes:
       - ./file-loader:/file-loader
       - /file-loader/node_modules
-      # - /Users/markwarren/Documents/almadafis:/file-loader/almadafis
+      # - /Users/mjwarren/Documents/almadafis:/file-loader/almadafis
       - /home/almadafis:/file-loader/almadafis
     restart: always
     depends_on:
-      - alma-finance
+      almafinance-db:
+        condition: service_healthy
   # adminer:
   #   image: adminer
   #   restart: always
