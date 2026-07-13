@@ -8,7 +8,7 @@ export default class Fund {
 
   save() {
     return db.execute(
-      'INSERT INTO funds (fundId, fundCode) VALUES (?, ?)',
+      'INSERT INTO funds (fundId, fundCode) VALUES (?, ?) ON DUPLICATE KEY UPDATE fundCode = VALUES(fundCode)',
       [this.fundId, this.fundCode]
     );
   }

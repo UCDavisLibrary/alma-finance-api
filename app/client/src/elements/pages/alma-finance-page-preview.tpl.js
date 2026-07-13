@@ -73,8 +73,8 @@ export function render() {
         </div>
       ` : html`
         <div class="u-space-mb">
-          <button class="btn btn--alt2 btn--sm" @click=${this._selectAll}>Select All</button>
-          <button class="btn btn--alt2 btn--sm u-space-ml" @click=${this._clearAll}>Clear</button>
+          <button class="btn btn--alt2 btn--sm" @click=${() => this._selectAll()}>Select All</button>
+          <button class="btn btn--alt2 btn--sm u-space-ml" @click=${() => this._clearAll()}>Clear</button>
           <button class="btn btn--alt2 btn--sm u-space-ml" @click=${() => this._loadInvoices()}>Reload Invoices</button>
         </div>
         <table class="table--striped">
@@ -115,10 +115,30 @@ export function render() {
         <div class="u-space-mt">
           <button class="btn btn--primary"
             ?disabled=${!Object.keys(this.selected).length || this.sendState === 'sending'}
-            @click=${this._sendSelected}>
+            @click=${() => this._sendSelected()}>
             ${this.sendState === 'sending' ? 'Sending...' : `Send ${Object.keys(this.selected).length} Selected`}
           </button>
-          ${this.sendState === 'error' ? html`<p class="color-secondary u-space-mt">Error sending: ${this.error}</p>` : ''}
+          ${this.sendState === 'error' ? html`
+            <p class="color-secondary u-space-mt">Error sending: ${this.error}</p>
+            ${this.sendResults?.length ? html`
+              <table class="table--striped u-space-mt">
+                <thead>
+                  <tr>
+                    <th>Invoice Number</th>
+                    <th>Error</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${this.sendResults.map(result => html`
+                    <tr>
+                      <td>${result.invoice?.number || '—'}</td>
+                      <td>${(result.error || []).map(error => error.message || String(error)).join('; ') || 'Unknown error'}</td>
+                    </tr>
+                  `)}
+                </tbody>
+              </table>
+            ` : ''}
+          ` : ''}
         </div>
       `}
     </div>

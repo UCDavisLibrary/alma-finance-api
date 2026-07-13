@@ -26,7 +26,7 @@ async function checkForVendorData(vendorId) {
   }
 }
 
-export async function reformatAlmaInvoiceforAPI(data) {
+export async function reformatAlmaInvoiceforAPI(data, library) {
   let apipayload = [];
   const fundCache = {};
   const today = new Date().toLocaleDateString('sv-SE', { timeZone: 'America/Los_Angeles' });
@@ -102,6 +102,14 @@ export async function reformatAlmaInvoiceforAPI(data) {
         try {
           if (!(fundCode in fundCache)) {
             fundCache[fundCode] = await fetchFundCodeFromId(fundCode);
+            if (!fundCache[fundCode] && library) {
+              const fundData = await getFundData(fundCode, library);
+              const externalId = fundData?.fund?.[0]?.external_id;
+              if (externalId) {
+                saveFund(fundCode, externalId);
+                fundCache[fundCode] = externalId;
+              }
+            }
           }
           const fundString =
             typeof fundCache[fundCode] === 'string'

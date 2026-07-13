@@ -4,11 +4,17 @@ import Fund from '../models/fund.js';
 import Vendor from '../models/vendor.js';
 import { logMessage } from '../util/logger.js';
 
-export function postAddInvoice(number, id, trackingid, library, requestbody) {
-  const invoice = new Invoice(number, id, trackingid, library, requestbody);
-  invoice.save()
-    .then(() => logMessage('INFO', `dbcalls: postAddInvoice(). Invoice ${id} added`))
-    .catch((err) => logMessage('DEBUG', 'dbcalls: postAddInvoice()', err.message));
+export async function postAddInvoice(number, id, trackingid, library, requestbody) {
+  try {
+    const responsebody = typeof requestbody === 'string' ? requestbody : JSON.stringify(requestbody);
+    const invoice = new Invoice(number, id, trackingid, library, responsebody);
+    await invoice.save();
+    logMessage('INFO', `dbcalls: postAddInvoice(). Invoice ${id} added`);
+    return true;
+  } catch (err) {
+    logMessage('DEBUG', 'dbcalls: postAddInvoice()', err.message);
+    return false;
+  }
 }
 
 export function getSubmittedInvoices(library) {
@@ -201,7 +207,8 @@ export async function saveFund(fundId, fundCode) {
 export async function fetchVendorDataFromId(vendorId) {
   try {
     const response = await Vendor.fetchVendorDataFromId(vendorId);
-    if (response) return response[0][0].vendorData;
+    if (!response || !response[0] || response[0].length === 0) return undefined;
+    return response[0][0].vendorData;
   } catch (error) {
     logMessage('DEBUG', 'dbcalls: fetchVendorDataFromId()', error.message);
   }

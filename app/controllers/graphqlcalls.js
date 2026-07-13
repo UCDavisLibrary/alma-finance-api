@@ -38,10 +38,21 @@ export async function aggieEnterprisePaymentRequest(variableInputs) {
           },
           body: JSON.stringify({ query, variables }),
         });
-        if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
+        if (!response.ok) {
+          const body = await response.text();
+          const message = `HTTP Error: ${response.status}${body ? ` ${body}` : ''}`;
+          logMessage('DEBUG', `graphqlcalls: aggieEnterprisePaymentRequest(). ${message}`);
+          results.push({
+            errors: [{ message }],
+            httpStatus: response.status,
+            responseBody: body,
+          });
+          continue;
+        }
         results.push(await response.json());
       } catch (error) {
         logMessage('DEBUG', `graphqlcalls: aggieEnterprisePaymentRequest(). Error: ${error.message}`);
+        results.push({ errors: [{ message: error.message }] });
       }
     }
 

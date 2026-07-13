@@ -85,9 +85,9 @@ export default class AlmaFinancePagePreview extends Mixin(LitElement).with(LitCo
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ invoiceids }),
       });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       this.sendResults = data.results || [];
+      if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
       this.sendState = 'done';
       await this._loadInvoices();
     } catch (e) {

@@ -56,10 +56,20 @@ router.post('/invoices/send', async (req, res) => {
     if (!invoiceids?.length) return res.status(400).json({ error: 'No invoice IDs provided' });
 
     const { library } = userdata;
+    logMessage('INFO', 'api/invoices POST /send started', { invoiceids, library });
     const step1 = await setSelectedData(invoiceids);
-    const variableInputs = await reformatAlmaInvoiceforAPI(step1);
+    const variableInputs = await reformatAlmaInvoiceforAPI(step1, library);
+    logMessage('INFO', 'api/invoices POST /send payloads formatted', {
+      invoiceCount: invoiceids.length,
+      payloadCount: variableInputs.length,
+      invoiceLineCounts: variableInputs.map((v) => v.data.payload.invoiceLines.length),
+    });
     const consumerTrackingIds = variableInputs.map((v) => v.data.header.consumerTrackingId);
     const requestresults = await aggieEnterprisePaymentRequest(variableInputs);
+    logMessage('INFO', 'api/invoices POST /send payment responses received', {
+      responseCount: requestresults?.length || 0,
+      statuses: requestresults?.map((r) => r?.data?.scmInvoicePaymentCreate?.requestStatus?.requestStatus || r?.httpStatus || 'ERROR') || [],
+    });
 
     if (!requestresults) return res.status(500).json({ error: 'No response from payment system' });
 
@@ -70,22 +80,41 @@ router.post('/invoices/send', async (req, res) => {
       const invoice = invoicedata.invoice[i];
       const request = requestresults[i];
 
-      if (request?.errors?.length > 0) {
-        logMessage('DEBUG', 'api/invoices POST /send error', request.errors);
-        results.push({ invoice, error: request.errors });
+      if (!request || request?.errors?.length > 0) {
+        const errors = request?.errors || [{ message: 'No response from payment system' }];
+        logMessage('DEBUG', 'api/invoices POST /send error', errors);
+        results.push({ invoice, error: errors });
         continue;
       }
 
-      if (
-        request?.data?.scmInvoicePaymentCreate?.requestStatus?.requestStatus === 'PENDING' ||
-        request?.data?.scmInvoicePaymentCreate?.validationResults?.errorMessages[0]?.includes('A request already exists for your consumerId and consumerTrackingId')
-      ) {
-        postAddInvoice(invoice.number, invoice.id, consumerTrackingIds[i], library, request.data);
+      const paymentCreate = request?.data?.scmInvoicePaymentCreate;
+      const validationErrors = paymentCreate?.validationResults?.errorMessages || [];
+      const alreadyExists = validationErrors.some((message) =>
+        message?.includes('A request already exists for your consumerId and consumerTrackingId')
+      );
+      const isPending = paymentCreate?.requestStatus?.requestStatus === 'PENDING';
+
+      if (validationErrors.length && !alreadyExists) {
+        results.push({ invoice, error: validationErrors.map((message) => ({ message })) });
+        continue;
+      }
+
+      if (isPending || alreadyExists) {
+        const saved = await postAddInvoice(invoice.number, invoice.id, consumerTrackingIds[i], library, request.data);
+        if (!saved) {
+          results.push({ invoice, error: [{ message: 'Payment request was accepted, but local invoice record was not saved.' }] });
+          continue;
+        }
+      } else {
+        results.push({ invoice, error: [{ message: 'Payment request did not return PENDING status.' }] });
+        continue;
       }
 
       results.push({ invoice, request: request?.data });
     }
 
+    const hasErrors = results.some((result) => result.error);
+    if (hasErrors) return res.status(502).json({ error: 'One or more invoices failed to submit', results });
     res.json({ results });
   } catch (error) {
     logMessage('DEBUG', 'api/invoices POST /send', error.message);

@@ -8,7 +8,7 @@ export default class Vendor {
 
   save() {
     return db.execute(
-      'INSERT INTO vendors (vendorId, vendorData) VALUES (?, ?)',
+      'INSERT INTO vendors (vendorId, vendorData) VALUES (?, ?) ON DUPLICATE KEY UPDATE vendorData = VALUES(vendorData)',
       [this.vendorId, this.vendorData]
     );
   }

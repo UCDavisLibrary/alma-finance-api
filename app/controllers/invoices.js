@@ -179,7 +179,7 @@ export async function sendSelectedInvoices(req, res, next) {
   try {
     const invoiceids = Object.values(req.body);
     const step1 = await setSelectedData(invoiceids);
-    const variableInputs = await reformatAlmaInvoiceforAPI(step1);
+    const variableInputs = await reformatAlmaInvoiceforAPI(step1, library);
     const consumerTrackingIds = variableInputs.map((v) => v.data.header.consumerTrackingId);
     const requestresults = await aggieEnterprisePaymentRequest(variableInputs);
 
@@ -192,14 +192,21 @@ export async function sendSelectedInvoices(req, res, next) {
       const invoice = invoicedata.invoice[i];
       const request = requestresults[i];
 
-      if (request?.errors?.length > 0) {
-        logMessage('DEBUG', 'invoices: sendSelectedInvoices()', request.errors);
+      if (!request || request?.errors?.length > 0) {
+        const errors = request?.errors || [{ message: 'No response from payment system' }];
+        logMessage('DEBUG', 'invoices: sendSelectedInvoices()', errors);
         return res.redirect('/invoice/' + invoiceids[i]);
       }
 
-      if (request?.data?.scmInvoicePaymentCreate?.requestStatus?.requestStatus === 'PENDING' ||
-          request?.data?.scmInvoicePaymentCreate?.validationResults?.errorMessages[0]?.includes('A request already exists for your consumerId and consumerTrackingId')) {
-        postAddInvoice(invoice.number, invoice.id, consumerTrackingIds[i], library, request.data);
+      const paymentCreate = request?.data?.scmInvoicePaymentCreate;
+      const validationErrors = paymentCreate?.validationResults?.errorMessages || [];
+      const alreadyExists = validationErrors.some((message) =>
+        message?.includes('A request already exists for your consumerId and consumerTrackingId')
+      );
+      const isPending = paymentCreate?.requestStatus?.requestStatus === 'PENDING';
+
+      if (isPending || alreadyExists) {
+        await postAddInvoice(invoice.number, invoice.id, consumerTrackingIds[i], library, request.data);
       }
 
       data.invoice.push({ ...invoice, ...request });
