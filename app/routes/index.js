@@ -24,8 +24,8 @@ router.use(attachUser);
 // JSON API routes all require Keycloak auth; respond with 401 if unauthenticated.
 router.use('/api', requireAuth({ api: true }));
 router.use('/api', apiInvoiceRoutes);
-router.use('/api', apiAdminRoutes);
 router.use('/api', apiFundRoutes);
 router.use('/api', apiVendorRoutes);
+router.use('/api', apiAdminRoutes);
 
 export default router;

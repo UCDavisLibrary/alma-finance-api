@@ -1,11 +1,8 @@
 import express from 'express';
 import { fetchAllVendors, deleteVendor } from '../../controllers/dbcalls.js';
 import { logMessage } from '../../util/logger.js';
-import { requireAdmin } from '../../util/keycloak-auth.js';
 
 const router = express.Router();
-
-router.use(requireAdmin);
 
 // GET /api/vendors
 router.get('/vendors', async (req, res) => {

@@ -7,7 +7,7 @@ function libraryLabel(library) {
 
 export function render() {
   const isAdmin = !!this.user?.isAdmin;
-  const showLibrarySwitch = this.user?.isAdmin && this.user.availableLibraries?.length > 1;
+  const showLibrarySwitch = this.user?.availableLibraries?.length > 1;
 
   return html`
     <ucd-theme-header>
@@ -18,12 +18,12 @@ export function render() {
         <a href="/preview">Send Invoices</a>
         <a href="/search">Search Invoices</a>
         <a href="/paid">Paid Invoices</a>
-        <a href="/unpaid">Unpaid Invoices</a><
+        <a href="/unpaid">Unpaid Invoices</a>
+        <a href="/funds">Funds</a>
+        <a href="/vendors">Vendors</a>
         ${isAdmin ? html`
           <ul link-text="Admin" href="/admin/invoices">
             <li><a href="/admin/invoices">All Invoices</a></li>
-            <li><a href="/funds">Funds</a></li>
-            <li><a href="/vendors">Vendors</a></li>
           </ul>
         ` : ''}
       </ucd-theme-primary-nav>
