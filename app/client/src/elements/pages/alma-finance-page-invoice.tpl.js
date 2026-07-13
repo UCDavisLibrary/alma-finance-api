@@ -22,6 +22,11 @@ function formatRawData(data) {
   return JSON.stringify(data, null, 2);
 }
 
+function sentInvoiceLines(invoice) {
+  return (invoice?.invoice_lines?.invoice_line || [])
+    .filter(line => line.fund_distribution?.length);
+}
+
 export function render() {
   if (this.loading) return html`<div class="l-container u-space-my"><p>Loading invoice...</p></div>`;
   if (this.error && !this.almaInvoice && !this.dbInvoice) {
@@ -31,6 +36,7 @@ export function render() {
   const alma = this.almaInvoice;
   const db = this.dbInvoice;
   const vendor = this.vendor;
+  const invoiceLines = sentInvoiceLines(alma);
 
   const invoiceNumber = alma?.number || db?.invoicenumber || db?.number || this.invoiceId;
 
@@ -71,7 +77,7 @@ export function render() {
       </div>
 
       <!-- Invoice Lines -->
-      ${alma?.invoice_lines?.invoice_line?.length ? html`
+      ${invoiceLines.length ? html`
         <div class="u-space-mt">
           <h2>Invoice Lines</h2>
           <table class="table--striped">
@@ -85,7 +91,7 @@ export function render() {
               </tr>
             </thead>
             <tbody>
-              ${alma.invoice_lines.invoice_line.map(line => html`
+              ${invoiceLines.map(line => html`
                 <tr>
                   <td>${line.number || '—'}</td>
                   <td>${line.description || line.id || '—'}</td>
