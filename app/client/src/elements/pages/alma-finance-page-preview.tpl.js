@@ -6,10 +6,10 @@ function fundSummary(invoice) {
   const totals = {};
   for (const line of lines) {
     for (const dist of (line.fund_distribution || [])) {
-      const code = dist.fund_code?.value;
-      if (!code) continue;
-      const amount = dist.amount?.sum ?? (line.price * (dist.percent ?? 100) / 100);
-      totals[code] = (totals[code] || 0) + Number(amount);
+      const externalId = dist.fund_external_id?.value;
+      if (!externalId) continue;
+      const amount = dist.amount?.sum ?? dist.amount ?? (line.price * (dist.percent ?? 100) / 100);
+      totals[externalId] = (totals[externalId] || 0) + Number(amount);
     }
   }
   const entries = Object.entries(totals);

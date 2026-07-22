@@ -1,6 +1,6 @@
 import express from 'express';
 import { getAlmaInvoicesReadyToBePaid, getAlmaIndividualInvoiceData, setSelectedData, getSingleInvoiceData, getVendorData } from '../../controllers/almaapicalls.js';
-import { reformatAlmaInvoiceforAPI, filterOutSubmittedInvoices } from '../../controllers/formatdata.js';
+import { reformatAlmaInvoiceforAPI, filterOutSubmittedInvoices, changeFundIDtoCode } from '../../controllers/formatdata.js';
 import { aggieEnterprisePaymentRequest, checkStatusInOracle, checkPayments } from '../../controllers/graphqlcalls.js';
 import { postAddInvoice, getPaidInvoices, getAllUnpaidInvoices, getInvoiceBySearchTerm, fetchInvoiceByInvoiceId } from '../../controllers/dbcalls.js';
 import { archivePaidInvoices, checkOracleStatus } from '../../controllers/background-scripts.js';
@@ -15,6 +15,48 @@ async function fetchAllInvoices(library) {
     getAlmaInvoicesReadyToBePaid(library, 100),
   ]);
   return { invoice: [...data1.invoice, ...data2.invoice] };
+}
+
+async function enrichInvoiceFunds(data, library) {
+  const fundCache = new Map();
+
+  const invoices = await Promise.all((data.invoice || []).map(async (invoice) => {
+    const lines = invoice.invoice_lines?.invoice_line || [];
+    const invoiceLines = await Promise.all(lines.map(async (line) => {
+      const distributions = await Promise.all((line.fund_distribution || []).map(async (dist) => {
+        const fundId = typeof dist.fund_code?.value === 'string'
+          ? dist.fund_code.value.trim()
+          : dist.fund_code?.value;
+
+        if (!fundId) return dist;
+
+        if (!fundCache.has(fundId)) {
+          fundCache.set(fundId, changeFundIDtoCode(fundId, library));
+        }
+
+        const externalId = await fundCache.get(fundId);
+        return {
+          ...dist,
+          fund_external_id: { value: externalId || '' },
+        };
+      }));
+
+      return {
+        ...line,
+        fund_distribution: distributions,
+      };
+    }));
+
+    return {
+      ...invoice,
+      invoice_lines: {
+        ...invoice.invoice_lines,
+        invoice_line: invoiceLines,
+      },
+    };
+  }));
+
+  return { ...data, invoice: invoices };
 }
 
 // GET /api/me — current user info
@@ -39,7 +81,8 @@ router.get('/invoices/pending', async (req, res) => {
 
     const totaldata = await fetchAllInvoices(userdata.library);
     const data = await filterOutSubmittedInvoices(totaldata, userdata.library);
-    res.json(data);
+    const enrichedData = await enrichInvoiceFunds(data, userdata.library);
+    res.json(enrichedData);
   } catch (error) {
     logMessage('DEBUG', 'api/invoices GET /pending', error.message);
     res.status(500).json({ error: error.message });
