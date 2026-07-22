@@ -91,6 +91,32 @@ export async function getVendorData(vendorcode) {
   }
 }
 
+export async function getVendorPoLines(vendorcode) {
+  const limit = 100;
+  let offset = 0;
+  let total = null;
+  const poLines = [];
+  const encodedVendorCode = encodeURIComponent(vendorcode);
+
+  try {
+    do {
+      const response = await fetch(
+        `http://alma-proxy:5555/almaws/v1/acq/vendors/${encodedVendorCode}/po-lines?limit=${limit}&offset=${offset}`
+      );
+      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+
+      const data = await response.json();
+      poLines.push(...(data.po_line || []));
+      total = Number(data.total_record_count ?? poLines.length);
+      offset += limit;
+    } while (offset < total);
+
+    return { po_line: poLines };
+  } catch (error) {
+    logMessage('DEBUG', 'almaapicalls: getVendorPoLines()', error.message);
+  }
+}
+
 export async function getFundDataByID(fundcode) {
   try {
     const response = await fetch(`http://alma-proxy:5555/almaws/v1/acq/funds/${fundcode}`);

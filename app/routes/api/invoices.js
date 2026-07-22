@@ -1,5 +1,5 @@
 import express from 'express';
-import { getAlmaInvoicesReadyToBePaid, getAlmaIndividualInvoiceData, setSelectedData, getSingleInvoiceData, getVendorData } from '../../controllers/almaapicalls.js';
+import { getAlmaInvoicesReadyToBePaid, getAlmaIndividualInvoiceData, setSelectedData, getSingleInvoiceData, getVendorData, getVendorPoLines } from '../../controllers/almaapicalls.js';
 import { reformatAlmaInvoiceforAPI, filterOutSubmittedInvoices, changeFundIDtoCode } from '../../controllers/formatdata.js';
 import { aggieEnterprisePaymentRequest, checkStatusInOracle, checkPayments } from '../../controllers/graphqlcalls.js';
 import { postAddInvoice, getPaidInvoices, getAllUnpaidInvoices, getInvoiceBySearchTerm, fetchInvoiceByInvoiceId } from '../../controllers/dbcalls.js';
@@ -57,6 +57,33 @@ async function enrichInvoiceFunds(data, library) {
   }));
 
   return { ...data, invoice: invoices };
+}
+
+function poLineValue(line) {
+  if (typeof line?.po_line === 'string') return line.po_line.trim();
+  return line?.po_line?.value || line?.po_line?.number || '';
+}
+
+function enrichInvoiceLineTitles(invoice, poLineData) {
+  const poLineTitles = new Map(
+    (poLineData?.po_line || [])
+      .filter((poLine) => poLine.number)
+      .map((poLine) => [poLine.number, poLine.resource_metadata?.title || ''])
+  );
+
+  return {
+    ...invoice,
+    invoice_lines: {
+      ...invoice.invoice_lines,
+      invoice_line: (invoice.invoice_lines?.invoice_line || []).map((line) => {
+        const title = poLineTitles.get(poLineValue(line));
+        return {
+          ...line,
+          po_line_title: title || '',
+        };
+      }),
+    },
+  };
 }
 
 // GET /api/me — current user info
@@ -253,11 +280,16 @@ router.get('/invoices/:invoiceId/alma', async (req, res) => {
     if (!invoice) return res.status(404).json({ error: 'Invoice not found in Alma' });
 
     let vendor = null;
+    let poLineData = null;
     if (invoice.vendor?.value) {
-      vendor = await getVendorData(invoice.vendor.value);
+      [vendor, poLineData] = await Promise.all([
+        getVendorData(invoice.vendor.value),
+        getVendorPoLines(invoice.vendor.value),
+      ]);
     }
 
-    res.json({ invoice, vendor });
+    const enrichedInvoice = enrichInvoiceLineTitles(invoice, poLineData);
+    res.json({ invoice: enrichedInvoice, vendor });
   } catch (error) {
     logMessage('DEBUG', 'api/invoices GET /:invoiceId/alma', error.message);
     res.status(500).json({ error: error.message });

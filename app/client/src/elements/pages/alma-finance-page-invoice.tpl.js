@@ -15,6 +15,11 @@ function formatQuantity(val) {
   return val && Number(val) > 0 ? val : 1;
 }
 
+function formatPoLine(line) {
+  if (typeof line?.po_line === 'string') return line.po_line;
+  return line?.po_line?.value || line?.po_line?.number || '';
+}
+
 function formatRawData(data) {
   if (data == null) return "can't find data";
   if (Array.isArray(data) && !data.length) return "can't find data";
@@ -94,7 +99,7 @@ export function render() {
               ${invoiceLines.map(line => html`
                 <tr>
                   <td>${line.number || '—'}</td>
-                  <td>${line.description || line.id || '—'}</td>
+                  <td>${line.po_line_title || formatPoLine(line) || '—'}</td>
                   <td>${formatQuantity(line.quantity)}</td>
                   <td>${formatCurrency(line.price)}</td>
                   <td>${line.fund_distribution?.map(d => d.fund_code?.value).filter(Boolean).join(', ') || '—'}</td>
