@@ -1,20 +1,33 @@
 import { html } from 'lit';
 
-function fundSummary(invoice) {
-  const lines = invoice.invoice_lines?.invoice_line;
-  if (!lines?.length) return '—';
+function fundEntries(invoices) {
   const totals = {};
-  for (const line of lines) {
-    for (const dist of (line.fund_distribution || [])) {
-      const externalId = dist.fund_external_id?.value;
-      if (!externalId) continue;
-      const amount = dist.amount?.sum ?? dist.amount ?? (line.price * (dist.percent ?? 100) / 100);
-      totals[externalId] = (totals[externalId] || 0) + Number(amount);
+  for (const invoice of invoices) {
+    const lines = invoice.invoice_lines?.invoice_line;
+    if (!lines?.length) continue;
+    for (const line of lines) {
+      for (const dist of (line.fund_distribution || [])) {
+        const externalId = dist.fund_external_id?.value;
+        if (!externalId) continue;
+        const amount = dist.amount?.sum ?? dist.amount ?? (line.price * (dist.percent ?? 100) / 100);
+        totals[externalId] = (totals[externalId] || 0) + Number(amount);
+      }
     }
   }
-  const entries = Object.entries(totals);
+  return Object.entries(totals);
+}
+
+function renderFundEntries(entries, isStrong = false) {
   if (!entries.length) return '—';
-  return entries.map(([code, amt]) => `${code}: $${amt.toFixed(2)}`).join(', ');
+  return entries.map(([code, amt]) => html`
+    <div>
+      ${isStrong ? html`<strong>${code}: $${amt.toFixed(2)}</strong>` : html`${code}: $${amt.toFixed(2)}`}
+    </div>
+  `);
+}
+
+function fundSummary(invoice) {
+  return renderFundEntries(fundEntries([invoice]));
 }
 
 function formatDate(raw) {
@@ -59,6 +72,9 @@ export function render() {
     `;
   }
 
+  const selectedInvoices = this.invoices.filter(inv => this.selected[inv.id]);
+  const selectedInvoiceTotal = selectedInvoices.reduce((sum, inv) => sum + Number(inv.total_amount || 0), 0);
+
   return html`
     <div class="l-container u-space-my">
       <div style="display:flex;align-items:center;gap:1rem">
@@ -95,7 +111,7 @@ export function render() {
                 <td>${inv.vendor?.desc || '—'}</td>
                 <td>${formatDate(inv.invoice_date)}</td>
                 <td>${fundSummary(inv)}</td>
-                <td>${inv.total_amount != null ? `$${Number(inv.total_amount).toFixed(2)}` : '—'}</td>
+                <td>${inv.total_amount != null ? `$${Number(inv.total_amount).toFixed(2)}` : ''}</td>
                 <td>
                   <input type="checkbox"
                     .checked=${!!this.selected[inv.id]}
@@ -106,8 +122,9 @@ export function render() {
           </tbody>
           <tfoot>
             <tr>
-              <td colspan="4" style="text-align:right"><strong>Total</strong></td>
-              <td><strong>$${this.invoices.filter(inv => this.selected[inv.id]).reduce((sum, inv) => sum + Number(inv.total_amount || 0), 0).toFixed(2)}</strong></td>
+              <td colspan="3" style="text-align:right"><strong>Total</strong></td>
+              <td>${renderFundEntries(fundEntries(selectedInvoices), true)}</td>
+              <td><strong>$${selectedInvoiceTotal.toFixed(2)}</strong></td>
               <td></td>
             </tr>
           </tfoot>
@@ -131,7 +148,7 @@ export function render() {
                 <tbody>
                   ${this.sendResults.map(result => html`
                     <tr>
-                      <td>${result.invoice?.number || '—'}</td>
+                      <td>${result.invoice?.number || ''}</td>
                       <td>${(result.error || []).map(error => error.message || String(error)).join('; ') || 'Unknown error'}</td>
                     </tr>
                   `)}
