@@ -106,7 +106,12 @@ export async function getVendorPoLines(vendorcode) {
       if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
 
       const data = await response.json();
-      poLines.push(...(data.po_line || []));
+      poLines.push(...(data.po_line || []).map((poLine) => ({
+        number: poLine.number,
+        resource_metadata: {
+          title: poLine.resource_metadata?.title || '',
+        },
+      })));
       total = Number(data.total_record_count ?? poLines.length);
       offset += limit;
     } while (offset < total);

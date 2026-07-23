@@ -284,7 +284,7 @@ router.get('/invoices/:invoiceId/alma', async (req, res) => {
     if (invoice.vendor?.value) {
       [vendor, poLineData] = await Promise.all([
         getVendorData(invoice.vendor.value),
-        getVendorPoLines(invoice.vendor.value),
+        // getVendorPoLines(invoice.vendor.value),
       ]);
     }
 
