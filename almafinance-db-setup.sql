@@ -26,7 +26,14 @@ CREATE TABLE `funds` (
   `id` int NOT NULL AUTO_INCREMENT,
   `fundId` varchar(100) NOT NULL,
   `fundCode` varchar(255) NOT NULL,
+  `library` varchar(20) DEFAULT NULL,
+  `fundName` varchar(255) DEFAULT NULL,
+  `status` varchar(50) DEFAULT NULL,
+  `fundData` longtext,
   `datetime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `lastCheckedAt` datetime DEFAULT NULL,
+  `syncStatus` varchar(20) DEFAULT NULL,
+  `syncError` text,
   PRIMARY KEY (`id`),
   UNIQUE KEY `fundId` (`fundId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -36,9 +43,33 @@ CREATE TABLE `vendors` (
   `id` int NOT NULL AUTO_INCREMENT,
   `vendorId` varchar(100) NOT NULL,
   `vendorData` longtext NOT NULL,
+  `vendorName` varchar(255) DEFAULT NULL,
+  `financialSysCode` varchar(100) DEFAULT NULL,
+  `additionalCode` varchar(100) DEFAULT NULL,
+  `status` varchar(50) DEFAULT NULL,
   `datetime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `lastCheckedAt` datetime DEFAULT NULL,
+  `syncStatus` varchar(20) DEFAULT NULL,
+  `syncError` text,
   PRIMARY KEY (`id`),
   UNIQUE KEY `vendorId` (`vendorId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+DROP TABLE IF EXISTS `po_lines`;
+CREATE TABLE `po_lines` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `poLine` varchar(100) NOT NULL,
+  `vendorId` varchar(100) NOT NULL,
+  `title` text,
+  `poLineData` longtext,
+  `lastCheckedAt` datetime DEFAULT NULL,
+  `syncStatus` varchar(20) DEFAULT NULL,
+  `syncError` text,
+  `datetime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `poLine_vendorId` (`poLine`,`vendorId`),
+  KEY `vendorId` (`vendorId`),
+  KEY `poLine` (`poLine`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 

@@ -13,7 +13,9 @@
 /file-loader/wait.html
 /file-loader/package-lock.json
 /alma-payments-gcloud-key.json
+almafinance-db.sql
 almafinance-db-*.sql
+!almafinance-db-setup.sql
 *.log
 /app/alma-payments-gcloud-key.json
 /file-loader/alma-payments-gcloud-key.json
