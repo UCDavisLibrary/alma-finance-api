@@ -11,6 +11,8 @@ export default class AlmaFinancePageOracleStatus extends Mixin(LitElement).with(
       loading: { type: Boolean },
       error: { type: String },
       updating: { type: Boolean },
+      page: { type: Number },
+      itemsPerPage: { type: Number },
     };
   }
 
@@ -21,6 +23,8 @@ export default class AlmaFinancePageOracleStatus extends Mixin(LitElement).with(
     this.loading = false;
     this.error = '';
     this.updating = false;
+    this.page = 1;
+    this.itemsPerPage = 10;
     this.ctl = { appComponent: new AppComponentController(this) };
     this._injectModel('AppStateModel');
   }
@@ -29,6 +33,7 @@ export default class AlmaFinancePageOracleStatus extends Mixin(LitElement).with(
 
   async _onAppStateUpdate(e) {
     if (!this.ctl.appComponent.isOnActivePage) return;
+    this.page = 1;
     await this._loadStatus();
     this.ctl.appComponent.showPage();
   }
@@ -58,6 +63,15 @@ export default class AlmaFinancePageOracleStatus extends Mixin(LitElement).with(
     } finally {
       this.updating = false;
     }
+  }
+
+  get pagedInvoices() {
+    const start = (this.page - 1) * this.itemsPerPage;
+    return this.invoices.slice(start, start + this.itemsPerPage);
+  }
+
+  get totalPages() {
+    return Math.ceil(this.invoices.length / this.itemsPerPage);
   }
 }
 

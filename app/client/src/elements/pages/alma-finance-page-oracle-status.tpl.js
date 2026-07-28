@@ -58,6 +58,7 @@ export function render() {
       ${!this.invoices.length ? html`
         <p class="u-space-mt">No unpaid invoices found to check.</p>
       ` : html`
+        <p class="u-space-mt">${this.invoices.length} total invoices. Page ${this.page} of ${this.totalPages}.</p>
         <table class="table--striped u-space-mt">
           <thead>
             <tr>
@@ -69,7 +70,7 @@ export function render() {
             </tr>
           </thead>
           <tbody>
-            ${this.invoices.map(inv => html`
+            ${this.pagedInvoices.map(inv => html`
               <tr>
                 <td>${inv.number || inv.invoicenumber || '—'}</td>
                 <td>${vendorName(inv)}</td>
@@ -80,6 +81,14 @@ export function render() {
             `)}
           </tbody>
         </table>
+        <div class="pagination u-space-mt">
+          ${this.page > 1 ? html`
+            <button class="btn btn--alt2 btn--sm" @click=${() => { this.page--; }}>← Previous</button>
+          ` : ''}
+          ${this.page < this.totalPages ? html`
+            <button class="btn btn--alt2 btn--sm u-space-ml" @click=${() => { this.page++; }}>Next →</button>
+          ` : ''}
+        </div>
       `}
     </div>
   `;
