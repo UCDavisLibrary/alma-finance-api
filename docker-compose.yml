@@ -37,7 +37,7 @@ services:
         condition: service_healthy
   alma-finance-client:
     build: ./app
-    command: npm run client-watch
+    # command: npm run client-watch
     volumes:
       - ./app:/app
       - /app/node_modules
