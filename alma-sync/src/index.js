@@ -14,7 +14,7 @@ import {
   savePoLine,
   saveVendor,
 } from './repositories.js';
-import { log } from './log.js';
+import { flushLogs, log } from './log.js';
 
 const cacheTtlMs = config.sync.cacheTtlHours * 60 * 60 * 1000;
 let running = false;
@@ -229,6 +229,7 @@ async function runCycle() {
 
 async function shutdown() {
   log('INFO', 'Shutting down');
+  await flushLogs();
   await db.end();
   process.exit(0);
 }
@@ -239,6 +240,7 @@ process.on('SIGINT', shutdown);
 await runCycle();
 
 if (config.sync.once) {
+  await flushLogs();
   await db.end();
   process.exit(0);
 }

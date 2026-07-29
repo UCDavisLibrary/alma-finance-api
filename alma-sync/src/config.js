@@ -19,6 +19,9 @@ function getListEnv(key, defaultValue) {
 }
 
 export default {
+  app: {
+    isLocal: getEnv('IS_LOCAL', 'true') === 'true',
+  },
   alma: {
     baseUrl: getEnv('ALMA_PROXY_BASE_URL', 'http://alma-proxy:5555').replace(/\/+$/, ''),
     readyInvoiceLimit: getNumberEnv('ALMA_SYNC_READY_INVOICE_LIMIT', 99),
@@ -36,5 +39,8 @@ export default {
     cacheTtlHours: getNumberEnv('ALMA_SYNC_CACHE_TTL_HOURS', 24),
     once: process.argv.includes('--once') || getEnv('ALMA_SYNC_ONCE', 'false') === 'true',
     libraries: getListEnv('KEYCLOAK_LIBRARY_OPTIONS', 'SHLDS,LAW'),
+  },
+  gcloud: {
+    project: getEnv('GCLOUD_PROJECT'),
   },
 };
