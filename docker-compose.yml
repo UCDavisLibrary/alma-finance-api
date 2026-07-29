@@ -43,6 +43,18 @@ services:
       - /app/node_modules
     depends_on:
       - alma-finance
+  alma-sync:
+    build: ./alma-sync
+    env_file:
+      - ./app/app.env
+    environment:
+      ALMA_PROXY_BASE_URL: http://alma-proxy:5555
+    restart: always
+    depends_on:
+      almafinance-db:
+        condition: service_healthy
+      alma-proxy:
+        condition: service_started
   finance-file-loader:
     build: ./file-loader
     env_file:
