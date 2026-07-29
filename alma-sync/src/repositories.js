@@ -72,10 +72,10 @@ export async function saveVendor(vendorId, vendorData, metadata = {}) {
   );
 }
 
-export async function findPoLine(poLine, vendorId) {
+export async function findPoLine(poLine) {
   const [rows] = await db.execute(
-    'SELECT * FROM `po_lines` WHERE `poLine` = ? AND `vendorId` = ?',
-    [poLine, vendorId]
+    'SELECT * FROM `po_lines` WHERE `poLine` = ? ORDER BY `lastCheckedAt` DESC LIMIT 1',
+    [poLine]
   );
   return rows[0] || null;
 }

@@ -68,38 +68,9 @@ export function getVendorData(vendorCode) {
   );
 }
 
-export async function getVendorPoLines(vendorCode, targetPoLines) {
-  const targets = new Set([...targetPoLines].filter(Boolean));
-  const found = new Set();
-  const poLines = [];
-  let offset = 0;
-  let total = null;
-
-  do {
-    const params = new URLSearchParams({
-      limit: String(config.alma.poLineLimit),
-      offset: String(offset),
-    });
-    const data = await fetchJson(
-      `/almaws/v1/acq/vendors/${encodeURIComponent(vendorCode)}/po-lines?${params.toString()}`,
-      `vendor-po-lines:${vendorCode}:${offset}`
-    );
-
-    for (const poLine of (data.po_line || [])) {
-      if (!targets.has(poLine.number)) continue;
-      found.add(poLine.number);
-      poLines.push({
-        number: poLine.number,
-        vendor: poLine.vendor?.value || vendorCode,
-        resource_metadata: {
-          title: poLine.resource_metadata?.title || '',
-        },
-      });
-    }
-
-    total = Number(data.total_record_count ?? 0);
-    offset += config.alma.poLineLimit;
-  } while (offset < total && found.size < targets.size);
-
-  return poLines;
+export function getPoLine(poLineId) {
+  return fetchJson(
+    `/almaws/v1/acq/po-lines/${encodeURIComponent(poLineId)}`,
+    `po-line:${poLineId}`
+  );
 }

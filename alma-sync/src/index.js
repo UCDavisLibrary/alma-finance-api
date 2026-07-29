@@ -2,9 +2,9 @@ import config from './config.js';
 import db from './db.js';
 import {
   getFundData,
+  getPoLine,
   getReadyInvoices,
   getVendorData,
-  getVendorPoLines,
 } from './alma-client.js';
 import {
   findFund,
@@ -44,7 +44,7 @@ function parseJson(value, fallback = {}) {
 function collectReferences(invoices, library) {
   const vendors = new Set();
   const funds = new Map();
-  const poLinesByVendor = new Map();
+  const poLines = new Map();
 
   for (const invoice of invoices) {
     const vendorId = invoice.vendor?.value;
@@ -52,9 +52,8 @@ function collectReferences(invoices, library) {
 
     for (const line of (invoice.invoice_lines?.invoice_line || [])) {
       const poLine = poLineValue(line);
-      if (vendorId && poLine) {
-        if (!poLinesByVendor.has(vendorId)) poLinesByVendor.set(vendorId, new Set());
-        poLinesByVendor.get(vendorId).add(poLine);
+      if (poLine) {
+        poLines.set(poLine, { poLine, vendorId: vendorId || null });
       }
 
       for (const distribution of (line.fund_distribution || [])) {
@@ -64,7 +63,7 @@ function collectReferences(invoices, library) {
     }
   }
 
-  return { vendors, funds, poLinesByVendor };
+  return { vendors, funds, poLines };
 }
 
 async function syncVendor(vendorId, stats) {
@@ -123,41 +122,33 @@ async function syncFund(fundRef, stats) {
   }
 }
 
-async function syncPoLines(vendorId, poLineSet, stats) {
-  const missingOrStale = [];
-
-  for (const poLine of poLineSet) {
-    const cached = await findPoLine(poLine, vendorId);
-    if (isFresh(cached)) {
-      stats.poLinesSkipped += 1;
-    } else {
-      missingOrStale.push(poLine);
-    }
+async function syncPoLine(poLineRef, stats) {
+  const cached = await findPoLine(poLineRef.poLine);
+  if (isFresh(cached)) {
+    stats.poLinesSkipped += 1;
+    return;
   }
 
-  if (!missingOrStale.length) return;
+  try {
+    const poLine = await getPoLine(poLineRef.poLine);
+    const vendorId = poLine.vendor?.value || poLineRef.vendorId;
+    if (!vendorId) throw new Error(`PO line ${poLineRef.poLine} did not include a vendor`);
 
-  const poLines = await getVendorPoLines(vendorId, missingOrStale);
-  const found = new Set();
-
-  for (const poLine of poLines) {
-    found.add(poLine.number);
     await savePoLine(
-      poLine.number,
+      poLine.number || poLineRef.poLine,
       vendorId,
       poLine.resource_metadata?.title || '',
       poLine
     );
     stats.poLinesSynced += 1;
-  }
-
-  for (const poLine of missingOrStale) {
-    if (found.has(poLine)) continue;
-    await savePoLine(poLine, vendorId, '', null, {
+  } catch (error) {
+    const vendorId = cached?.vendorId || poLineRef.vendorId || '';
+    await savePoLine(poLineRef.poLine, vendorId, '', null, {
       syncStatus: 'NOT_FOUND',
-      syncError: 'PO line not found in vendor PO-line list',
+      syncError: error.message,
     });
     stats.poLinesNotFound += 1;
+    throw error;
   }
 }
 
@@ -208,12 +199,12 @@ async function runCycle() {
         }
       }
 
-      for (const [vendorId, poLineSet] of refs.poLinesByVendor.entries()) {
+      for (const poLineRef of refs.poLines.values()) {
         try {
-          await syncPoLines(vendorId, poLineSet, stats);
+          await syncPoLine(poLineRef, stats);
         } catch (error) {
           stats.errors += 1;
-          log('ERROR', 'PO-line sync failed', { vendorId, error: error.message });
+          log('ERROR', 'PO-line sync failed', { poLine: poLineRef.poLine, error: error.message });
         }
       }
     }

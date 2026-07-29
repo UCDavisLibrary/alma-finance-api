@@ -26,7 +26,6 @@ export default {
     baseUrl: getEnv('ALMA_PROXY_BASE_URL', 'http://alma-proxy:5555').replace(/\/+$/, ''),
     readyInvoiceLimit: getNumberEnv('ALMA_SYNC_READY_INVOICE_LIMIT', 99),
     readyInvoiceMaxPages: getNumberEnv('ALMA_SYNC_READY_INVOICE_MAX_PAGES', 2),
-    poLineLimit: getNumberEnv('ALMA_SYNC_PO_LINE_LIMIT', 100),
   },
   db: {
     host: getEnv('MYSQL_HOST'),
