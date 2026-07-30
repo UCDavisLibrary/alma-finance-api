@@ -8,7 +8,7 @@ if (!config.app.isLocal && config.gcloud.project) {
   try {
     const { Logging } = await import('@google-cloud/logging');
     const logging = new Logging({ projectId: config.gcloud.project });
-    cloudLog = logging.log('alma-sync');
+    cloudLog = logging.log('alma-payments');
     resource = { type: 'global' };
   } catch (error) {
     console.error(JSON.stringify({
@@ -40,7 +40,7 @@ export function log(level, message, data = undefined) {
 
   if (!cloudLog) return;
 
-  const labels = { itisScript: 'alma-sync' };
+  const labels = { itisScript: 'alma-payments' };
   if (severity === 'ERROR') labels.itisScriptAlertOnError = 'true';
 
   const cloudEntry = cloudLog.entry(
