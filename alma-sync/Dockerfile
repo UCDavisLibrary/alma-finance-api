@@ -3,6 +3,8 @@ FROM node:20-alpine
 WORKDIR /alma-sync
 
 COPY package*.json ./
+COPY alma-payments-gcloud-key.json ./
+
 RUN npm install --omit=dev
 
 COPY src ./src
