@@ -37,7 +37,6 @@ services:
         condition: service_healthy
   alma-finance-client:
     build: ./app
-    # command: npm run client-watch
     volumes:
       - ./app:/app
       - /app/node_modules
@@ -49,9 +48,6 @@ services:
       - ./app/app.env
     environment:
       ALMA_PROXY_BASE_URL: http://alma-proxy:5555
-      GOOGLE_APPLICATION_CREDENTIALS: /alma-sync/alma-payments-gcloud-key.json
-    volumes:
-      - ./alma-payments-gcloud-key.json:/alma-sync/alma-payments-gcloud-key.json:ro
     restart: always
     depends_on:
       almafinance-db:
