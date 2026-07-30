@@ -41,5 +41,6 @@ export default {
   },
   gcloud: {
     project: getEnv('GCLOUD_PROJECT'),
+    credentials: getEnv('GOOGLE_APPLICATION_CREDENTIALS'),
   },
 };
