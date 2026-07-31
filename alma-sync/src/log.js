@@ -28,18 +28,26 @@ function normalizeSeverity(level) {
 
 export function log(level, message, data = undefined) {
   const severity = normalizeSeverity(level);
-  const entry = {
-    level: severity,
-    message,
-    service: 'alma-sync',
-    timestamp: new Date().toISOString(),
-  };
+  if (config.app.isLocal) {
+    const entry = {
+      level: severity,
+      message,
+      service: 'alma-sync',
+      timestamp: new Date().toISOString(),
+    };
 
-  if (data !== undefined) entry.data = data;
-  console.log(JSON.stringify(entry));
+    if (data !== undefined) entry.data = data;
+
+    const output = severity === 'ERROR' || severity === 'DEBUG'
+      ? console.error
+      : console.log;
+    output(JSON.stringify(entry));
+    return;
+  }
 
   if (!cloudLog) return;
 
+  const timestamp = new Date().toISOString();
   const labels = { itisScript: 'alma-payments' };
   if (severity === 'ERROR') labels.itisScriptAlertOnError = 'true';
 
@@ -48,7 +56,7 @@ export function log(level, message, data = undefined) {
     {
       message,
       context: data ?? {},
-      timestamp: entry.timestamp,
+      timestamp,
       service: 'alma-sync',
     }
   );

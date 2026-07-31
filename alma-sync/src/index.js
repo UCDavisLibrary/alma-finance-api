@@ -86,7 +86,7 @@ async function syncVendor(vendorId, stats) {
     stats.vendorsSynced += 1;
   } catch (error) {
     await saveVendor(vendorId, parseJson(cached?.vendorData), {
-      syncStatus: 'ERROR',
+      syncStatus: 'WARNING',
       syncError: error.message,
     });
     throw error;
@@ -115,7 +115,7 @@ async function syncFund(fundRef, stats) {
   } catch (error) {
     await saveFund(fundRef.fundId, cached?.fundCode || fundRef.fundId, null, {
       library: fundRef.library,
-      syncStatus: 'ERROR',
+      syncStatus: 'WARNING',
       syncError: error.message,
     });
     throw error;
@@ -186,7 +186,7 @@ async function runCycle() {
           await syncVendor(vendorId, stats);
         } catch (error) {
           stats.errors += 1;
-          log('ERROR', 'Vendor sync failed', { vendorId, error: error.message });
+          log('WARNING', 'Vendor sync failed', { vendorId, error: error.message });
         }
       }
 
@@ -195,7 +195,7 @@ async function runCycle() {
           await syncFund(fundRef, stats);
         } catch (error) {
           stats.errors += 1;
-          log('ERROR', 'Fund sync failed', { fundId: fundRef.fundId, error: error.message });
+          log('WARNING', 'Fund sync failed', { fundId: fundRef.fundId, error: error.message });
         }
       }
 
@@ -204,7 +204,7 @@ async function runCycle() {
           await syncPoLine(poLineRef, stats);
         } catch (error) {
           stats.errors += 1;
-          log('ERROR', 'PO-line sync failed', { poLine: poLineRef.poLine, error: error.message });
+          log('WARNING', 'PO-line sync failed', { poLine: poLineRef.poLine, error: error.message });
         }
       }
     }
@@ -212,7 +212,7 @@ async function runCycle() {
     log('INFO', 'Sync cycle completed', stats);
   } catch (error) {
     stats.errors += 1;
-    log('ERROR', 'Sync cycle failed', { error: error.message, stats });
+    log('WARNING', 'Sync cycle failed', { error: error.message, stats });
   } finally {
     running = false;
   }
