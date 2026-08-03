@@ -12,7 +12,7 @@ if (!config.app.isLocal && config.gcloud.project) {
     resource = { type: 'global' };
   } catch (error) {
     console.error(JSON.stringify({
-      level: 'ERROR',
+      level: 'WARNING',
       message: 'Failed to initialize Google Cloud Logging',
       service: 'alma-sync',
       timestamp: new Date().toISOString(),
@@ -38,7 +38,7 @@ export function log(level, message, data = undefined) {
 
     if (data !== undefined) entry.data = data;
 
-    const output = severity === 'ERROR' || severity === 'DEBUG'
+    const output = severity === 'WARNING' || severity === 'DEBUG'
       ? console.error
       : console.log;
     output(JSON.stringify(entry));
@@ -64,7 +64,7 @@ export function log(level, message, data = undefined) {
   const write = cloudLog.write(cloudEntry)
     .catch((error) => {
       console.error(JSON.stringify({
-        level: 'ERROR',
+        level: 'WARNING',
         message: 'Failed to write Google Cloud log entry',
         service: 'alma-sync',
         timestamp: new Date().toISOString(),
