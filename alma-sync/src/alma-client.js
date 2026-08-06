@@ -6,7 +6,7 @@ async function fetchJson(path, label) {
   const remaining = response.headers.get('X-Exl-Api-Remaining');
 
   if (remaining) {
-    log('INFO', 'Alma API quota remaining', { label, remaining });
+    // log('INFO', 'Alma API quota remaining', { label, remaining });
   }
 
   if (!response.ok) {

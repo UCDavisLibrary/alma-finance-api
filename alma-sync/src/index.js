@@ -173,7 +173,7 @@ async function runCycle() {
   };
 
   try {
-    log('INFO', 'Sync cycle started', { libraries: config.sync.libraries });
+    // log('INFO', 'Sync cycle started', { libraries: config.sync.libraries });
 
     for (const library of config.sync.libraries) {
       const invoices = await getReadyInvoices(library);
@@ -209,7 +209,7 @@ async function runCycle() {
       }
     }
 
-    log('INFO', 'Sync cycle completed', stats);
+    // log('INFO', 'Sync cycle completed', stats);
   } catch (error) {
     stats.errors += 1;
     log('WARNING', 'Sync cycle failed', { error: error.message, stats });
@@ -219,7 +219,7 @@ async function runCycle() {
 }
 
 async function shutdown() {
-  log('INFO', 'Shutting down');
+  // log('INFO', 'Shutting down');
   await flushLogs();
   await db.end();
   process.exit(0);
