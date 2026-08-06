@@ -1,5 +1,18 @@
 import { logMessage } from '../util/logger.js';
 
+function filterExactFundMatch(data, fundCode) {
+  const requestedCode = String(fundCode || '').trim().toLowerCase();
+  const exactFund = (data?.fund || []).find((fund) =>
+    String(fund.code || '').trim().toLowerCase() === requestedCode
+  );
+
+  return {
+    ...data,
+    fund: exactFund ? [exactFund] : [],
+    total_record_count: exactFund ? 1 : 0,
+  };
+}
+
 export async function getAlmaIndividualInvoiceData(invoiceIds) {
   try {
     const baseUrl = 'http://alma-proxy:5555/almaws/v1/acq/invoices';
@@ -59,9 +72,10 @@ export async function getVendorDataBatch(vendorarray) {
 
 export async function getFundData(fundCode, library) {
   try {
-    const url = `http://alma-proxy:5555/almaws/v1/acq/funds?limit=1&q=fund_code~${fundCode}&library=${library}&view=brief&mode=POL&status=ALL&entity_type=ALL&fiscal_period=ALL&parent_id=ALL&owner=ALL`;
+    const url = `http://alma-proxy:5555/almaws/v1/acq/funds?limit=25&q=fund_code~${fundCode}&library=${library}&view=brief&mode=POL&status=ALL&entity_type=ALL&fiscal_period=ALL&parent_id=ALL&owner=ALL`;
     const response = await fetch(url);
-    return await response.json();
+    const data = await response.json();
+    return filterExactFundMatch(data, fundCode);
   } catch (error) {
     logMessage('DEBUG', 'almaapicalls: getFundData()', error.message);
   }

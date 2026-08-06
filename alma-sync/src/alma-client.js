@@ -1,6 +1,19 @@
 import config from './config.js';
 import { log } from './log.js';
 
+function filterExactFundMatch(data, fundCode) {
+  const requestedCode = String(fundCode || '').trim().toLowerCase();
+  const exactFund = (data?.fund || []).find((fund) =>
+    String(fund.code || '').trim().toLowerCase() === requestedCode
+  );
+
+  return {
+    ...data,
+    fund: exactFund ? [exactFund] : [],
+    total_record_count: exactFund ? 1 : 0,
+  };
+}
+
 async function fetchJson(path, label) {
   const response = await fetch(`${config.alma.baseUrl}${path}`);
   const remaining = response.headers.get('X-Exl-Api-Remaining');
@@ -46,7 +59,7 @@ export async function getReadyInvoices(owner) {
 
 export function getFundData(fundCode, library) {
   const params = new URLSearchParams({
-    limit: '1',
+    limit: '25',
     q: `fund_code~${fundCode}`,
     library,
     view: 'brief',
@@ -58,7 +71,8 @@ export function getFundData(fundCode, library) {
     owner: 'ALL',
   });
 
-  return fetchJson(`/almaws/v1/acq/funds?${params.toString()}`, `fund:${library}:${fundCode}`);
+  return fetchJson(`/almaws/v1/acq/funds?${params.toString()}`, `fund:${library}:${fundCode}`)
+    .then((data) => filterExactFundMatch(data, fundCode));
 }
 
 export function getVendorData(vendorCode) {
