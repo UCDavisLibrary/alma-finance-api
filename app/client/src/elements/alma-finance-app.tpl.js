@@ -59,7 +59,7 @@ export function render() {
 
       <alma-finance-page-home page-id="home"></alma-finance-page-home>
       <alma-finance-page-preview page-id="preview"></alma-finance-page-preview>
-      <alma-finance-page-invoice page-id="invoice"></alma-finance-page-invoice>
+      <alma-finance-page-invoice page-id="invoice" .user=${this.user}></alma-finance-page-invoice>
       <alma-finance-page-paid page-id="paid"></alma-finance-page-paid>
       <alma-finance-page-search page-id="search"></alma-finance-page-search>
       <alma-finance-page-oracle-status page-id="unpaid"></alma-finance-page-oracle-status>

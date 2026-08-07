@@ -15,6 +15,7 @@ export default class AlmaFinancePageInvoice extends Mixin(LitElement).with(LitCo
       loading: { type: Boolean },
       error: { type: String },
       invoiceId: { type: String },
+      user: { type: Object },
     };
   }
 
@@ -29,6 +30,7 @@ export default class AlmaFinancePageInvoice extends Mixin(LitElement).with(LitCo
     this.loading = false;
     this.error = '';
     this.invoiceId = '';
+    this.user = null;
     this.ctl = { appComponent: new AppComponentController(this) };
     this._injectModel('AppStateModel');
   }
@@ -123,6 +125,18 @@ export default class AlmaFinancePageInvoice extends Mixin(LitElement).with(LitCo
       this.error = e.message;
     } finally {
       this.loading = false;
+    }
+  }
+
+  async _deleteInvoice(id) {
+    if (!id || !confirm('Delete this invoice from the database?')) return;
+
+    try {
+      const res = await fetch(`/api/admin/invoices/${id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      window.location.href = '/admin/invoices';
+    } catch (e) {
+      this.error = e.message;
     }
   }
 }

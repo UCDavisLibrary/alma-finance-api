@@ -44,6 +44,7 @@ export function render() {
   const invoiceLines = sentInvoiceLines(alma);
 
   const invoiceNumber = alma?.number || db?.invoicenumber || db?.number || this.invoiceId;
+  const canAdminEdit = this.user?.isAdmin && db?.id;
 
   console.log('Aggie Enterprise payment status:', this.paymentStatus);
   console.log('Oracle payment record:', this.oracleStatus);
@@ -51,6 +52,13 @@ export function render() {
   return html`
     <div class="l-container u-space-my">
       <h1 class="heading--highlight">Invoice ${invoiceNumber}</h1>
+
+      ${canAdminEdit ? html`
+        <div class="u-space-mt">
+          <a href="/admin/invoices/${db.id}" class="btn btn--alt2 btn--sm">Edit</a>
+          <button class="btn btn--alt btn--sm u-space-ml" @click=${() => this._deleteInvoice(db.id)}>Delete</button>
+        </div>
+      ` : ''}
 
       <!-- Invoice + Vendor Details -->
       <div class="l-2col u-space-mt">
