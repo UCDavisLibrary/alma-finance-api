@@ -19,6 +19,7 @@ exports.checkTransporter = () => {
         tls: {
           // do not fail on invalid certs
           rejectUnauthorized: false,
+          ciphers: 'DEFAULT@SECLEVEL=0',
         },
       });
     return transporterremote;

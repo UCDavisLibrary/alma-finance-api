@@ -18,6 +18,7 @@ export function checkTransporter() {
     secure: false,
     tls: {
       rejectUnauthorized: false,
+      ciphers: 'DEFAULT@SECLEVEL=0',
     },
   });
 }
