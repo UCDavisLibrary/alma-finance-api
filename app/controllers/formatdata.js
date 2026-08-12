@@ -1,5 +1,5 @@
-import { getFundData, getVendorData, getSingleInvoiceData, putSingleInvoiceData, getAlmaIndividualInvoiceXML } from './almaapicalls.js';
-import { getSubmittedInvoices, fetchFundCodeFromId, saveFund, fetchVendorDataFromId, saveVendor } from './dbcalls.js';
+import { getFundData, getVendorData, getSingleInvoiceData, putSingleInvoiceData, getAlmaIndividualInvoiceXML, getPoLineData } from './almaapicalls.js';
+import { getSubmittedInvoices, fetchFundCodeFromId, saveFund, fetchVendorDataFromId, saveVendor, fetchPoLineData, savePoLineData } from './dbcalls.js';
 import { generateRandomNumber } from '../util/helper-functions.js';
 import fs from 'fs';
 import { logMessage } from '../util/logger.js';
@@ -26,9 +26,60 @@ async function checkForVendorData(vendorId) {
   }
 }
 
+function poLineValue(line) {
+  if (typeof line?.po_line === 'string') return line.po_line.trim();
+  const value = line?.po_line?.value || line?.po_line?.number || '';
+  return String(value).trim();
+}
+
+function parseCachedPoLineData(data) {
+  if (!data) return null;
+  if (typeof data !== 'string') return data;
+
+  try {
+    return JSON.parse(data);
+  } catch {
+    return null;
+  }
+}
+
+async function getPoLineTitle(line, vendorId, poLineCache) {
+  const poLineId = poLineValue(line);
+  if (!poLineId) return '';
+  if (line.po_line_title) return line.po_line_title;
+
+  if (!poLineCache.has(poLineId)) {
+    poLineCache.set(poLineId, (async () => {
+      const cached = await fetchPoLineData(poLineId);
+      if (cached?.title) return cached.title;
+
+      const cachedData = parseCachedPoLineData(cached?.poLineData);
+      if (cachedData?.resource_metadata?.title) return cachedData.resource_metadata.title;
+
+      const poLine = await getPoLineData(poLineId);
+      if (!poLine || poLine.errorsExist) return '';
+
+      const poLineVendorId = poLine.vendor?.value || vendorId;
+      if (poLineVendorId) {
+        await savePoLineData(
+          poLine.number || poLineId,
+          poLineVendorId,
+          poLine.resource_metadata?.title || '',
+          poLine
+        );
+      }
+
+      return poLine.resource_metadata?.title || '';
+    })());
+  }
+
+  return poLineCache.get(poLineId);
+}
+
 export async function reformatAlmaInvoiceforAPI(data, library) {
   let apipayload = [];
   const fundCache = {};
+  const poLineCache = new Map();
   const today = new Date().toLocaleDateString('sv-SE', { timeZone: 'America/Los_Angeles' });
 
   for (let i = 0; i < data.invoice.length; i++) {
@@ -80,9 +131,10 @@ export async function reformatAlmaInvoiceforAPI(data, library) {
     for (let j = 0; j < data.invoice[i].invoice_lines.invoice_line.length; j++) {
       const line = data.invoice[i].invoice_lines.invoice_line[j];
       const quantity = line.quantity && line.quantity > 0 ? line.quantity : 1;
+      const poLineTitle = await getPoLineTitle(line, vendor, poLineCache);
       const object1 = {
         itemName: '',
-        itemDescription: line.id,
+        itemDescription: poLineTitle || line.id,
         lineAmount: line.price,
         lineType: 'ITEM',
         purchaseOrderLineNumber: line.number,
