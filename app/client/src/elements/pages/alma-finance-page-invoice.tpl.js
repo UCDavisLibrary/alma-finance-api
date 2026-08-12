@@ -98,6 +98,7 @@ export function render() {
               <tr>
                 <th>Line #</th>
                 <th>Description</th>
+                <th>PO Line</th>
                 <th>Quantity</th>
                 <th>Price</th>
                 <th>Fund Code</th>
@@ -108,6 +109,7 @@ export function render() {
                 <tr>
                   <td>${line.number || '—'}</td>
                   <td>${line.po_line_title || formatPoLine(line) || '—'}</td>
+                  <td>${formatPoLine(line) || '—'}</td>
                   <td>${formatQuantity(line.quantity)}</td>
                   <td>${formatCurrency(line.price)}</td>
                   <td>${line.fund_distribution?.map(d => d.fund_code?.value).filter(Boolean).join(', ') || '—'}</td>
