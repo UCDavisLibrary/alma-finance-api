@@ -136,6 +136,18 @@ export async function getVendorPoLines(vendorcode) {
   }
 }
 
+export async function getPoLineData(poLineId) {
+  try {
+    const response = await fetch(
+      `http://alma-proxy:5555/almaws/v1/acq/po-lines/${encodeURIComponent(poLineId)}`
+    );
+    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+    return await response.json();
+  } catch (error) {
+    logMessage('DEBUG', 'almaapicalls: getPoLineData()', error.message);
+  }
+}
+
 export async function getFundDataByID(fundcode) {
   try {
     const response = await fetch(`http://alma-proxy:5555/almaws/v1/acq/funds/${fundcode}`);

@@ -1,8 +1,8 @@
 import express from 'express';
-import { getAlmaInvoicesReadyToBePaid, getAlmaIndividualInvoiceData, setSelectedData, getSingleInvoiceData, getVendorData, getVendorPoLines } from '../../controllers/almaapicalls.js';
+import { getAlmaInvoicesReadyToBePaid, getAlmaIndividualInvoiceData, setSelectedData, getSingleInvoiceData, getVendorData, getPoLineData } from '../../controllers/almaapicalls.js';
 import { reformatAlmaInvoiceforAPI, filterOutSubmittedInvoices, changeFundIDtoCode } from '../../controllers/formatdata.js';
 import { aggieEnterprisePaymentRequest, checkStatusInOracle, checkPayments } from '../../controllers/graphqlcalls.js';
-import { postAddInvoice, getPaidInvoices, getAllUnpaidInvoices, getInvoiceBySearchTerm, fetchInvoiceByInvoiceId } from '../../controllers/dbcalls.js';
+import { postAddInvoice, getPaidInvoices, getAllUnpaidInvoices, getInvoiceBySearchTerm, fetchInvoiceByInvoiceId, fetchPoLineData, savePoLineData } from '../../controllers/dbcalls.js';
 import { archivePaidInvoices, checkOracleStatus } from '../../controllers/background-scripts.js';
 import { logMessage } from '../../util/logger.js';
 import { setActiveLibrary } from '../../util/keycloak-auth.js';
@@ -61,7 +61,62 @@ async function enrichInvoiceFunds(data, library) {
 
 function poLineValue(line) {
   if (typeof line?.po_line === 'string') return line.po_line.trim();
-  return line?.po_line?.value || line?.po_line?.number || '';
+  const value = line?.po_line?.value || line?.po_line?.number || '';
+  return String(value).trim();
+}
+
+function parseCachedPoLineData(data) {
+  if (!data) return null;
+  if (typeof data !== 'string') return data;
+
+  try {
+    return JSON.parse(data);
+  } catch {
+    return null;
+  }
+}
+
+function normalizePoLineData(poLineId, data) {
+  return {
+    number: data?.number || data?.poLine || poLineId,
+    resource_metadata: {
+      title: data?.title || data?.resource_metadata?.title || '',
+    },
+  };
+}
+
+async function getInvoicePoLineData(invoice) {
+  const invoiceLines = invoice.invoice_lines?.invoice_line || [];
+  const poLineIds = [...new Set(invoiceLines.map(poLineValue).filter(Boolean))];
+  const invoiceVendorId = invoice.vendor?.value || '';
+
+  const poLines = await Promise.all(poLineIds.map(async (poLineId) => {
+    const cached = await fetchPoLineData(poLineId);
+    if (cached?.title || cached?.poLineData) {
+      return normalizePoLineData(poLineId, {
+        ...parseCachedPoLineData(cached.poLineData),
+        poLine: cached.poLine,
+        title: cached.title,
+      });
+    }
+
+    const poLine = await getPoLineData(poLineId);
+    if (!poLine || poLine.errorsExist) return normalizePoLineData(poLineId, null);
+
+    const vendorId = poLine.vendor?.value || invoiceVendorId;
+    if (vendorId) {
+      await savePoLineData(
+        poLine.number || poLineId,
+        vendorId,
+        poLine.resource_metadata?.title || '',
+        poLine
+      );
+    }
+
+    return normalizePoLineData(poLineId, poLine);
+  }));
+
+  return { po_line: poLines };
 }
 
 function enrichInvoiceLineTitles(invoice, poLineData) {
@@ -279,14 +334,10 @@ router.get('/invoices/:invoiceId/alma', async (req, res) => {
     const invoice = await getSingleInvoiceData(invoiceId);
     if (!invoice) return res.status(404).json({ error: 'Invoice not found in Alma' });
 
-    let vendor = null;
-    let poLineData = null;
-    if (invoice.vendor?.value) {
-      [vendor, poLineData] = await Promise.all([
-        getVendorData(invoice.vendor.value),
-        // getVendorPoLines(invoice.vendor.value),
-      ]);
-    }
+    const [vendor, poLineData] = await Promise.all([
+      invoice.vendor?.value ? getVendorData(invoice.vendor.value) : Promise.resolve(null),
+      getInvoicePoLineData(invoice),
+    ]);
 
     const enrichedInvoice = enrichInvoiceLineTitles(invoice, poLineData);
     res.json({ invoice: enrichedInvoice, vendor });

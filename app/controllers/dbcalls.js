@@ -2,6 +2,7 @@ import Invoice from '../models/invoice.js';
 import Token from '../models/token.js';
 import Fund from '../models/fund.js';
 import Vendor from '../models/vendor.js';
+import PoLine from '../models/po-line.js';
 import { logMessage } from '../util/logger.js';
 
 export async function postAddInvoice(number, id, trackingid, library, requestbody) {
@@ -224,6 +225,29 @@ export async function saveVendor(vendorId, vendorData) {
     }
   } catch (error) {
     logMessage('DEBUG', 'dbcalls: saveVendor()', error.message);
+  }
+}
+
+export async function fetchPoLineData(poLine) {
+  try {
+    const response = await PoLine.findByPoLine(poLine);
+    if (!response || !response[0] || response[0].length === 0) return undefined;
+    return response[0][0];
+  } catch (error) {
+    logMessage('DEBUG', 'dbcalls: fetchPoLineData()', error.message);
+  }
+}
+
+export async function savePoLineData(poLine, vendorId, title, poLineData) {
+  try {
+    const poLineRecord = new PoLine(poLine, vendorId, title, poLineData);
+    const saved = await poLineRecord.save();
+    if (saved) {
+      logMessage('INFO', `dbcalls: savePoLineData(). PO line ${poLine} saved`);
+      return true;
+    }
+  } catch (error) {
+    logMessage('DEBUG', 'dbcalls: savePoLineData()', error.message);
   }
 }
 
