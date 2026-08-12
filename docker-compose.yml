@@ -30,7 +30,7 @@ services:
       - ./app/app.env
     volumes:
       - ./app:/app
-      - /app/node_modules
+      - alma-finance-node-modules:/app/node_modules
     restart: always
     depends_on:
       almafinance-db:
@@ -39,7 +39,7 @@ services:
     build: ./app
     volumes:
       - ./app:/app
-      - /app/node_modules
+      - alma-finance-node-modules:/app/node_modules
     depends_on:
       - alma-finance
   alma-sync:
@@ -60,7 +60,7 @@ services:
       - ./file-loader/app.env
     volumes:
       - ./file-loader:/file-loader
-      - /file-loader/node_modules
+      - finance-file-loader-node-modules:/file-loader/node_modules
       # - /Users/mjwarren/Documents/almadafis:/file-loader/almadafis
       - /home/almadafis:/file-loader/almadafis
     restart: always
@@ -76,3 +76,6 @@ services:
   #     - almafinance-db
 volumes:
   almafinance-db:
+  alma-finance-node-modules:
+  finance-file-loader-node-modules:
+  
