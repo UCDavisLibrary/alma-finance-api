@@ -2,6 +2,7 @@ import { LitElement } from 'lit';
 import { render } from './alma-finance-page-oracle-status.tpl.js';
 import { LitCorkUtils, Mixin } from '@ucd-lib/cork-app-utils';
 import AppComponentController from '../../controllers/AppComponentController.js';
+import { apiFetch } from '../../lib/api.js';
 
 export default class AlmaFinancePageOracleStatus extends Mixin(LitElement).with(LitCorkUtils) {
 
@@ -42,7 +43,7 @@ export default class AlmaFinancePageOracleStatus extends Mixin(LitElement).with(
     this.loading = true;
     this.error = '';
     try {
-      const res = await fetch('/api/invoices/oracle-status');
+      const res = await apiFetch('/api/invoices/oracle-status');
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       this.invoices = data.invoices || [];
@@ -56,7 +57,7 @@ export default class AlmaFinancePageOracleStatus extends Mixin(LitElement).with(
   async _triggerUpdate() {
     this.updating = true;
     try {
-      await fetch('/api/invoices/oracle-update', { method: 'POST' });
+      await apiFetch('/api/invoices/oracle-update', { method: 'POST' });
       await this._loadStatus();
     } catch (e) {
       this.error = e.message;

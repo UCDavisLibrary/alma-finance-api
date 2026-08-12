@@ -23,6 +23,7 @@ import './pages/alma-finance-page-admin-invoices.js';
 import './pages/alma-finance-page-admin-invoice.js';
 import './pages/alma-finance-page-funds.js';
 import './pages/alma-finance-page-vendors.js';
+import { apiFetch } from '../lib/api.js';
 
 export default class AlmaFinanceApp extends Mixin(LitElement).with(LitCorkUtils) {
 
@@ -90,7 +91,7 @@ export default class AlmaFinanceApp extends Mixin(LitElement).with(LitCorkUtils)
 
   async _loadUser() {
     try {
-      const res = await fetch('/api/me');
+      const res = await apiFetch('/api/me');
       if (!res.ok) return;
       const data = await res.json();
       this.user = data.user;
@@ -104,7 +105,7 @@ export default class AlmaFinanceApp extends Mixin(LitElement).with(LitCorkUtils)
 
     this.librarySwitching = true;
     try {
-      const res = await fetch('/api/me/library', {
+      const res = await apiFetch('/api/me/library', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ library }),

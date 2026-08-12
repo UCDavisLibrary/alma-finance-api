@@ -2,6 +2,7 @@ import { LitElement } from 'lit';
 import { render } from './alma-finance-page-home.tpl.js';
 import { LitCorkUtils, Mixin } from '@ucd-lib/cork-app-utils';
 import AppComponentController from '../../controllers/AppComponentController.js';
+import { apiFetch } from '../../lib/api.js';
 
 export default class AlmaFinancePageHome extends Mixin(LitElement).with(LitCorkUtils) {
 
@@ -29,7 +30,7 @@ export default class AlmaFinancePageHome extends Mixin(LitElement).with(LitCorkU
 
   async _loadUser() {
     try {
-      const res = await fetch('/api/me');
+      const res = await apiFetch('/api/me');
       if (res.ok) {
         const data = await res.json();
         this.user = data.user;

@@ -2,6 +2,7 @@ import { LitElement } from 'lit';
 import { render } from './alma-finance-page-admin-invoice.tpl.js';
 import { LitCorkUtils, Mixin } from '@ucd-lib/cork-app-utils';
 import AppComponentController from '../../controllers/AppComponentController.js';
+import { apiFetch } from '../../lib/api.js';
 
 export default class AlmaFinancePageAdminInvoice extends Mixin(LitElement).with(LitCorkUtils) {
 
@@ -49,7 +50,7 @@ export default class AlmaFinancePageAdminInvoice extends Mixin(LitElement).with(
     this.error = '';
     this.invoice = null;
     try {
-      const res = await fetch(`/api/admin/invoices/${id}`);
+      const res = await apiFetch(`/api/admin/invoices/${id}`);
       if (res.status === 404) { this.error = 'Invoice not found.'; return; }
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
@@ -70,7 +71,7 @@ export default class AlmaFinancePageAdminInvoice extends Mixin(LitElement).with(
     this.saving = true;
     this.error = '';
     try {
-      const res = await fetch(`/api/admin/invoices/${this.invoiceId}`, {
+      const res = await apiFetch(`/api/admin/invoices/${this.invoiceId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(this.form),

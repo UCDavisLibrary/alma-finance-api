@@ -2,6 +2,7 @@ import { LitElement } from 'lit';
 import { render } from './alma-finance-page-search.tpl.js';
 import { LitCorkUtils, Mixin } from '@ucd-lib/cork-app-utils';
 import AppComponentController from '../../controllers/AppComponentController.js';
+import { apiFetch } from '../../lib/api.js';
 
 export default class AlmaFinancePageSearch extends Mixin(LitElement).with(LitCorkUtils) {
 
@@ -43,7 +44,7 @@ export default class AlmaFinancePageSearch extends Mixin(LitElement).with(LitCor
     this.error = '';
     this.searched = false;
     try {
-      const res = await fetch(`/api/invoices/search?q=${encodeURIComponent(this.searchTerm)}`);
+      const res = await apiFetch(`/api/invoices/search?q=${encodeURIComponent(this.searchTerm)}`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       this.results = data.invoices || [];

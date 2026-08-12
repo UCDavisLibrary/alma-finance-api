@@ -2,6 +2,7 @@ import { LitElement } from 'lit';
 import { render } from './alma-finance-page-paid.tpl.js';
 import { LitCorkUtils, Mixin } from '@ucd-lib/cork-app-utils';
 import AppComponentController from '../../controllers/AppComponentController.js';
+import { apiFetch } from '../../lib/api.js';
 
 function paidInvoiceSortValue(invoice) {
   const timestamp = Date.parse(invoice.datetime);
@@ -54,7 +55,7 @@ export default class AlmaFinancePagePaid extends Mixin(LitElement).with(LitCorkU
     this.loading = true;
     this.error = '';
     try {
-      const res = await fetch('/api/invoices/paid');
+      const res = await apiFetch('/api/invoices/paid');
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       this.invoices = sortPaidInvoices(data.invoices || []);

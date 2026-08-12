@@ -2,6 +2,7 @@ import { LitElement } from 'lit';
 import { render } from './alma-finance-page-invoice.tpl.js';
 import { LitCorkUtils, Mixin } from '@ucd-lib/cork-app-utils';
 import AppComponentController from '../../controllers/AppComponentController.js';
+import { apiFetch } from '../../lib/api.js';
 
 export default class AlmaFinancePageInvoice extends Mixin(LitElement).with(LitCorkUtils) {
 
@@ -59,10 +60,10 @@ export default class AlmaFinancePageInvoice extends Mixin(LitElement).with(LitCo
 
     try {
       const [dbRes, almaRes, paymentRes, oracleRes] = await Promise.all([
-        fetch(`/api/invoices/${id}`),
-        fetch(`/api/invoices/${id}/alma`),
-        fetch(`/api/invoices/${id}/payment-status`),
-        fetch(`/api/invoices/${id}/oracle-status`),
+        apiFetch(`/api/invoices/${id}`),
+        apiFetch(`/api/invoices/${id}/alma`),
+        apiFetch(`/api/invoices/${id}/payment-status`),
+        apiFetch(`/api/invoices/${id}/oracle-status`),
       ]);
 
       const readBody = async (res) => {
@@ -132,7 +133,7 @@ export default class AlmaFinancePageInvoice extends Mixin(LitElement).with(LitCo
     if (!id || !confirm('Delete this invoice from the database?')) return;
 
     try {
-      const res = await fetch(`/api/admin/invoices/${id}`, { method: 'DELETE' });
+      const res = await apiFetch(`/api/admin/invoices/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       window.location.href = '/admin/invoices';
     } catch (e) {

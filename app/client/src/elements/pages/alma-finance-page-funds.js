@@ -2,6 +2,7 @@ import { LitElement } from 'lit';
 import { render } from './alma-finance-page-funds.tpl.js';
 import { LitCorkUtils, Mixin } from '@ucd-lib/cork-app-utils';
 import AppComponentController from '../../controllers/AppComponentController.js';
+import { apiFetch } from '../../lib/api.js';
 
 export default class AlmaFinancePageFunds extends Mixin(LitElement).with(LitCorkUtils) {
 
@@ -35,7 +36,7 @@ export default class AlmaFinancePageFunds extends Mixin(LitElement).with(LitCork
     this.loading = true;
     this.error = '';
     try {
-      const res = await fetch('/api/funds');
+      const res = await apiFetch('/api/funds');
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       console.log('Funds endpoint response:', data);
@@ -50,7 +51,7 @@ export default class AlmaFinancePageFunds extends Mixin(LitElement).with(LitCork
   async _deleteFund(id) {
     if (!confirm('Delete this fund?')) return;
     try {
-      const res = await fetch(`/api/funds/${id}`, { method: 'DELETE' });
+      const res = await apiFetch(`/api/funds/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       await this._loadFunds();
     } catch (e) {

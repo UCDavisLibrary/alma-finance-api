@@ -2,6 +2,7 @@ import { LitElement } from 'lit';
 import { render } from './alma-finance-page-admin-invoices.tpl.js';
 import { LitCorkUtils, Mixin } from '@ucd-lib/cork-app-utils';
 import AppComponentController from '../../controllers/AppComponentController.js';
+import { apiFetch } from '../../lib/api.js';
 
 export default class AlmaFinancePageAdminInvoices extends Mixin(LitElement).with(LitCorkUtils) {
 
@@ -40,7 +41,7 @@ export default class AlmaFinancePageAdminInvoices extends Mixin(LitElement).with
     this.loading = true;
     this.error = '';
     try {
-      const res = await fetch('/api/admin/invoices');
+      const res = await apiFetch('/api/admin/invoices');
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       this.invoices = data.invoices || [];
@@ -54,7 +55,7 @@ export default class AlmaFinancePageAdminInvoices extends Mixin(LitElement).with
   async _deleteInvoice(id) {
     if (!confirm('Delete this invoice?')) return;
     try {
-      const res = await fetch(`/api/admin/invoices/${id}`, { method: 'DELETE' });
+      const res = await apiFetch(`/api/admin/invoices/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       await this._loadInvoices();
     } catch (e) {
