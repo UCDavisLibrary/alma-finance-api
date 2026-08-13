@@ -206,7 +206,7 @@ export async function sendSelectedInvoices(req, res, next) {
       const isPending = paymentCreate?.requestStatus?.requestStatus === 'PENDING';
 
       if (isPending || alreadyExists) {
-        await postAddInvoice(invoice.number, invoice.id, consumerTrackingIds[i], library, request.data);
+        await postAddInvoice(invoice.number, invoice.id, consumerTrackingIds[i], library, request.data, invoice.total_amount);
       }
 
       data.invoice.push({ ...invoice, ...request });

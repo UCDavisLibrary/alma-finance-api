@@ -1,19 +1,20 @@
 import db from '../util/database.js';
 
 export default class Invoice {
-  constructor(number, id, trackingid, library, responsebody) {
+  constructor(number, id, trackingid, library, responsebody, totalAmount = null) {
     this.number = number;
     this.id = id;
     this.trackingid = trackingid;
     this.library = library;
     this.responsebody = responsebody;
+    this.totalAmount = totalAmount;
   }
 
   save() {
     const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
     return db.execute(
-      'INSERT INTO invoices (invoicenumber, invoiceid, consumerTrackingId, `library`, `status`, responsebody, `datetime`) VALUES (?, ?, ?, ?, ?, ?, ?)',
-      [this.number, this.id, this.trackingid, this.library, 'SENT', this.responsebody, now]
+      'INSERT INTO invoices (invoicenumber, invoiceid, consumerTrackingId, `library`, `status`, responsebody, totalAmount, `datetime`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+      [this.number, this.id, this.trackingid, this.library, 'SENT', this.responsebody, this.totalAmount, now]
     );
   }
 

@@ -144,7 +144,7 @@ router.post('/invoices/send', async (req, res) => {
       }
 
       if (isPending || alreadyExists) {
-        const saved = await postAddInvoice(invoice.number, invoice.id, consumerTrackingIds[i], library, request.data);
+        const saved = await postAddInvoice(invoice.number, invoice.id, consumerTrackingIds[i], library, request.data, invoice.total_amount);
         if (!saved) {
           results.push({ invoice, error: [{ message: 'Payment request was accepted, but local invoice record was not saved.' }] });
           continue;

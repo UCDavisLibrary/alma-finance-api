@@ -5,10 +5,10 @@ import Vendor from '../models/vendor.js';
 import PoLine from '../models/po-line.js';
 import { logMessage } from '../util/logger.js';
 
-export async function postAddInvoice(number, id, trackingid, library, requestbody) {
+export async function postAddInvoice(number, id, trackingid, library, requestbody, totalAmount = null) {
   try {
     const responsebody = typeof requestbody === 'string' ? requestbody : JSON.stringify(requestbody);
-    const invoice = new Invoice(number, id, trackingid, library, responsebody);
+    const invoice = new Invoice(number, id, trackingid, library, responsebody, totalAmount);
     await invoice.save();
     logMessage('INFO', `dbcalls: postAddInvoice(). Invoice ${id} added`);
     return true;

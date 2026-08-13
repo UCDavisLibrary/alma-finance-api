@@ -1,5 +1,11 @@
 import { html } from 'lit';
 
+function formatCurrency(val) {
+  if (val == null || val === '') return '—';
+  const number = Number(val);
+  return Number.isFinite(number) ? `$${number.toFixed(2)}` : '—';
+}
+
 export function render() {
   if (this.loading) return html`<div class="l-container u-space-my"><p>Loading paid invoices...</p></div>`;
   if (this.error) return html`<div class="l-container u-space-my"><p class="color-secondary">Error: ${this.error}</p></div>`;
@@ -13,25 +19,27 @@ export function render() {
       ` : html`
         <p>${this.invoices.length} total invoices. Page ${this.page} of ${this.totalPages}.</p>
         <table class="table--striped">
-          <thead>
-            <tr>
-              <th>Invoice Number</th>
-              <th>Invoice ID</th>
-              <th>Library</th>
-              <th>Status</th>
-              <th>Date</th>
-              <th>Detail</th>
-            </tr>
-          </thead>
+	          <thead>
+	            <tr>
+	              <th>Invoice Number</th>
+                <th>Invoice ID</th>
+                <th>Library</th>
+                <th>Total Amount</th>
+                <th>Status</th>
+                <th>Date</th>
+	              <th>Detail</th>
+	            </tr>
+	          </thead>
           <tbody>
-            ${this.pagedInvoices.map(inv => html`
-              <tr>
-                <td>${inv.invoicenumber}</td>
-                <td>${inv.invoiceid}</td>
-                <td>${inv.library}</td>
-                <td>${inv.status}</td>
-                <td>${inv.datetime ? new Date(inv.datetime).toLocaleDateString() : '—'}</td>
-                <td><a href="/invoice/${inv.invoiceid}">View</a></td>
+	            ${this.pagedInvoices.map(inv => html`
+	              <tr>
+                  <td>${inv.invoicenumber}</td>
+                  <td>${inv.invoiceid}</td>
+                  <td>${inv.library}</td>
+                  <td>${formatCurrency(inv.totalAmount ?? inv.totalamount)}</td>
+                  <td>${inv.status}</td>
+	                <td>${inv.datetime ? new Date(inv.datetime).toLocaleDateString() : '—'}</td>
+	                <td><a href="/invoice/${inv.invoiceid}">View</a></td>
               </tr>
             `)}
           </tbody>
