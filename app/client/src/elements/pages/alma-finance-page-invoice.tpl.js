@@ -2,6 +2,11 @@ import { html } from 'lit';
 
 function formatDate(raw) {
   if (!raw) return '—';
+  const dateOnly = String(raw).match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (dateOnly) {
+    const [, year, month, day] = dateOnly;
+    return new Date(Number(year), Number(month) - 1, Number(day)).toLocaleDateString();
+  }
   const d = new Date(raw);
   return isNaN(d) ? raw : d.toLocaleDateString();
 }
