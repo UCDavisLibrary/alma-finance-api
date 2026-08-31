@@ -1,4 +1,5 @@
 import { html } from 'lit';
+import { formatDate } from '../../lib/formatters.js';
 
 export function render() {
   return html`
@@ -43,7 +44,7 @@ export function render() {
                 <td>${inv.invoiceid}</td>
                 <td>${inv.library}</td>
                 <td>${inv.status}</td>
-                <td>${inv.datetime ? new Date(inv.datetime).toLocaleDateString() : '—'}</td>
+                <td>${formatDate(inv.datetime)}</td>
                 <td><a href="/invoice/${inv.invoiceid}">View</a></td>
               </tr>
             `)}

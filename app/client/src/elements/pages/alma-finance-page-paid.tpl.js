@@ -1,10 +1,5 @@
 import { html } from 'lit';
-
-function formatCurrency(val) {
-  if (val == null || val === '') return '—';
-  const number = Number(val);
-  return Number.isFinite(number) ? `$${number.toFixed(2)}` : '—';
-}
+import { formatCurrency, formatDate } from '../../lib/formatters.js';
 
 export function render() {
   if (this.loading) return html`<div class="l-container u-space-my"><p>Loading paid invoices...</p></div>`;
@@ -38,7 +33,7 @@ export function render() {
                   <td>${inv.library}</td>
                   <td>${formatCurrency(inv.totalAmount ?? inv.totalamount)}</td>
                   <td>${inv.status}</td>
-	                <td>${inv.datetime ? new Date(inv.datetime).toLocaleDateString() : '—'}</td>
+	                <td>${formatDate(inv.datetime)}</td>
 	                <td><a href="/invoice/${inv.invoiceid}">View</a></td>
               </tr>
             `)}

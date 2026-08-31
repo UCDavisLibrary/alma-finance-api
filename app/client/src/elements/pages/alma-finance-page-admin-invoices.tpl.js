@@ -1,4 +1,5 @@
 import { html } from 'lit';
+import { formatDate } from '../../lib/formatters.js';
 
 export function render() {
   if (this.loading) return html`<div class="l-container u-space-my"><p>Loading invoices...</p></div>`;
@@ -31,7 +32,7 @@ export function render() {
                 <td>${inv.invoiceid}</td>
                 <td>${inv.library}</td>
                 <td>${inv.status}</td>
-                <td>${inv.datetime ? new Date(inv.datetime).toLocaleDateString() : '—'}</td>
+                <td>${formatDate(inv.datetime)}</td>
                 <td>
                   <a href="/admin/invoices/${inv.id}" class="btn btn--alt2 btn--sm">Edit</a>
                   <button class="btn btn--alt btn--sm u-space-ml" @click=${() => this._deleteInvoice(inv.id)}>Delete</button>

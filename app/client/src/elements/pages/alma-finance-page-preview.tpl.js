@@ -1,45 +1,5 @@
 import { html } from 'lit';
-
-function fundEntries(invoices) {
-  const totals = {};
-  for (const invoice of invoices) {
-    const lines = invoice.invoice_lines?.invoice_line;
-    if (!lines?.length) continue;
-    for (const line of lines) {
-      for (const dist of (line.fund_distribution || [])) {
-        const externalId = dist.fund_external_id?.value;
-        if (!externalId) continue;
-        const amount = dist.amount?.sum ?? dist.amount ?? (line.price * (dist.percent ?? 100) / 100);
-        totals[externalId] = (totals[externalId] || 0) + Number(amount);
-      }
-    }
-  }
-  return Object.entries(totals);
-}
-
-function renderFundEntries(entries, isStrong = false) {
-  if (!entries.length) return '—';
-  return entries.map(([code, amt]) => html`
-    <div>
-      ${isStrong ? html`<strong>${code}: $${amt.toFixed(2)}</strong>` : html`${code}: $${amt.toFixed(2)}`}
-    </div>
-  `);
-}
-
-function fundSummary(invoice) {
-  return renderFundEntries(fundEntries([invoice]));
-}
-
-function formatDate(raw) {
-  if (!raw) return '—';
-  const dateOnly = String(raw).match(/^(\d{4})-(\d{2})-(\d{2})/);
-  if (dateOnly) {
-    const [, year, month, day] = dateOnly;
-    return new Date(Number(year), Number(month) - 1, Number(day)).toLocaleDateString();
-  }
-  const d = new Date(raw);
-  return isNaN(d) ? raw : d.toLocaleDateString();
-}
+import { formatCurrency, formatDate, fundEntries, fundSummary, renderFundEntries } from '../../lib/formatters.js';
 
 export function render() {
   if (this.loading) return html`<div class="l-container u-space-my"><p>Loading invoices...</p></div>`;
@@ -64,7 +24,7 @@ export function render() {
               <tr>
                 <td>${r.invoice?.number || '—'}</td>
                 <td>${r.invoice?.vendor?.desc || '—'}</td>
-                <td>${r.invoice?.total_amount != null ? `$${Number(r.invoice.total_amount).toFixed(2)}` : '—'}</td>
+                <td>${formatCurrency(r.invoice?.total_amount)}</td>
                 <td>${r.error ? html`<span class="color-secondary">Error</span>` : html`<span class="color-gold">Submitted</span>`}</td>
               </tr>
             `)}
@@ -116,7 +76,7 @@ export function render() {
                 <td>${inv.vendor?.desc || '—'}</td>
                 <td>${formatDate(inv.invoice_date)}</td>
                 <td>${fundSummary(inv)}</td>
-                <td>${inv.total_amount != null ? `$${Number(inv.total_amount).toFixed(2)}` : ''}</td>
+                <td>${inv.total_amount != null ? formatCurrency(inv.total_amount) : ''}</td>
                 <td>
                   <input type="checkbox"
                     .checked=${!!this.selected[inv.id]}
@@ -129,7 +89,7 @@ export function render() {
             <tr>
               <td colspan="3" style="text-align:right"><strong>Total</strong></td>
               <td>${renderFundEntries(fundEntries(selectedInvoices), true)}</td>
-              <td><strong>$${selectedInvoiceTotal.toFixed(2)}</strong></td>
+              <td><strong>${formatCurrency(selectedInvoiceTotal)}</strong></td>
               <td></td>
             </tr>
           </tfoot>

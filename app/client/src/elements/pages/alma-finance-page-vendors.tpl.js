@@ -1,14 +1,5 @@
 import { html } from 'lit';
-
-function vendorData(vendor) {
-  if (!vendor?.vendorData) return {};
-  if (typeof vendor.vendorData === 'object') return vendor.vendorData;
-  try {
-    return JSON.parse(vendor.vendorData);
-  } catch (e) {
-    return {};
-  }
-}
+import { vendorData } from '../../lib/formatters.js';
 
 export function render() {
   if (this.loading) return html`<div class="l-container u-space-my"><p>Loading vendors...</p></div>`;

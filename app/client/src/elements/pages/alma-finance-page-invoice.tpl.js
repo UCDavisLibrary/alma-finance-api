@@ -1,41 +1,5 @@
 import { html } from 'lit';
-
-function formatDate(raw) {
-  if (!raw) return '—';
-  const dateOnly = String(raw).match(/^(\d{4})-(\d{2})-(\d{2})/);
-  if (dateOnly) {
-    const [, year, month, day] = dateOnly;
-    return new Date(Number(year), Number(month) - 1, Number(day)).toLocaleDateString();
-  }
-  const d = new Date(raw);
-  return isNaN(d) ? raw : d.toLocaleDateString();
-}
-
-function formatCurrency(val) {
-  if (val == null) return '—';
-  return `$${Number(val).toFixed(2)}`;
-}
-
-function formatQuantity(val) {
-  return val && Number(val) > 0 ? val : 1;
-}
-
-function formatPoLine(line) {
-  if (typeof line?.po_line === 'string') return line.po_line;
-  return line?.po_line?.value || line?.po_line?.number || '';
-}
-
-function formatRawData(data) {
-  if (data == null) return "can't find data";
-  if (Array.isArray(data) && !data.length) return "can't find data";
-  if (typeof data === 'object' && !Object.keys(data).length) return "can't find data";
-  return JSON.stringify(data, null, 2);
-}
-
-function sentInvoiceLines(invoice) {
-  return (invoice?.invoice_lines?.invoice_line || [])
-    .filter(line => line.fund_distribution?.length);
-}
+import { formatCurrency, formatDate, formatPoLine, formatQuantity, formatRawData, sentInvoiceLines } from '../../lib/formatters.js';
 
 export function render() {
   if (this.loading) return html`<div class="l-container u-space-my"><p>Loading invoice...</p></div>`;
