@@ -47,7 +47,7 @@ before trying again. No automatic resubmission occurs.
 Run focused checks from the repository root:
 
 ```sh
-node --test tests/invoice-attention.test.cjs tests/invoice-submission.test.mjs tests/invoice-nightly.test.cjs tests/invoice-login-attention.test.mjs
+node --test tests/*.test.cjs tests/*.test.mjs
 ```
 
 After login, the app checks Boundary processing status for unpaid submissions in
@@ -57,3 +57,13 @@ login session per library (including an administrator's library switch), without
 blocking the rest of the app. An unavailable status service does not classify an
 invoice as failed; existing Needs Attention records can still trigger the notice.
 The login check does not send email; the nightly job handles pending notifications.
+
+
+Invoice submission reuses valid cached supplier and accounting data. An incomplete
+vendor record (including `{}` or malformed JSON) or invalid fund mapping triggers
+one Alma repair lookup per unique reference in the formatting operation. Successful
+repairs are saved and marked OK before submission continues. Required supplier
+fields or incomplete accounting segments block submission if they cannot be
+repaired; invalid fund distributions are never silently omitted. Vendor and fund
+lookups have 15-second timeouts. Preview continues using its existing cached data
+path rather than refreshing all reference data on every load.

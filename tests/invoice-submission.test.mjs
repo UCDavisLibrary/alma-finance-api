@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createSubmitInvoice } from '../app/controllers/submission-flow.js';
 
-function fixture({ existing = [], response, owner = 'LAW', lock = 1, formatted = true } = {}) {
+function fixture({ existing = [], response, owner = 'LAW', lock = 1, formatted = true, formatError = '' } = {}) {
   const calls = [];
   let sends = 0;
   const connection = {
@@ -17,7 +17,10 @@ function fixture({ existing = [], response, owner = 'LAW', lock = 1, formatted =
   return { calls, get sends() { return sends; }, send: createSubmitInvoice({
     db: { async getConnection() { return connection; } },
     setSelectedData: async () => ({ invoice: [{ id: '123', number: '804465A', owner: { value: owner }, vendor: { value: 'VENDOR' }, total_amount: 10 }] }),
-    reformatAlmaInvoiceforAPI: async () => formatted ? [{ data: { header: {}, payload: { invoiceLines: [{}] } } }] : [],
+    reformatAlmaInvoiceforAPI: async () => {
+      if (formatError) throw new Error(formatError);
+      return formatted ? [{ data: { header: {}, payload: { invoiceLines: [{}] } } }] : [];
+    },
     aggieEnterprisePaymentRequest: async () => { sends++; return [response || { data: { scmInvoicePaymentCreate: { requestStatus: { requestStatus: 'PENDING' } } } }]; },
     randomUUID: () => 'unique-attempt-id',
   }) };
@@ -57,4 +60,14 @@ test('Boundary validation rejection does not reset Needs Attention', async () =>
   const result = await f.send('123', 'LAW', true);
   assert.match(result.error[0].message, /Invalid project/);
   assert.ok(!f.calls.some(call => call.sql.startsWith('UPDATE invoices')));
+});
+
+test('unrepairable vendor or fund blocks Boundary dispatch and attempt creation', async () => {
+  for (const formatError of ['Vendor SAGE: missing supplier site', 'Fund H/SS: invalid accounting code']) {
+    const f = fixture({ formatError });
+    const result = await f.send('123', 'LAW');
+    assert.equal(result.error[0].message, formatError);
+    assert.equal(f.sends, 0);
+    assert.ok(!f.calls.some(call => call.sql.startsWith('INSERT INTO invoice_submission_attempts')));
+  }
 });

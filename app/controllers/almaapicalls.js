@@ -73,7 +73,8 @@ export async function getVendorDataBatch(vendorarray) {
 export async function getFundData(fundCode, library) {
   try {
     const url = `http://alma-proxy:5555/almaws/v1/acq/funds?limit=25&q=fund_code~${fundCode}&library=${library}&view=brief&mode=POL&status=ALL&entity_type=ALL&fiscal_period=ALL&parent_id=ALL&owner=ALL`;
-    const response = await fetch(url);
+    const response = await fetch(url, { signal: AbortSignal.timeout(15000) });
+    if (!response.ok) throw new Error(`Fund lookup failed: HTTP ${response.status}`);
     const data = await response.json();
     return filterExactFundMatch(data, fundCode);
   } catch (error) {
@@ -98,7 +99,8 @@ export async function setSelectedData(invoiceids) {
 
 export async function getVendorData(vendorcode) {
   try {
-    const response = await fetch(`http://alma-proxy:5555/almaws/v1/acq/vendors/${vendorcode}`);
+    const response = await fetch(`http://alma-proxy:5555/almaws/v1/acq/vendors/${vendorcode}`, { signal: AbortSignal.timeout(15000) });
+    if (!response.ok) throw new Error(`Vendor lookup failed: HTTP ${response.status}`);
     return await response.json();
   } catch (error) {
     logMessage('DEBUG', 'almaapicalls: getVendorData()', error.message);

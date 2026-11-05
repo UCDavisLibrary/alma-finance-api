@@ -1,3 +1,4 @@
+import { createReferenceResolver } from './reference-data.js';
 import { getFundData, getVendorData, getSingleInvoiceData, putSingleInvoiceData, getAlmaIndividualInvoiceXML } from './almaapicalls.js';
 import { getSubmittedInvoices, fetchFundCodeFromId, saveFund, fetchVendorDataFromId, saveVendor } from './dbcalls.js';
 import { getPoLineTitle } from './po-lines.js';
@@ -5,33 +6,10 @@ import { generateRandomNumber } from '../util/helper-functions.js';
 import fs from 'fs';
 import { logMessage } from '../util/logger.js';
 
-async function checkForVendorData(vendorId) {
-  try {
-    const vendordatastring = await fetchVendorDataFromId(vendorId);
-    if (vendordatastring === undefined) {
-      logMessage('DEBUG', 'vendor not found in database. Trying Alma');
-      try {
-        const vendorData = await getVendorData(vendorId);
-        if (vendorData) {
-          saveVendor(vendorId, vendorData);
-          return vendorData;
-        }
-      } catch (err) {
-        logMessage('DEBUG', `formatdata: checkForVendorData() ${vendorId}`, err);
-      }
-    } else if (vendordatastring) {
-      return JSON.parse(vendordatastring);
-    }
-  } catch (error) {
-    logMessage('DEBUG', `formatdata: checkForVendorData() ${vendorId}`, error);
-  }
-}
-
 export async function reformatAlmaInvoiceforAPI(data, library, { fresh = false } = {}) {
   let apipayload = [];
-  const fundCache = {};
+  const references = createReferenceResolver({ fetchVendorDataFromId, getVendorData, saveVendor, fetchFundCodeFromId, getFundData, saveFund });
   const poLineCache = new Map();
-  const today = new Date().toLocaleDateString('sv-SE', { timeZone: 'America/Los_Angeles' });
 
   for (let i = 0; i < data.invoice.length; i++) {
     let nozee = data.invoice[i].invoice_date;
@@ -39,48 +17,39 @@ export async function reformatAlmaInvoiceforAPI(data, library, { fresh = false }
       nozee = nozee.slice(0, -1);
     }
 
-    const vendor = data.invoice[i].vendor.value;
-    let payload = null;
-
-    try {
-      const vendordata = fresh ? await getVendorData(vendor) : await checkForVendorData(vendor);
-      if (vendordata) {
-        payload = {
-          data: {
-            header: {
-              boundaryApplicationName: 'Library Check Processing',
-              consumerId: 'UCD GeneralLibrary',
-              consumerReferenceId: data.invoice[i].id,
-              consumerTrackingId: data.invoice[i].number + '-' + generateRandomNumber(0, 99),
-            },
-            payload: {
-              businessUnit: 'UCD Business Unit',
-              invoiceDescription: data.invoice[i].vendor.desc,
-              invoiceAmount: data.invoice[i].total_amount,
-              invoiceDate: nozee,
-              invoiceNumber: data.invoice[i].number,
-              invoiceSourceCode: 'UCD GeneralLibrary',
-              invoiceType: data.invoice[i].total_amount < 0 ? 'CREDIT' : 'STANDARD',
-              paymentMethodCode: 'ACCOUNTINGDEPARTMENT',
-              paymentTerms: 'IMMEDIATE',
-              purchaseOrderNumber: '',
-              supplierNumber: vendordata.financial_sys_code,
-              supplierSiteCode: vendordata.additional_code,
-              invoiceLines: [],
-            },
-          },
-        };
-        apipayload.push(payload);
-      }
-    } catch (error) {
-      logMessage('DEBUG', 'formatdata: reformatAlmaInvoiceforAPI()', error);
-      continue;
-    }
-
-    if (!payload) continue;
+    const vendor = data.invoice[i].vendor?.value;
+    if (!vendor) throw new Error(`Invoice ${data.invoice[i].number}: missing vendor code.`);
+    const vendordata = await references.vendor(vendor, fresh);
+    const payload = {
+      data: {
+        header: {
+          boundaryApplicationName: 'Library Check Processing',
+          consumerId: 'UCD GeneralLibrary',
+          consumerReferenceId: data.invoice[i].id,
+          consumerTrackingId: data.invoice[i].number + '-' + generateRandomNumber(0, 99),
+        },
+        payload: {
+          businessUnit: 'UCD Business Unit',
+          invoiceDescription: data.invoice[i].vendor.desc,
+          invoiceAmount: data.invoice[i].total_amount,
+          invoiceDate: nozee,
+          invoiceNumber: data.invoice[i].number,
+          invoiceSourceCode: 'UCD GeneralLibrary',
+          invoiceType: data.invoice[i].total_amount < 0 ? 'CREDIT' : 'STANDARD',
+          paymentMethodCode: 'ACCOUNTINGDEPARTMENT',
+          paymentTerms: 'IMMEDIATE',
+          purchaseOrderNumber: '',
+          supplierNumber: vendordata.financial_sys_code,
+          supplierSiteCode: vendordata.additional_code,
+          invoiceLines: [],
+        },
+      },
+    };
+    apipayload.push(payload);
 
     for (let j = 0; j < data.invoice[i].invoice_lines.invoice_line.length; j++) {
       const line = data.invoice[i].invoice_lines.invoice_line[j];
+      if (!line.fund_distribution?.length) throw new Error(`Invoice ${data.invoice[i].number}, line ${line.number}: missing fund distribution.`);
       const quantity = line.quantity && line.quantity > 0 ? line.quantity : 1;
       const poLineTitle = await getPoLineTitle(line, vendor, poLineCache);
       const object1 = {
@@ -97,60 +66,40 @@ export async function reformatAlmaInvoiceforAPI(data, library, { fresh = false }
 
       for (let k = 0; k < line.fund_distribution.length; k++) {
         const fundCode =
-          typeof line.fund_distribution[k].fund_code.value === 'string'
+          typeof line.fund_distribution[k].fund_code?.value === 'string'
             ? line.fund_distribution[k].fund_code.value.trim()
-            : line.fund_distribution[k].fund_code.value;
-        if (!fundCode) continue;
+            : line.fund_distribution[k].fund_code?.value;
+        if (!fundCode) throw new Error(`Invoice ${data.invoice[i].number}, line ${line.number}: missing fund code.`);
 
-        try {
-          if (!(fundCode in fundCache)) {
-            fundCache[fundCode] = fresh ? null : await fetchFundCodeFromId(fundCode);
-            if (!fundCache[fundCode] && library) {
-              const fundData = await getFundData(fundCode, library);
-              const externalId = fundData?.fund?.[0]?.external_id;
-              if (externalId) {
-                saveFund(fundCode, externalId);
-                fundCache[fundCode] = externalId;
-              }
-            }
-          }
-          const fundString =
-            typeof fundCache[fundCode] === 'string'
-              ? fundCache[fundCode].trim()
-              : fundCache[fundCode];
+        const fundString = await references.fund(fundCode, library, fresh);
 
-          let merged;
-          if (fundString && fundString.includes('.')) {
-            const parts = fundString.split('.');
-            merged = {
-              ...object1,
-              glSegments: {
-                entity: parts[0],
-                fund: parts[1],
-                department: parts[2],
-                account: parts[3],
-                purpose: parts[4],
-              },
-            };
-          } else if (fundString && fundString.includes('|')) {
-            const parts = fundString.split('|');
-            merged = {
-              ...object1,
-              ppmSegments: {
-                project: parts[0],
-                organization: parts[1],
-                expenditureType: parts[2],
-                task: parts[3],
-              },
-            };
-          } else {
-            merged = { ...object1, fundData: 'ERROR: unable to retrieve fund data' };
-          }
-
-          payload.data.payload.invoiceLines.push(merged);
-        } catch (err) {
-          logMessage('DEBUG', 'formatdata: reformatAlmaInvoiceforAPI()', err);
+        let merged;
+        if (!fundString.includes('|')) {
+          const parts = fundString.split('.');
+          merged = {
+            ...object1,
+            glSegments: {
+              entity: parts[0],
+              fund: parts[1],
+              department: parts[2],
+              account: parts[3],
+              purpose: parts[4],
+            },
+          };
+        } else {
+          const parts = fundString.split('|');
+          merged = {
+            ...object1,
+            ppmSegments: {
+              project: parts[0],
+              organization: parts[1],
+              expenditureType: parts[2],
+              task: parts[3],
+            },
+          };
         }
+
+        payload.data.payload.invoiceLines.push(merged);
       }
     }
   }

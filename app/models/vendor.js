@@ -8,8 +8,8 @@ export default class Vendor {
 
   save() {
     return db.execute(
-      'INSERT INTO vendors (vendorId, vendorData) VALUES (?, ?) ON DUPLICATE KEY UPDATE vendorData = VALUES(vendorData)',
-      [this.vendorId, this.vendorData]
+      'INSERT INTO vendors (vendorId, vendorData, vendorName, financialSysCode, additionalCode, lastCheckedAt, syncStatus, syncError) VALUES (?, ?, ?, ?, ?, UTC_TIMESTAMP(), ?, NULL) ON DUPLICATE KEY UPDATE vendorData = VALUES(vendorData), vendorName = VALUES(vendorName), financialSysCode = VALUES(financialSysCode), additionalCode = VALUES(additionalCode), lastCheckedAt = VALUES(lastCheckedAt), syncStatus = VALUES(syncStatus), syncError = NULL',
+      [this.vendorId, JSON.stringify(this.vendorData), this.vendorData.name ?? null, this.vendorData.financial_sys_code ?? null, this.vendorData.additional_code ?? null, 'OK']
     );
   }
 

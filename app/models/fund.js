@@ -8,8 +8,8 @@ export default class Fund {
 
   save() {
     return db.execute(
-      'INSERT INTO funds (fundId, fundCode) VALUES (?, ?) ON DUPLICATE KEY UPDATE fundCode = VALUES(fundCode)',
-      [this.fundId, this.fundCode]
+      'INSERT INTO funds (fundId, fundCode, lastCheckedAt, syncStatus, syncError) VALUES (?, ?, UTC_TIMESTAMP(), ?, NULL) ON DUPLICATE KEY UPDATE fundCode = VALUES(fundCode), lastCheckedAt = VALUES(lastCheckedAt), syncStatus = VALUES(syncStatus), syncError = NULL',
+      [this.fundId, this.fundCode, 'OK']
     );
   }
 
