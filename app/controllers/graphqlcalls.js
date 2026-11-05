@@ -101,24 +101,24 @@ export async function checkPayments(variableInputs) {
     }
   }`;
 
-  try {
-    const token = await tokenGenerator();
-    const inputstoreturn = [];
-    for (const variables of variableInputs) {
-      const result = await fetch(config.aggie.boundaryAppUrl, {
+  const token = await tokenGenerator();
+  if (!token) throw new Error('Unable to obtain Boundary token');
+  const results = [];
+  for (const variables of variableInputs) {
+    try {
+      const response = await fetch(config.aggie.boundaryAppUrl, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ query, variables }),
-      }).then((res) => res.json());
-      inputstoreturn.push({ ...variables, ...result });
+        signal: AbortSignal.timeout(30000),
+      });
+      if (!response.ok) throw new Error(`Boundary HTTP ${response.status}`);
+      results.push({ ...variables, ...await response.json() });
+    } catch (error) {
+      results.push({ ...variables, errors: [{ message: error.message }] });
     }
-    return inputstoreturn;
-  } catch (error) {
-    logMessage('DEBUG', 'graphqlcalls: checkPayments()', error);
   }
+  return results;
 }
 
 export async function checkStatusInOracle(variableInputs) {

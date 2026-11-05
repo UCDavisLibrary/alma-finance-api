@@ -80,6 +80,8 @@ export default class AlmaFinancePagePreview extends Mixin(LitElement).with(LitCo
     if (!invoiceids.length) return;
 
     this.sendState = 'sending';
+    this.error = '';
+    this.sendResults = [];
     try {
       const res = await apiFetch('/api/invoices/send', {
         method: 'POST',
@@ -88,7 +90,13 @@ export default class AlmaFinancePagePreview extends Mixin(LitElement).with(LitCo
       });
       const data = await res.json();
       this.sendResults = data.results || [];
-      if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+      if (Array.isArray(data.results)) {
+        this.selected = Object.fromEntries(this.sendResults.filter(result => result.error).map(result => [result.invoice.id, true]));
+      }
+      if (!res.ok) {
+        await this._loadInvoices();
+        throw new Error(data.error || `HTTP ${res.status}`);
+      }
       this.sendState = 'done';
       await this._loadInvoices();
     } catch (e) {

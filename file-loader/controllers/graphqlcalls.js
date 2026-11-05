@@ -100,40 +100,26 @@ exports.aggieEnterprisePaymentRequest = async (invoices) => {
   }`;
   
   
-    try {
-      const token = await tokenGenerator();
-      const inputstoreturn = [];
-        for (input of variableInputs) {
-          variables = input;
-          await fetch(process.env.BOUNDARY_APP_URL, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({
-              query,
-              variables,
-            }),
-          })
-            .then((res) => res.json())
-            .then(
-              (result) => {
-                const body = {...input, ...result};
-                inputstoreturn.push(body);
-              }
-            );
-        }
-  
-      
-      return inputstoreturn;
-  
+    const token = await tokenGenerator();
+    if (!token) throw new Error('Unable to obtain Boundary token');
+    const results = [];
+    for (const variables of variableInputs) {
+      try {
+        const res = await fetch(process.env.BOUNDARY_APP_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ query, variables }),
+          signal: AbortSignal.timeout(60000),
+        });
+        if (!res.ok) throw new Error(`Boundary HTTP ${res.status}`);
+        results.push({ ...variables, ...await res.json() });
+      } catch (error) {
+        results.push({ ...variables, errors: [{ message: error.message }] });
+      }
     }
-    catch (error) {
-      logMessage('INFO',error);
-    }
-  }
-  
+    return results;
+  };
+
   exports.checkStatusInOracle = async (variableInputs) => {
   
     const query = `query scmInvoicePaymentSearch($filter: ScmInvoicePaymentFilterInput!) {
@@ -175,7 +161,7 @@ exports.aggieEnterprisePaymentRequest = async (invoices) => {
 
       try {
         const token = await tokenGenerator();
-        inputstoreturn = [];
+        const inputstoreturn = [];
         for (let variables of variableInputs) {
             await fetch(process.env.BOUNDARY_APP_URL, {
               method: 'POST',

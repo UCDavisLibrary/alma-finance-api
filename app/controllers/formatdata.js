@@ -27,7 +27,7 @@ async function checkForVendorData(vendorId) {
   }
 }
 
-export async function reformatAlmaInvoiceforAPI(data, library) {
+export async function reformatAlmaInvoiceforAPI(data, library, { fresh = false } = {}) {
   let apipayload = [];
   const fundCache = {};
   const poLineCache = new Map();
@@ -43,7 +43,7 @@ export async function reformatAlmaInvoiceforAPI(data, library) {
     let payload = null;
 
     try {
-      const vendordata = await checkForVendorData(vendor);
+      const vendordata = fresh ? await getVendorData(vendor) : await checkForVendorData(vendor);
       if (vendordata) {
         payload = {
           data: {
@@ -104,7 +104,7 @@ export async function reformatAlmaInvoiceforAPI(data, library) {
 
         try {
           if (!(fundCode in fundCache)) {
-            fundCache[fundCode] = await fetchFundCodeFromId(fundCode);
+            fundCache[fundCode] = fresh ? null : await fetchFundCodeFromId(fundCode);
             if (!fundCache[fundCode] && library) {
               const fundData = await getFundData(fundCode, library);
               const externalId = fundData?.fund?.[0]?.external_id;

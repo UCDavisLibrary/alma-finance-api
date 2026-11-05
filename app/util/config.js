@@ -25,6 +25,7 @@ class Config {
         'paid',
         'search',
         'unpaid',
+        'needs-attention',
         'admin',
         'funds',
         'vendors',

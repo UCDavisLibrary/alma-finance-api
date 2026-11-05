@@ -58,3 +58,19 @@ alma-finance-app {
 ucdlib-pages {
   flex: 1;
 }
+
+
+.invoice-attention-dialog {
+  border: 0;
+  border-top: 6px solid #ffbf00;
+  border-radius: 4px;
+  padding: 2rem;
+  width: min(38rem, calc(100% - 2rem));
+  max-height: calc(100vh - 2rem);
+  overflow: auto;
+  color: #022851;
+
+  &::backdrop {
+    background: rgba(0, 0, 0, .5);
+  }
+}

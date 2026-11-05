@@ -9,6 +9,7 @@ export default class AlmaFinancePageInvoice extends Mixin(LitElement).with(LitCo
   static get properties() {
     return {
       dbInvoice: { type: Object },
+      attempts: { type: Array },
       almaInvoice: { type: Object },
       vendor: { type: Object },
       paymentStatus: { type: Object },
@@ -24,6 +25,7 @@ export default class AlmaFinancePageInvoice extends Mixin(LitElement).with(LitCo
     super();
     this.render = render.bind(this);
     this.dbInvoice = null;
+    this.attempts = [];
     this.almaInvoice = null;
     this.vendor = null;
     this.paymentStatus = null;
@@ -42,10 +44,8 @@ export default class AlmaFinancePageInvoice extends Mixin(LitElement).with(LitCo
     if (!this.ctl.appComponent.isOnActivePage) return;
     const id = e.location?.path?.[1];
     if (!id) return;
-    if (id !== this.invoiceId) {
-      this.invoiceId = id;
-      await this._loadInvoice(id);
-    }
+    this.invoiceId = id;
+    await this._loadInvoice(id);
     this.ctl.appComponent.showPage();
   }
 
@@ -53,17 +53,19 @@ export default class AlmaFinancePageInvoice extends Mixin(LitElement).with(LitCo
     this.loading = true;
     this.error = '';
     this.dbInvoice = null;
+    this.attempts = [];
     this.almaInvoice = null;
     this.vendor = null;
     this.paymentStatus = null;
     this.oracleStatus = null;
 
     try {
-      const [dbRes, almaRes, paymentRes, oracleRes] = await Promise.all([
+      const [dbRes, almaRes, paymentRes, oracleRes, attemptsRes] = await Promise.all([
         apiFetch(`/api/invoices/${id}`),
         apiFetch(`/api/invoices/${id}/alma`),
         apiFetch(`/api/invoices/${id}/payment-status`),
         apiFetch(`/api/invoices/${id}/oracle-status`),
+        apiFetch(`/api/invoices/${id}/attempts`),
       ]);
 
       const readBody = async (res) => {
@@ -84,6 +86,8 @@ export default class AlmaFinancePageInvoice extends Mixin(LitElement).with(LitCo
         payment: `${paymentRes.status} ${paymentRes.statusText}`,
         oracle: `${oracleRes.status} ${oracleRes.statusText}`,
       });
+
+      if (attemptsRes.ok) this.attempts = (await attemptsRes.json()).attempts || [];
 
       if (dbRes.ok) {
         const data = await dbRes.json();

@@ -1,14 +1,28 @@
 import express from 'express';
-import { getAlmaInvoicesReadyToBePaid, getAlmaIndividualInvoiceData, setSelectedData, getSingleInvoiceData, getVendorData } from '../../controllers/almaapicalls.js';
-import { reformatAlmaInvoiceforAPI, filterOutSubmittedInvoices, changeFundIDtoCode } from '../../controllers/formatdata.js';
-import { aggieEnterprisePaymentRequest, checkStatusInOracle, checkPayments } from '../../controllers/graphqlcalls.js';
-import { postAddInvoice, getPaidInvoices, getAllUnpaidInvoices, getInvoiceBySearchTerm, fetchInvoiceByInvoiceId } from '../../controllers/dbcalls.js';
+import { getAlmaInvoicesReadyToBePaid, getAlmaIndividualInvoiceData, getSingleInvoiceData, getVendorData } from '../../controllers/almaapicalls.js';
+import { filterOutSubmittedInvoices, changeFundIDtoCode } from '../../controllers/formatdata.js';
+import { checkStatusInOracle, checkPayments } from '../../controllers/graphqlcalls.js';
+import { getPaidInvoices, getAllUnpaidInvoices, getInvoiceBySearchTerm, fetchInvoiceByInvoiceId } from '../../controllers/dbcalls.js';
 import { enrichInvoiceLineTitles } from '../../controllers/po-lines.js';
 import { archivePaidInvoices, checkOracleStatus } from '../../controllers/background-scripts.js';
 import { logMessage } from '../../util/logger.js';
 import { setActiveLibrary } from '../../util/keycloak-auth.js';
 
+import db from '../../util/database.js';
+import { submitInvoice } from '../../controllers/submit-invoices.js';
+
+import { createAttentionScanner } from '../../controllers/scan-attention.js';
+import { createLoginAttentionHandler } from '../../controllers/login-attention.js';
+
 const router = express.Router();
+router.post('/invoices/attention-check', createLoginAttentionHandler({
+  scan: createAttentionScanner({ db, checkPayments, logMessage }),
+  count: async library => {
+    const [[row]] = await db.execute("SELECT COUNT(*) AS count FROM invoices WHERE `library` = ? AND status = 'NEEDS_ATTENTION'", [library]);
+    return row.count;
+  },
+  logMessage,
+}));
 
 async function fetchAllInvoices(library) {
   const [data1, data2] = await Promise.all([
@@ -90,80 +104,43 @@ router.get('/invoices/pending', async (req, res) => {
   }
 });
 
-// POST /api/invoices/send — submit selected invoices to Aggie Enterprise
-router.post('/invoices/send', async (req, res) => {
+// Both send paths enforce the active library and serialize requests per invoice.
+async function sendInvoices(req, res, resubmit = false) {
   try {
-    const { userdata } = res.locals;
-    if (!userdata?.library) return res.status(403).json({ error: 'No library assigned to user' });
-
-    const { invoiceids } = req.body;
-    if (!invoiceids?.length) return res.status(400).json({ error: 'No invoice IDs provided' });
-
-    const { library } = userdata;
-    logMessage('INFO', 'api/invoices POST /send started', { invoiceids, library });
-    const step1 = await setSelectedData(invoiceids);
-    const variableInputs = await reformatAlmaInvoiceforAPI(step1, library);
-    logMessage('INFO', 'api/invoices POST /send payloads formatted', {
-      invoiceCount: invoiceids.length,
-      payloadCount: variableInputs.length,
-      invoiceLineCounts: variableInputs.map((v) => v.data.payload.invoiceLines.length),
-    });
-    const consumerTrackingIds = variableInputs.map((v) => v.data.header.consumerTrackingId);
-    const requestresults = await aggieEnterprisePaymentRequest(variableInputs);
-    logMessage('INFO', 'api/invoices POST /send payment responses received', {
-      responseCount: requestresults?.length || 0,
-      statuses: requestresults?.map((r) => r?.data?.scmInvoicePaymentCreate?.requestStatus?.requestStatus || r?.httpStatus || 'ERROR') || [],
-    });
-
-    if (!requestresults) return res.status(500).json({ error: 'No response from payment system' });
-
-    const invoicedata = await getAlmaIndividualInvoiceData(invoiceids);
-    const results = [];
-
-    for (let i = 0; i < invoicedata.invoice.length; i++) {
-      const invoice = invoicedata.invoice[i];
-      const request = requestresults[i];
-
-      if (!request || request?.errors?.length > 0) {
-        const errors = request?.errors || [{ message: 'No response from payment system' }];
-        logMessage('DEBUG', 'api/invoices POST /send error', errors);
-        results.push({ invoice, error: errors });
-        continue;
-      }
-
-      const paymentCreate = request?.data?.scmInvoicePaymentCreate;
-      const validationErrors = paymentCreate?.validationResults?.errorMessages || [];
-      const alreadyExists = validationErrors.some((message) =>
-        message?.includes('A request already exists for your consumerId and consumerTrackingId')
-      );
-      const isPending = paymentCreate?.requestStatus?.requestStatus === 'PENDING';
-
-      if (validationErrors.length && !alreadyExists) {
-        results.push({ invoice, error: validationErrors.map((message) => ({ message })) });
-        continue;
-      }
-
-      if (isPending || alreadyExists) {
-        const saved = await postAddInvoice(invoice.number, invoice.id, consumerTrackingIds[i], library, request.data, invoice.total_amount);
-        if (!saved) {
-          results.push({ invoice, error: [{ message: 'Payment request was accepted, but local invoice record was not saved.' }] });
-          continue;
-        }
-      } else {
-        results.push({ invoice, error: [{ message: 'Payment request did not return PENDING status.' }] });
-        continue;
-      }
-
-      results.push({ invoice, request: request?.data });
+    const library = res.locals.userdata?.library;
+    if (!library) return res.status(403).json({ error: 'No library assigned to user' });
+    const invoiceids = resubmit ? [req.params.invoiceId] : req.body?.invoiceids;
+    if (!Array.isArray(invoiceids) || !invoiceids.length || invoiceids.some(id => typeof id !== 'string' || !/^\d+$/.test(id))) {
+      return res.status(400).json({ error: 'Provide an array of Alma invoice IDs' });
     }
-
-    const hasErrors = results.some((result) => result.error);
-    if (hasErrors) return res.status(502).json({ error: 'One or more invoices failed to submit', results });
-    res.json({ results });
+    const results = [];
+    for (const id of new Set(invoiceids)) results.push(await submitInvoice(id, library, resubmit));
+    const failed = results.some(result => result.error);
+    res.status(failed ? 502 : 200).json({ ...(failed ? { error: 'One or more invoices failed to submit' } : {}), results });
   } catch (error) {
-    logMessage('DEBUG', 'api/invoices POST /send', error.message);
+    logMessage('WARNING', 'Invoice submission failed', error.message);
     res.status(500).json({ error: error.message });
   }
+}
+router.post('/invoices/send', (req, res) => sendInvoices(req, res));
+router.post('/invoices/:invoiceId/resubmit', (req, res) => sendInvoices(req, res, true));
+
+router.get('/invoices/needs-attention', async (req, res) => {
+  try {
+    const library = res.locals.userdata?.library;
+    if (!library) return res.status(403).json({ error: 'No library assigned to user' });
+    const [invoices] = await db.execute("SELECT * FROM invoices WHERE `library` = ? AND status = 'NEEDS_ATTENTION' ORDER BY failureDetectedAt DESC", [library]);
+    res.json({ invoices });
+  } catch (error) { res.status(500).json({ error: error.message }); }
+});
+
+router.get('/invoices/:invoiceId/attempts', async (req, res) => {
+  try {
+    const library = res.locals.userdata?.library;
+    if (!library) return res.status(403).json({ error: 'No library assigned to user' });
+    const [attempts] = await db.execute('SELECT * FROM invoice_submission_attempts WHERE invoiceid = ? AND `library` = ? ORDER BY id DESC', [req.params.invoiceId, library]);
+    res.json({ attempts });
+  } catch (error) { res.status(500).json({ error: error.message }); }
 });
 
 // GET /api/invoices/paid — paid invoices from DB
@@ -235,10 +212,8 @@ router.get('/invoices/oracle-status', async (req, res) => {
 // POST /api/invoices/oracle-update — trigger background oracle status check
 router.post('/invoices/oracle-update', async (req, res) => {
   try {
-    const archiveClean = await archivePaidInvoices();
-    if (archiveClean) {
-      checkOracleStatus();
-    }
+    await archivePaidInvoices();
+    await checkOracleStatus();
     res.json({ ok: true });
   } catch (error) {
     logMessage('DEBUG', 'api/invoices POST /oracle-update', error.message);

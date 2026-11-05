@@ -19,6 +19,7 @@ export function render() {
         <a href="/search">Search Invoices</a>
         <a href="/paid">Paid Invoices</a>
         <a href="/unpaid">Unpaid Invoices</a>
+        <a href="/needs-attention">Needs Attention</a>
         <a href="/funds">Funds</a>
         <a href="/vendors">Vendors</a>
         ${isAdmin ? html`
@@ -60,6 +61,7 @@ export function render() {
       <alma-finance-page-home page-id="home"></alma-finance-page-home>
       <alma-finance-page-preview page-id="preview"></alma-finance-page-preview>
       <alma-finance-page-invoice page-id="invoice" .user=${this.user}></alma-finance-page-invoice>
+      <alma-finance-page-attention page-id="needs-attention"></alma-finance-page-attention>
       <alma-finance-page-paid page-id="paid"></alma-finance-page-paid>
       <alma-finance-page-search page-id="search"></alma-finance-page-search>
       <alma-finance-page-oracle-status page-id="unpaid"></alma-finance-page-oracle-status>
@@ -68,6 +70,19 @@ export function render() {
       <alma-finance-page-funds page-id="funds"></alma-finance-page-funds>
       <alma-finance-page-vendors page-id="vendors"></alma-finance-page-vendors>
     </ucdlib-pages>
+
+    ${this.attentionNotice ? html`
+      <dialog id="invoice-attention-dialog" class="invoice-attention-dialog"
+        aria-labelledby="invoice-attention-title"
+        @close=${() => { this.attentionNotice = false; }}>
+        <h2 id="invoice-attention-title">You have invoices that need attention</h2>
+        <div class="u-space-mt">
+          <a href="/needs-attention" class="btn btn--primary"
+            @click=${() => this._dismissAttentionNotice()}>View Needs Attention</a>
+          <button class="btn btn--alt2 u-space-ml" @click=${() => this._dismissAttentionNotice()}>Close</button>
+        </div>
+      </dialog>
+    ` : ''}
 
     <footer class="site-footer">
       <div class="l-container">

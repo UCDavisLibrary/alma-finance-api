@@ -1,3 +1,4 @@
+import './pages/alma-finance-page-attention.js';
 import { LitElement } from 'lit';
 import { render } from './alma-finance-app.tpl.js';
 
@@ -36,6 +37,7 @@ export default class AlmaFinanceApp extends Mixin(LitElement).with(LitCorkUtils)
       errorMessage: { type: String },
       user: { type: Object },
       librarySwitching: { type: Boolean },
+      attentionNotice: { type: Boolean },
     };
   }
 
@@ -49,6 +51,8 @@ export default class AlmaFinanceApp extends Mixin(LitElement).with(LitCorkUtils)
     this.status = 'loading';
     this.user = null;
     this.librarySwitching = false;
+    this.attentionNotice = false;
+    this._attentionRequest = 0;
 
     this._injectModel('AppStateModel');
     this.AppStateModel.refresh();
@@ -95,15 +99,49 @@ export default class AlmaFinanceApp extends Mixin(LitElement).with(LitCorkUtils)
       if (!res.ok) return;
       const data = await res.json();
       this.user = data.user;
+      this._checkAttention();
     } catch (e) {
       console.error('Failed to load user', e);
     }
+  }
+
+  async _checkAttention() {
+    const library = this.user?.library;
+    if (!library) return;
+    const request = ++this._attentionRequest;
+    try {
+      const res = await apiFetch('/api/invoices/attention-check', { method: 'POST' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      if (request !== this._attentionRequest || library !== this.user?.library) return;
+      this.attentionNotice = !!data.showNotice && data.count > 0;
+      // Refresh status pages that may have loaded before the check completed.
+      if (['needs-attention', 'unpaid', 'invoice'].includes(this.page)) this.AppStateModel.refresh();
+      if (data.checkFailed) console.warn('Could not complete the invoice attention check.');
+    } catch (error) {
+      console.error('Failed to check invoices needing attention', error);
+    }
+  }
+
+  updated(changed) {
+    super.updated?.(changed);
+    if (changed.has('attentionNotice') && this.attentionNotice) {
+      const dialog = this.querySelector('#invoice-attention-dialog');
+      if (dialog && !dialog.open) dialog.showModal();
+    }
+  }
+
+  _dismissAttentionNotice() {
+    this.querySelector('#invoice-attention-dialog')?.close();
+    this.attentionNotice = false;
   }
 
   async _setLibrary(library) {
     if (!library || library === this.user?.library || this.librarySwitching) return;
 
     this.librarySwitching = true;
+    ++this._attentionRequest;
+    this._dismissAttentionNotice();
     try {
       const res = await apiFetch('/api/me/library', {
         method: 'POST',
@@ -114,6 +152,7 @@ export default class AlmaFinanceApp extends Mixin(LitElement).with(LitCorkUtils)
       const data = await res.json();
       this.user = data.user;
       this.AppStateModel.refresh();
+      this._checkAttention();
     } catch (e) {
       this.AppStateModel.showError(`Failed to switch library: ${e.message}`);
     } finally {

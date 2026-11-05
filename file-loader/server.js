@@ -29,12 +29,17 @@ const archiveInvoices = new CronJob(
   'America/Los_Angeles'
 );
 
+let scanning = false;
 const exportInvoices = new CronJob(
     // run at 6:30pm every day
     '0 30 18 * * *',
     async function() {
         // once a day, export paid invoices to the server at directory specified in docker-compose.yml
-        checkOracleStatus();        
+        if (scanning) return;
+        scanning = true;
+        try { await checkOracleStatus(); }
+        catch (error) { logMessage('WARNING', 'Invoice scan failed', { error: error.message }); }
+        finally { scanning = false; }
     },
     null,
     true,

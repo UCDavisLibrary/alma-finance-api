@@ -15,6 +15,7 @@ services:
       - '3092:3092'
     volumes:
       - ./almafinance-db-test.sql:/docker-entrypoint-initdb.d/almafinance-db.sql 
+      - ./migrations/20261104-invoice-attention.sql:/docker-entrypoint-initdb.d/zz-invoice-attention.sql:ro
       - almafinance-db:/var/lib/mysql
     healthcheck:
       test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]

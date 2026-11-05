@@ -114,7 +114,7 @@ export function render() {
                   ${this.sendResults.map(result => html`
                     <tr>
                       <td>${result.invoice?.number || ''}</td>
-                      <td>${(result.error || []).map(error => error.message || String(error)).join('; ') || 'Unknown error'}</td>
+                      <td>${(result.error || []).map(error => error.message || String(error)).join('; ') || 'Submitted successfully'}</td>
                     </tr>
                   `)}
                 </tbody>

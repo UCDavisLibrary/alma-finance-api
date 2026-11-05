@@ -29,6 +29,22 @@ export function render() {
         </div>
       ` : ''}
 
+      ${db?.status === 'NEEDS_ATTENTION' ? html`
+        <div class="brand-textbox u-space-my" role="status">
+          <h2>Needs Attention</h2>
+          <p>Processing failed after submission. Review and correct the invoice before resubmitting.</p>
+          <pre style="white-space:pre-wrap;overflow-wrap:anywhere">${db.failureSummary}</pre>
+          <a href="/needs-attention">Review invoices needing attention and resubmit</a>
+        </div>
+      ` : ''}
+      ${this.attempts?.length ? html`
+        <div class="u-space-mt"><h2>Submission History</h2>
+          ${this.attempts.map(attempt => html`<details class="u-space-mb">
+            <summary>${attempt.consumerTrackingId} — ${formatDate(attempt.submittedAt)}</summary>
+            <pre style="white-space:pre-wrap;overflow-wrap:anywhere">${formatRawData(attempt.boundaryStatus || attempt.responsebody)}</pre>
+          </details>`)}
+        </div>
+      ` : ''}
       <!-- Invoice + Vendor Details -->
       <div class="l-2col u-space-mt">
         <div class="l-first">

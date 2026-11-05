@@ -20,6 +20,7 @@ export function render() {
               <li><a href="/search">Search Invoices</a></li>
               <li><a href="/paid">View Paid Invoices</a></li>
               <li><a href="/unpaid">View Unpaid Invoices</a></li>
+              <li><a href="/needs-attention">View Invoices Needing Attention</a></li>
             </ul>
           </div>
         </div>

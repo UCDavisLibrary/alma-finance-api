@@ -43,11 +43,12 @@ export default class Invoice {
   }
 
   static fetchUnpaidInvoiceNumbers(library) {
-    return db.execute('SELECT invoicenumber FROM invoices WHERE invoices.status != ? AND invoices.library = ?', ['PAID', library]);
+    return db.execute('SELECT invoicenumber FROM invoices WHERE invoices.status NOT IN (?, ?) AND invoices.library = ?', ['PAID', 'NEEDS_ATTENTION', library]);
   }
 
   static fetchAllUnpaidInvoices(library) {
-    return db.execute('SELECT * FROM invoices WHERE invoices.status != ? AND invoices.library = ?', ['PAID', library]);
+    if (!library) return db.execute('SELECT * FROM invoices WHERE status NOT IN (?, ?)', ['PAID', 'NEEDS_ATTENTION']);
+    return db.execute('SELECT * FROM invoices WHERE invoices.status NOT IN (?, ?) AND invoices.library = ?', ['PAID', 'NEEDS_ATTENTION', library]);
   }
 
   static fetchPaidInvoices(library) {

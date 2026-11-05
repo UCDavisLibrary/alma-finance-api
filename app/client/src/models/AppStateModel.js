@@ -38,6 +38,8 @@ class AppStateModelImpl extends AppStateModel {
       p = 'paid';
     } else if (p0 === 'search') {
       p = 'search';
+    } else if (p0 === 'needs-attention') {
+      p = 'needs-attention';
     } else if (p0 === 'unpaid') {
       p = 'unpaid';
     } else if (p0 === 'admin') {

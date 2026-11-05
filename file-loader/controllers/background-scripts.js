@@ -1,12 +1,23 @@
 const {updateStatus, getAllUnpaidInvoices, fetchAllUsers} = require('./dbcalls');
-const {checkStatusInOracle} = require('./graphqlcalls');
+const {checkStatusInOracle, checkPayments} = require('./graphqlcalls');
+const db = require('../util/database');
+const { scanProcessingFailures } = require('./attention');
 const {changeToXML} = require('./formatdata');
 const fs = require('fs');
 const { checkTransporter } = require('../util/nodemailer-transporter');
 const transporter = checkTransporter();
 const { logMessage } = require('../util/logger');
 
-exports.checkOracleStatus = async (req, res, next) => {
+exports.checkOracleStatus = async () => {
+  try {
+    await checkOraclePayments();
+  } catch (error) {
+    logMessage('WARNING', 'Oracle payment scan failed', { error: error.message });
+  }
+  await scanProcessingFailures({ db, checkPayments, transporter, logMessage });
+};
+
+const checkOraclePayments = async () => {
   // const invoicenumbers1 = await getAllUnpaidInvoiceNumbers();
   const invoicenumbers1 = await getAllUnpaidInvoices();
     let invoiceids = [];
@@ -16,7 +27,7 @@ exports.checkOracleStatus = async (req, res, next) => {
       logMessage('INFO','no invoices found');
     }
     else {
-      for (i in invoices) {
+      for (const i in invoices) {
         sentinvoicenumbers[i] =
           { "filter":   
         {
@@ -25,12 +36,13 @@ exports.checkOracleStatus = async (req, res, next) => {
       }
         invoiceids[i] = {
           invoicenumber: invoices[i].invoicenumber,
-          invoiceid: invoices[i].invoiceid
+          invoiceid: invoices[i].invoiceid,
+          status: invoices[i].status
         }
 
       }
       const requestresults = await checkStatusInOracle(sentinvoicenumbers);
-    let totalresults = invoiceids.map((item, i) => Object.assign({}, item, requestresults[i]));
+    let totalresults = invoiceids.map((item, i) => Object.assign({}, item, requestresults?.[i]));
     if (totalresults.length === 0) {
       logMessage('INFO','no invoices found');
     }
@@ -39,20 +51,21 @@ exports.checkOracleStatus = async (req, res, next) => {
         timeZone: 'America/Los_Angeles',
       });
     let paidInvoices = [];
-    totalresults.forEach(result => {
-        if (result.data.scmInvoicePaymentSearch) {
+    for (const result of totalresults) {
+        if (result.data?.scmInvoicePaymentSearch) {
         if (result.data.scmInvoicePaymentSearch.data && result.data.scmInvoicePaymentSearch.data.length > 0) {
-        let data = result.data.scmInvoicePaymentSearch.data[0];
+        let data = result.data.scmInvoicePaymentSearch.data.find(record => record.invoiceNumber === result.invoicenumber);
+        if (!data) continue;
         let datastring = JSON.stringify(data);            
             if (data.paymentStatusCode === 'Y') {
-            changeToXML(result.invoicenumber, result.invoiceid, data);
+            await changeToXML(result.invoicenumber, result.invoiceid, data);
             logMessage('INFO',result.invoicenumber + ' is paid');
-            updateStatus('PAID', datastring, result.invoiceid);
+            await updateStatus('PAID', datastring, result.invoiceid);
             paidInvoices.push(result.invoicenumber);
             }
-            else if (data.paymentStatusCode === 'N') {
+            else if (data.paymentStatusCode === 'N' && result.status !== 'NEEDS_ATTENTION') {
             logMessage('INFO',result.invoicenumber + ' is not paid');
-            updateStatus('NOT PAID', datastring, result.invoiceid);
+            await updateStatus('NOT PAID', datastring, result.invoiceid);
             }
             else {
             logMessage('INFO',data.invoicenumber + ' has an unknown status');
@@ -65,7 +78,7 @@ exports.checkOracleStatus = async (req, res, next) => {
         else {
         logMessage('INFO','no data returned');
         }
-      });
+      }
       if (paidInvoices.length > 0) {
         try {
           const emails = await getUserEmails();

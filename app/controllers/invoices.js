@@ -257,10 +257,8 @@ export async function postSearchForInvoice(req, res) {
 }
 
 export async function checkOracleStatusBackground(req, res) {
-  const archiveClean = await archivePaidInvoices();
-  if (archiveClean) {
-    checkOracleStatus();
-  }
+  await archivePaidInvoices();
+  await checkOracleStatus();
   res.sendStatus(200);
 }
 
