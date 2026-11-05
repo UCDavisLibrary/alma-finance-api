@@ -29,20 +29,10 @@ services:
       - '5000:5000'
     env_file:
       - ./app/app.env
-    volumes:
-      - ./app:/app
-      - alma-finance-node-modules:/app/node_modules
     restart: always
     depends_on:
       almafinance-db:
         condition: service_healthy
-  alma-finance-client:
-    build: ./app
-    volumes:
-      - ./app:/app
-      - alma-finance-node-modules:/app/node_modules
-    depends_on:
-      - alma-finance
   alma-sync:
     build: ./alma-sync
     env_file:
@@ -77,6 +67,5 @@ services:
   #     - almafinance-db
 volumes:
   almafinance-db:
-  alma-finance-node-modules:
   finance-file-loader-node-modules:
   

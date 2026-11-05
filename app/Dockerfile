@@ -8,6 +8,10 @@ RUN npm install
 
 COPY . /app
 
+RUN npm run client-build
+
+ENV CLIENT_ASSET_MODE=dist
+
 EXPOSE 5000
 
-CMD ["npm", "run", "start"]
+CMD ["npm", "start"]

@@ -1,0 +1,7 @@
+node_modules
+client/public/js
+client/public/css/dev
+client/public/css/dist
+app.env
+.env
+*.log

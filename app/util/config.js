@@ -18,6 +18,7 @@ class Config {
       title: 'Alma Payment Processor',
       bundleName: 'alma-finance.js',
       stylesheetName: 'alma-finance.css',
+      assetMode: getEnv('CLIENT_ASSET_MODE', 'dev') === 'dist' ? 'dist' : 'dev',
       // Routes WITHOUT leading slash — spa-router-middleware and globalOnClick both prepend '/'
       routes: [
         'preview',

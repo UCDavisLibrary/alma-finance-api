@@ -9,11 +9,6 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default (app) => {
   const assetsDir = path.join(__dirname, '../client/public');
-  const bundle = `
-    <link rel="stylesheet" href="/css/dev/${config.app.stylesheetName}">
-    <script src='/js/dev/${config.app.bundleName}' defer></script>
-  `;
-
   // Serve FontAwesome webfonts
   const faWebfonts = path.join(__dirname, '../node_modules/@fortawesome/fontawesome-free/webfonts');
   app.use('/fonts/fontawesome', express.static(faWebfonts));
@@ -46,7 +41,10 @@ export default (app) => {
     template: (req, res, next) => {
       next({
         title: config.app.title,
-        bundle,
+        bundle: `
+          <link rel="stylesheet" href="/css/${config.app.assetMode}/${config.app.stylesheetName}">
+          <script src="/js/${config.app.assetMode}/${config.app.bundleName}" defer></script>
+        `,
       });
     },
   });

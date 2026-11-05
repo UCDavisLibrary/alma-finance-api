@@ -25,6 +25,9 @@ services:
       start_period: 5s
   alma-finance:
     build: ./app
+    command: npm run dev
+    environment:
+      CLIENT_ASSET_MODE: dev
     ports:
       - '5001:5000'
     env_file:

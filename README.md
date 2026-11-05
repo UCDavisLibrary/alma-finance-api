@@ -67,3 +67,20 @@ fields or incomplete accounting segments block submission if they cannot be
 repaired; invalid fund distributions are never silently omitted. Vendor and fund
 lookups have 15-second timeouts. Preview continues using its existing cached data
 path rather than refreshing all reference data on every load.
+
+
+### Production browser assets
+
+The app Dockerfile compiles JavaScript and CSS with `npm run client-build`, then
+starts the server. Production serves those compiled files directly from the image.
+There is no separate production client service or source-code mount hiding the
+built files. Gmail's `IS_LOCAL` setting does not control client assets.
+
+Deploy updated source (after any required database migration) with:
+
+```sh
+docker compose up --build -d
+```
+
+The local Compose file retains source mounts, the development server, and the
+client watcher for live editing.
