@@ -1,3 +1,4 @@
+import { paymentInvoiceLines } from './invoice-lines.js';
 import { createReferenceResolver } from './reference-data.js';
 import { getFundData, getVendorData, getSingleInvoiceData, putSingleInvoiceData, getAlmaIndividualInvoiceXML } from './almaapicalls.js';
 import { getSubmittedInvoices, fetchFundCodeFromId, saveFund, fetchVendorDataFromId, saveVendor } from './dbcalls.js';
@@ -17,6 +18,7 @@ export async function reformatAlmaInvoiceforAPI(data, library, { fresh = false }
       nozee = nozee.slice(0, -1);
     }
 
+    const lines = paymentInvoiceLines(data.invoice[i]);
     const vendor = data.invoice[i].vendor?.value;
     if (!vendor) throw new Error(`Invoice ${data.invoice[i].number}: missing vendor code.`);
     const vendordata = await references.vendor(vendor, fresh);
@@ -47,9 +49,7 @@ export async function reformatAlmaInvoiceforAPI(data, library, { fresh = false }
     };
     apipayload.push(payload);
 
-    for (let j = 0; j < data.invoice[i].invoice_lines.invoice_line.length; j++) {
-      const line = data.invoice[i].invoice_lines.invoice_line[j];
-      if (!line.fund_distribution?.length) throw new Error(`Invoice ${data.invoice[i].number}, line ${line.number}: missing fund distribution.`);
+    for (const line of lines) {
       const quantity = line.quantity && line.quantity > 0 ? line.quantity : 1;
       const poLineTitle = await getPoLineTitle(line, vendor, poLineCache);
       const object1 = {
